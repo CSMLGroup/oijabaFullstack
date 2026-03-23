@@ -84,10 +84,10 @@ router.get('/mock-callback', async (req, res) => {
             }
 
             // Redirect back to frontend success page
-            res.redirect(`${process.env.FRONTEND_URL}/index.html?payment=success&trx=${trx_id}`);
+            res.redirect(`${process.env.FRONTEND_URL}/?payment=success&trx=${trx_id}`);
         } else {
             await query(`UPDATE payments SET status = 'failed' WHERE id = $1`, [payment_id]);
-            res.redirect(`${process.env.FRONTEND_URL}/index.html?payment=failed`);
+            res.redirect(`${process.env.FRONTEND_URL}/?payment=failed`);
         }
 
     } catch (err) {

@@ -52,12 +52,30 @@ app.use('/js', express.static(path.join(repoRoot, 'js')));
 app.use('/frontend/dist', express.static(path.join(repoRoot, 'frontend', 'dist')));
 
 // Main Root Endpoint serves the original landing page with modal auth.
+
+// Serve frontend build for root URL
 app.get('/', (req, res) => {
-    res.sendFile(path.join(repoRoot, 'index.html'));
+    const distPath = path.join(__dirname, '../frontend/dist/index.html');
+    res.sendFile(distPath, (err) => {
+        if (err) {
+            res.status(404).send('Frontend not built. Please run "npm run build" in frontend.');
+        }
+
+    });
 });
 
-app.get(['/frontend', '/frontend/'], (req, res) => {
-    res.redirect('/frontend/dist/');
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Catch-all: serve index.html for any route not handled above (SPA fallback)
+app.get('*', (req, res) => {
+    const distPath = path.join(__dirname, '../frontend/dist/index.html');
+    res.sendFile(distPath, (err) => {
+        if (err) {
+            res.status(404).send('Frontend not built. Please run "npm run build" in frontend.');
+        }
+    });
 });
 
 // API Routes
@@ -70,8 +88,7 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/earnings', earningsRoutes);
 
-
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 function startServer(port, allowFallback = false) {
     server
