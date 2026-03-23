@@ -6,7 +6,8 @@ const { Server } = require('socket.io');
 const http = require('http');
 const path = require('path');
 
-
+const app = express();
+const server = http.createServer(app);
 
 // Root endpoint for API-only backend
 app.get('/', (req, res) => {
