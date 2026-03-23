@@ -15,7 +15,9 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+}
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
