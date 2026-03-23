@@ -1,4 +1,4 @@
-// Root endpoint for API-only backend
+
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
@@ -17,19 +17,6 @@ app.get('/', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Oijaba backend API is running.',
-        status: 'ok',
-        timestamp: new Date().toISOString()
-    });
-});
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-const express = require('express');
-const cors = require('cors');
-const { Server } = require('socket.io');
-const http = require('http');
-const path = require('path');
 
 // Routes
 const authRoutes = require('./routes/auth');
