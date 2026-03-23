@@ -6,7 +6,7 @@ export default defineConfig(({ command }) => ({
   // Use base: '/' for both dev and production for correct routing on Vercel
   base: '/',
   build: {
-    outDir: '../dist'
+    outDir: 'dist'
   },
   server: { port: 5173 }
 }))
