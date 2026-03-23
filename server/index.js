@@ -6,8 +6,7 @@ const { Server } = require('socket.io');
 const http = require('http');
 const path = require('path');
 
-const app = express();
-const server = http.createServer(app);
+
 
 // Root endpoint for API-only backend
 app.get('/', (req, res) => {
@@ -28,8 +27,7 @@ const paymentsRoutes = require('./routes/payments');
 const vehiclesRoutes = require('./routes/vehicles');
 const earningsRoutes = require('./routes/earnings');
 
-const app = express();
-const server = http.createServer(app);
+
 
 // Setup Socket.io with Vercel-compatible configuration
 const io = new Server(server, {
