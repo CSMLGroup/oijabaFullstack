@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // Use base: '/' for both dev and production for correct routing on Vercel
-  base: '/',
+  // Use base: '' for correct asset paths on Vercel
+  base: '',
   build: {
     outDir: 'dist'
   },
