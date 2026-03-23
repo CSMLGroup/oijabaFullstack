@@ -44,39 +44,7 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Static site assets for the original marketing homepage and built frontend.
-const repoRoot = path.join(__dirname, '..');
-app.use('/assets', express.static(path.join(repoRoot, 'assets')));
-app.use('/css', express.static(path.join(repoRoot, 'css')));
-app.use('/js', express.static(path.join(repoRoot, 'js')));
-app.use('/frontend/dist', express.static(path.join(repoRoot, 'frontend', 'dist')));
-
-// Main Root Endpoint serves the original landing page with modal auth.
-
-// Serve frontend build for root URL
-app.get('/', (req, res) => {
-    const distPath = path.join(__dirname, '../frontend/dist/index.html');
-    res.sendFile(distPath, (err) => {
-        if (err) {
-            res.status(404).send('Frontend not built. Please run "npm run build" in frontend.');
-        }
-
-    });
-});
-
-
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-// Catch-all: serve index.html for any route not handled above (SPA fallback)
-app.get('*', (req, res) => {
-    const distPath = path.join(__dirname, '../frontend/dist/index.html');
-    res.sendFile(distPath, (err) => {
-        if (err) {
-            res.status(404).send('Frontend not built. Please run "npm run build" in frontend.');
-        }
-    });
-});
+// ...existing code...
 
 // API Routes
 app.use('/api/auth', authRoutes);
