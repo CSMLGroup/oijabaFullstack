@@ -55,6 +55,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+    
+    // Add a simple /api route for health/status
+    app.get('/api', (req, res) => {
+        res.json({ status: 'API root is reachable' });
+    });
 
 // ...existing code...
 
