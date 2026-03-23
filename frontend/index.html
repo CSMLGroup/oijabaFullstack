@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oijaba Frontend (React)</title>
+    <script>
+      // Simple redirect: if accessing frontend without a hash route, show home or redirect to backend
+      (function () {
+        var hash = window.location.hash || ''
+        var isReactRoute = /^#(home|driver-home|driver|admin|rider-auth|rider-profile|profile|rider-rides|rides|ride-details)$/.test(hash)
+        var pathName = window.location.pathname
+        
+        // Only redirect from frontend/index.html (not from dist or other paths)
+        if (pathName === '/frontend/index.html' || pathName === '/frontend/') {
+          if (!isReactRoute) {
+            // If no React route hash, show home page with login buttons
+            window.location.replace('/#home')
+            return
+          }
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

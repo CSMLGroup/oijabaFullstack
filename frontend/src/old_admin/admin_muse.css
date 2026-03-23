@@ -1,0 +1,431 @@
+:root {
+    --muse-primary: #1890ff;
+    --muse-primary-hover: #40a9ff;
+    --muse-success: #52c41a;
+    --muse-warning: #faad14;
+    --muse-error: #f5222d;
+    --muse-bg: #f0f2f5;
+    --muse-card-bg: #ffffff;
+    --muse-text: #000000d9;
+    --muse-text-secondary: #00000073;
+    --muse-border: #f0f0f0;
+    --muse-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --muse-radius: 12px;
+    --muse-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--muse-bg);
+    color: var(--muse-text);
+    overflow-x: hidden;
+}
+
+/* ── LAYOUT ── */
+.muse-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ── SIDEBAR (FLOATING) ── */
+.muse-sidebar {
+    width: 250px;
+    background: var(--muse-card-bg);
+    margin: 16px;
+    border-radius: var(--muse-radius);
+    box-shadow: var(--muse-shadow);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    position: fixed;
+    height: calc(100vh - 32px);
+    z-index: 1000;
+    transition: var(--muse-transition);
+}
+
+.muse-sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px 24px;
+    border-bottom: 1px solid var(--muse-border);
+    margin-bottom: 24px;
+}
+
+.muse-sidebar-logo span {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.muse-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: var(--muse-text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: var(--muse-transition);
+}
+
+.muse-nav-item:hover {
+    background: #f5f5f5;
+    color: var(--muse-text);
+}
+
+.muse-nav-item.active {
+    background: var(--muse-primary);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+}
+
+.muse-nav-icon {
+    font-size: 18px;
+}
+
+.muse-nav-badge {
+    margin-left: auto;
+    background: var(--muse-primary-hover);
+    color: #fff;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 10px;
+}
+
+/* ── MAIN CONTENT ── */
+.muse-main {
+    flex: 1;
+    margin-left: 282px;
+    /* 250 + 16 + 16 */
+    padding: 24px;
+}
+
+/* ── NAVBAR ── */
+.muse-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 12px 0;
+}
+
+.muse-breadcrumb {
+    font-size: 13px;
+    color: var(--muse-text-secondary);
+}
+
+.muse-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.muse-search {
+    background: #fff;
+    border: 1px solid var(--muse-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    width: 200px;
+    transition: var(--muse-transition);
+}
+
+.muse-search:focus {
+    border-color: var(--muse-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+}
+
+/* ── CARDS ── */
+.muse-card {
+    background: var(--muse-card-bg);
+    border-radius: var(--muse-radius);
+    box-shadow: var(--muse-shadow);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: none;
+}
+
+.muse-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.muse-card-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Badge */
+.muse-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.muse-badge-success {
+    background: #e6f7ed;
+    color: var(--muse-success);
+}
+
+.muse-badge-warning {
+    background: #fff7e6;
+    color: var(--muse-warning);
+}
+
+.muse-badge-error {
+    background: #fff1f0;
+    color: var(--muse-error);
+}
+
+.muse-badge-primary {
+    background: #e6f7ff;
+    color: var(--muse-primary);
+}
+
+/* Buttons */
+.muse-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--muse-border);
+    background: #fff;
+    color: var(--muse-text);
+}
+
+.muse-btn:hover {
+    border-color: var(--muse-primary);
+    color: var(--muse-primary);
+}
+
+.muse-btn.active {
+    background: var(--muse-primary);
+    color: #fff;
+    border-color: var(--muse-primary);
+    box-shadow: 0 4px 12px rgba(23, 125, 255, 0.2);
+}
+
+/* Switch */
+.muse-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.muse-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.muse-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.muse-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.muse-slider {
+    background-color: var(--muse-primary);
+}
+
+input:checked+.muse-slider:before {
+    transform: translateX(20px);
+}
+
+/* ── TABLES ── */
+.muse-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.muse-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.muse-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: #fafafa;
+    color: var(--muse-text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid var(--muse-border);
+}
+
+.muse-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--muse-border);
+    font-size: 14px;
+}
+
+.muse-table tr:hover td {
+    background: #fafafa;
+}
+
+/* ── STATS ── */
+.muse-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.muse-stat-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.muse-stat-label {
+    font-size: 13px;
+    color: var(--muse-text-secondary);
+    font-weight: 500;
+}
+
+.muse-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.muse-stat-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--muse-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(24, 144, 255, 0.2);
+}
+
+/* ── STATUS PILLS ── */
+.muse-status {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.muse-status-active {
+    background: #f6ffed;
+    color: #52c41a;
+    border: 1px solid #b7eb8f;
+}
+
+.muse-status-pending {
+    background: #fff7e6;
+    color: #faad14;
+    border: 1px solid #ffd591;
+}
+
+.muse-status-error {
+    background: #fff1f0;
+    color: #f5222d;
+    border: 1px solid #ffa39e;
+}
+
+/* ── BUTTONS ── */
+.muse-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--muse-border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: var(--muse-transition);
+}
+
+.muse-btn:hover {
+    color: var(--muse-primary);
+    border-color: var(--muse-primary);
+}
+
+.muse-btn-primary {
+    background: var(--muse-primary);
+    color: #fff;
+    border: none;
+}
+
+.muse-btn-primary:hover {
+    background: var(--muse-primary-hover);
+    color: #fff;
+}
+
+/* ── UTILS ── */
+.page-panel {
+    display: none;
+}
+
+.page-panel.active {
+    display: block;
+    animation: museFadeIn 0.4s ease;
+}
+
+@keyframes museFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 992px) {
+    .muse-sidebar {
+        transform: translateX(-280px);
+    }
+
+    .muse-main {
+        margin-left: 0;
+    }
+
+    .muse-sidebar.open {
+        transform: translateX(0);
+    }
+}

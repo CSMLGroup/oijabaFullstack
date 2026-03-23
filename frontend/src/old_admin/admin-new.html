@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oijaba Admin Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
+    <style>
+        /* Additional animations and utilities */
+        .admin-transition {
+            transition: all 0.3s ease;
+        }
+
+        .admin-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.25);
+            border-radius: 50%;
+            border-top-color: var(--admin-primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .admin-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--admin-text-secondary);
+        }
+
+        .admin-empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .admin-empty-state-text {
+            font-size: 14px;
+            color: var(--admin-text-secondary);
+        }
+
+        /* Chart placeholder */
+        .admin-chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(0, 106, 78, 0.08), rgba(13, 88, 56, 0.08));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--admin-text-secondary);
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-logo">
+                <div class="admin-logo-icon">
+                    <img src="/assets/vehicles/easybike.jpg" alt="Oijaba Logo">
+                </div>
+                <div class="admin-logo-text">
+                    <h3>oijaba</h3>
+                    <p>ওইযাবা</p>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <!-- Dashboard -->
+                <div class="admin-nav-section">
+                    <div class="admin-nav-item active" onclick="showPage('dashboard', this)">
+                        <span class="admin-nav-icon">📊</span>
+                        <span class="admin-nav-label">Dashboard</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="showPage('map', this)">
+                        <span class="admin-nav-icon">🗺️</span>
+                        <span class="admin-nav-label">Live Map</span>
+                        <span class="admin-nav-badge">4</span>
+                    </div>
+                </div>
+
+                <!-- Operations -->
+                <div class="admin-nav-section">
+                    <p class="admin-nav-title">Operations</p>
+                    <div class="admin-nav-item" onclick="showPage('rides', this)">
+                        <span class="admin-nav-icon">🛺</span>
+                        <span class="admin-nav-label">Rides</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="showPage('parcels', this)">
+                        <span class="admin-nav-icon">📦</span>
+                        <span class="admin-nav-label">Parcels</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="showPage('vehicles', this)">
+                        <span class="admin-nav-icon">🚗</span>
+                        <span class="admin-nav-label">Vehicles &amp; Fares</span>
+                    </div>
+                </div>
+
+                <!-- Accounts -->
+                <div class="admin-nav-section">
+                    <p class="admin-nav-title">Accounts</p>
+                    <div class="admin-nav-item" onclick="showPage('drivers', this)">
+                        <span class="admin-nav-icon">🚗</span>
+                        <span class="admin-nav-label">Drivers</span>
+                        <span class="admin-nav-badge" id="driversBadge">0</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="showPage('riders', this)">
+                        <span class="admin-nav-icon">👤</span>
+                        <span class="admin-nav-label">Riders</span>
+                        <span class="admin-nav-badge" id="ridersBadge">0</span>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div class="admin-nav-section">
+                    <p class="admin-nav-title">Support</p>
+                    <div class="admin-nav-item" onclick="showPage('complaints', this)">
+                        <span class="admin-nav-icon">⚠️</span>
+                        <span class="admin-nav-label">Complaints</span>
+                        <span class="admin-nav-badge">3</span>
+                    </div>
+                    <div class="admin-nav-item" onclick="showPage('settings', this)">
+                        <span class="admin-nav-icon">⚙️</span>
+                        <span class="admin-nav-label">Settings</span>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="admin-nav-section"
+                    style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--admin-border);">
+                    <a href="../index.html" class="admin-nav-item">
+                        <span class="admin-nav-icon">🏠</span>
+                        <span class="admin-nav-label">Main App</span>
+                    </a>
+                    <a href="driver.html" class="admin-nav-item">
+                        <span class="admin-nav-icon">🚗</span>
+                        <span class="admin-nav-label">Driver Portal</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+            <!-- TOP NAVBAR -->
+            <nav class="admin-navbar">
+                <div class="admin-navbar-left">
+                    <button class="admin-btn-icon" style="display: none;" onclick="toggleSidebar()">☰</button>
+                    <div class="admin-navbar-title">Oijaba Admin Dashboard</div>
+                </div>
+
+                <div class="admin-navbar-right">
+                    <input type="text" class="admin-search" placeholder="Search drivers, rides...">
+                    <button class="admin-btn-icon" title="Notifications">🔔</button>
+                    <button class="admin-btn-icon" title="Help">❓</button>
+                    <div class="admin-user-profile" onclick="toggleUserMenu()">
+                        <div class="admin-user-avatar">A</div>
+                        <div class="admin-user-info">
+                            <div class="admin-user-name">Saikat</div>
+                            <div class="admin-user-role">Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- PAGE CONTENT -->
+            <div class="admin-content">
+                <!-- DASHBOARD PAGE -->
+                <div class="admin-page active" id="page-dashboard">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Dashboard</h1>
+                        <p class="admin-page-subtitle">
+                            <span class="admin-live-badge">
+                                <span class="admin-live-dot"></span>
+                                LIVE
+                            </span>
+                            March 15, 2026 • 4 active rides
+                        </p>
+                    </div>
+
+                    <!-- Key Metrics -->
+                    <div class="admin-grid">
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-header">
+                                <div>
+                                    <div class="admin-stat-label">Online Drivers</div>
+                                    <div class="admin-stat-value" id="onlineDrivers">8</div>
+                                </div>
+                                <span class="admin-stat-icon">🚗</span>
+                            </div>
+                            <div class="admin-stat-change positive">↑ 2 from yesterday</div>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-header">
+                                <div>
+                                    <div class="admin-stat-label">Active Rides</div>
+                                    <div class="admin-stat-value" id="activeRides">4</div>
+                                </div>
+                                <span class="admin-stat-icon">🛺</span>
+                            </div>
+                            <div class="admin-stat-change positive">↑ 25% today</div>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-header">
+                                <div>
+                                    <div class="admin-stat-label">Total Earnings</div>
+                                    <div class="admin-stat-value">৳8.2K</div>
+                                </div>
+                                <span class="admin-stat-icon">💰</span>
+                            </div>
+                            <div class="admin-stat-change positive">↑ 12% this month</div>
+                        </div>
+
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-header">
+                                <div>
+                                    <div class="admin-stat-label">Pending Issues</div>
+                                    <div class="admin-stat-value" id="pendingIssues">3</div>
+                                </div>
+                                <span class="admin-stat-icon">⚠️</span>
+                            </div>
+                            <div class="admin-stat-change negative">↑ 1 new</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <div>
+                                    <div class="admin-card-title">Rides This Month</div>
+                                    <div class="admin-card-subtitle">Total: 234 rides completed</div>
+                                </div>
+                            </div>
+                            <div class="admin-card-content">
+                                <div class="admin-chart-placeholder">📊 Chart: Daily ride volume</div>
+                            </div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <div>
+                                    <div class="admin-card-title">Revenue by Vehicle</div>
+                                    <div class="admin-card-subtitle">Total: ৳45,320</div>
+                                </div>
+                            </div>
+                            <div class="admin-card-content">
+                                <div class="admin-chart-placeholder">📈 Chart: Revenue distribution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Rides -->
+                    <div class="admin-card" style="margin-top: 20px;">
+                        <div class="admin-card-header">
+                            <div>
+                                <div class="admin-card-title">Recent Rides</div>
+                                <div class="admin-card-subtitle">Last 5 completed rides</div>
+                            </div>
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ride ID</th>
+                                        <th>Driver</th>
+                                        <th>Route</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#R-2501</td>
+                                        <td>Ahmed (Bike)</td>
+                                        <td>Kalibari → Market</td>
+                                        <td>৳85</td>
+                                        <td><span class="admin-badge success">✓ Completed</span></td>
+                                        <td>14:32</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#R-2500</td>
+                                        <td>Fatima (CNG)</td>
+                                        <td>Hospital → Bazaar</td>
+                                        <td>৳120</td>
+                                        <td><span class="admin-badge success">✓ Completed</span></td>
+                                        <td>13:15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#R-2499</td>
+                                        <td>Rajib (Van)</td>
+                                        <td>School → Station</td>
+                                        <td>৳145</td>
+                                        <td><span class="admin-badge success">✓ Completed</span></td>
+                                        <td>12:48</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#R-2498</td>
+                                        <td>Karim (Boat)</td>
+                                        <td>Ghat → Village</td>
+                                        <td>৳200</td>
+                                        <td><span class="admin-badge success">✓ Completed</span></td>
+                                        <td>11:22</td>
+                                    </tr>
+                                    <tr>
+                                        <td>#R-2497</td>
+                                        <td>Salma (Tractor)</td>
+                                        <td>Farm → Market</td>
+                                        <td>৳300</td>
+                                        <td><span class="admin-badge success">✓ Completed</span></td>
+                                        <td>10:05</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAP PAGE -->
+                <div class="admin-page" id="page-map">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Live Fleet Tracking</h1>
+                        <p class="admin-page-subtitle">
+                            <span class="admin-live-badge">
+                                <span class="admin-live-dot"></span>
+                                LIVE
+                            </span>
+                            Real-time driver and ride locations
+                        </p>
+                    </div>
+
+                    <div class="admin-map-container">
+                        <div id="adminMap" class="admin-map-wrapper"></div>
+                    </div>
+
+                    <div class="admin-grid">
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <div class="admin-card-title">Active Drivers</div>
+                            </div>
+                            <div class="admin-card-content" style="padding: 0;">
+                                <table class="admin-table" style="font-size: 12px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Driver</th>
+                                            <th>Vehicle</th>
+                                            <th>Status</th>
+                                            <th>Earnings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Ahmed</td>
+                                            <td>Bike</td>
+                                            <td><span class="admin-badge success">🟢 Online</span></td>
+                                            <td>৳450</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Fatima</td>
+                                            <td>CNG</td>
+                                            <td><span class="admin-badge success">🟢 Online</span></td>
+                                            <td>৳620</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rajib</td>
+                                            <td>Van</td>
+                                            <td><span class="admin-badge warning">🟡 Busy</span></td>
+                                            <td>৳780</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <div class="admin-card-title">Active Rides</div>
+                            </div>
+                            <div class="admin-card-content" style="padding: 0;">
+                                <table class="admin-table" style="font-size: 12px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Ride</th>
+                                            <th>Route</th>
+                                            <th>Driver</th>
+                                            <th>ETA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>#R-2505</td>
+                                            <td>A → B</td>
+                                            <td>Ahmed</td>
+                                            <td>5 min</td>
+                                        </tr>
+                                        <tr>
+                                            <td>#R-2504</td>
+                                            <td>C → D</td>
+                                            <td>Fatima</td>
+                                            <td>8 min</td>
+                                        </tr>
+                                        <tr>
+                                            <td>#R-2503</td>
+                                            <td>E → F</td>
+                                            <td>Rajib</td>
+                                            <td>3 min</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DRIVERS PAGE -->
+                <div class="admin-page" id="page-drivers">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Drivers Management</h1>
+                        <p class="admin-page-subtitle" id="driversSubtitle">Loading drivers...</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">All Drivers</div>
+                            <input type="text" id="driverSearch" class="admin-search"
+                                placeholder="Search by name or phone..." style="width: 250px; margin: 0;"
+                                onkeyup="filterDrivers()">
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Phone</th>
+                                        <th>Vehicle</th>
+                                        <th>Area</th>
+                                        <th>Status</th>
+                                        <th>Rides</th>
+                                        <th>Earnings</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driversTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIDERS PAGE -->
+                <div class="admin-page" id="page-riders">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Riders Management</h1>
+                        <p class="admin-page-subtitle" id="ridersSubtitle">Loading riders...</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">Recent Riders</div>
+                            <input type="text" id="riderSearch" class="admin-search"
+                                placeholder="Search by name or phone..." style="width: 250px; margin: 0;"
+                                onkeyup="filterRiders()">
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rider</th>
+                                        <th>Phone</th>
+                                        <th>Area</th>
+                                        <th>Rides</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ridersTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIDES PAGE -->
+                <div class="admin-page" id="page-rides">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Rides History</h1>
+                        <p class="admin-page-subtitle" id="ridesSubtitle">Loading rides...</p>
+                    </div>
+
+                    <!-- Filter bar -->
+                    <div class="admin-card" style="margin-bottom:16px;">
+                        <div class="admin-card-content" style="padding:12px 16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <input type="text" id="rideSearchInput" placeholder="Search rider, driver, route, ref…"
+                                style="flex:1; min-width:200px; padding:8px 12px; border:1px solid var(--admin-border); border-radius:6px; font-size:13px; background:var(--admin-bg-card); color:var(--admin-text);"
+                                oninput="filterAndRenderRides()">
+                            <select id="rideStatusFilter"
+                                style="padding:8px 12px; border:1px solid var(--admin-border); border-radius:6px; font-size:13px; background:var(--admin-bg-card); color:var(--admin-text);"
+                                onchange="filterAndRenderRides()">
+                                <option value="">All Statuses</option>
+                                <option value="completed">Completed</option>
+                                <option value="started">Started</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="pickup">Pickup</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="searching">Searching</option>
+                            </select>
+                            <select id="rideVehicleFilter"
+                                style="padding:8px 12px; border:1px solid var(--admin-border); border-radius:6px; font-size:13px; background:var(--admin-bg-card); color:var(--admin-text);"
+                                onchange="filterAndRenderRides()">
+                                <option value="">All Vehicles</option>
+                                <option value="cng">🛺 CNG</option>
+                                <option value="motorbike">🏍️ Motorbike</option>
+                                <option value="boat">⛵ Boat</option>
+                                <option value="van">🚐 Van</option>
+                                <option value="battery">⚡ Battery Rickshaw</option>
+                                <option value="tractor">🚜 Tractor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ride cards grid -->
+                    <div id="ridesCardsContainer" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:14px;">
+                        <div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--admin-text-secondary);">Loading rides…</div>
+                    </div>
+                </div>
+
+                <!-- Ride Detail Modal -->
+                <div id="rideDetailModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1100; padding:24px; overflow-y:auto;">
+                    <div style="max-width:680px; margin:0 auto; background:var(--admin-bg-card); border-radius:14px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.25);">
+                        <!-- Modal header -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:var(--admin-primary); color:#fff;">
+                            <div>
+                                <div id="modalRideRef" style="font-weight:800; font-size:18px; letter-spacing:0.5px;"></div>
+                                <div id="modalRideStatus" style="font-size:12px; opacity:0.85; margin-top:2px;"></div>
+                            </div>
+                            <button onclick="closeRideDetailModal()" style="border:none; background:rgba(255,255,255,0.2); color:#fff; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer; line-height:1; display:flex; align-items:center; justify-content:center;">&times;</button>
+                        </div>
+
+                        <div id="rideDetailBody" style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PARCELS PAGE -->
+                <div class="admin-page" id="page-parcels">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Parcels Management</h1>
+                        <p class="admin-page-subtitle">67 parcels in system • 12 pending</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">All Parcels</div>
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table" style="font-size: 12px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Sender</th>
+                                        <th>Recipient</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#P-1001</td>
+                                        <td>Ahmed</td>
+                                        <td>Karim</td>
+                                        <td><span class="admin-badge success">Delivered</span></td>
+                                        <td>৳500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COMPLAINTS PAGE -->
+                <div class="admin-page" id="page-complaints">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Complaints Management</h1>
+                        <p class="admin-page-subtitle">3 pending • 45 resolved</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">Pending Complaints</div>
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table" style="font-size: 12px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Complaint</th>
+                                        <th>Type</th>
+                                        <th>Priority</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#C-001</td>
+                                        <td>Driver late arrival</td>
+                                        <td>Service</td>
+                                        <td><span class="admin-badge warning">Medium</span></td>
+                                        <td>Mar 14</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VEHICLES PAGE -->
+                <div class="admin-page" id="page-vehicles">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Vehicles &amp; Fare Rules</h1>
+                        <p class="admin-page-subtitle" id="vehiclesSubtitle">Loading vehicle types...</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">Vehicle Types</div>
+                            <button class="admin-btn" onclick="loadAdminVehicles()" style="padding: 6px 14px; font-size: 12px;">↺ Refresh</button>
+                        </div>
+                        <div class="admin-card-content" style="padding: 0; overflow-x: auto;">
+                            <table class="admin-table" style="font-size: 12px; min-width: 860px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name (EN / BN)</th>
+                                        <th>Base Fare (৳)</th>
+                                        <th>Per KM (৳)</th>
+                                        <th>Min Fare (৳)</th>
+                                        <th>Fare Rule (EN)</th>
+                                        <th>Fare Rule (BN)</th>
+                                        <th>Status</th>
+                                        <th>Save</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vehiclesAdminTableBody">
+                                    <tr><td colspan="9" style="text-align:center;padding:20px;color:var(--admin-text-secondary);">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USER DETAIL PAGE -->
+                <div class="admin-page" id="page-user-detail">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title" id="userDetailTitle">User Details</h1>
+                        <p class="admin-page-subtitle" id="userDetailSubtitle">Detailed information</p>
+                    </div>
+
+                    <div class="admin-card" style="margin-bottom: 16px;">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">Quick Actions</div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="admin-btn" id="userEditBtn" onclick="enableUserDetailEdit()" style="padding: 6px 14px; font-size: 12px;">Edit</button>
+                                <button class="admin-btn" id="userSaveBtn" onclick="saveUserDetailEdit()" style="padding: 6px 14px; font-size: 12px; display:none;">Save</button>
+                                <button class="admin-btn" id="userCancelBtn" onclick="cancelUserDetailEdit()" style="padding: 6px 14px; font-size: 12px; display:none;">Cancel</button>
+                                <button class="admin-btn" id="userDeleteBtn" onclick="deleteCurrentUser()" style="padding: 6px 14px; font-size: 12px; background:#dc2626; color:#fff; border-color:#dc2626;">Delete</button>
+                                <button class="admin-btn" onclick="backToLastListPage()" style="padding: 6px 14px; font-size: 12px;">← Back to List</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title" id="userDetailCardTitle">Profile Info</div>
+                        </div>
+                        <div class="admin-card-content" style="padding: 0;">
+                            <table class="admin-table" style="font-size: 13px;">
+                                <tbody id="userDetailBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS PAGE -->
+                <div class="admin-page" id="page-settings">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Settings</h1>
+                        <p class="admin-page-subtitle">Manage system configuration</p>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="admin-card-title">General Settings</div>
+                        </div>
+                        <div class="admin-card-content">
+                            <div style="padding: 20px; color: var(--admin-text-secondary); text-align: center;">
+                                ⚙️ Settings page coming soon...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/maps.js"></script>
+    <script src="../js/maps-examples.js"></script>
+
+    <script>
+        // Show/Hide Pages
+        function setAdminPageVisible(pageId) {
+            const targetId = 'page-' + pageId;
+            document.querySelectorAll('.admin-page').forEach(page => {
+                const isTarget = page.id === targetId;
+                page.classList.toggle('active', isTarget);
+                // Force display switching even if stylesheet failed to load.
+                page.style.display = isTarget ? 'block' : 'none';
+            });
+            // Behave like a new page navigation.
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        function showPage(pageId, element) {
+            setAdminPageVisible(pageId);
+
+            // Update nav active state
+            document.querySelectorAll('.admin-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (element) element.classList.add('active');
+
+            // Initialize map if map page
+            if (pageId === 'map') {
+                setTimeout(initAdminMap, 100);
+            }
+        }
+
+        // Toggle Sidebar (Mobile)
+        function toggleSidebar() {
+            document.getElementById('adminSidebar').classList.toggle('open');
+        }
+
+        // Toggle User Menu
+        function toggleUserMenu() {
+            console.log('User menu clicked');
+        }
+
+        // Initialize Admin Map
+        let adminMap = null;
+
+        function initAdminMap() {
+            if (!adminMap && document.getElementById('adminMap')) {
+                adminMap = new AdminDashboardMap('adminMap');
+
+                // Add sample drivers
+                adminMap.addDriver('D001', [23.6839, 90.3563], 'online', 'bike');
+                adminMap.addDriver('D002', [23.6850, 90.3600], 'busy', 'cng');
+                adminMap.addDriver('D003', [23.6880, 90.3530], 'online', 'van');
+
+                // Add sample rides
+                adminMap.addRide('R001', [23.6800, 90.3550], [23.6900, 90.3650], 'D001', 'in_progress');
+                adminMap.addRide('R002', [23.6900, 90.3750], [23.6700, 90.3400], 'D002', 'accepted');
+
+                const stats = adminMap.getStats();
+                document.getElementById('onlineDrivers').textContent = stats.onlineDrivers;
+                document.getElementById('activeRides').textContent = stats.activeRides;
+
+                adminMap.fitBounds();
+                console.log('Admin map initialized');
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            console.log('Admin dashboard loaded');
+            setAdminPageVisible('dashboard');
+            loadDrivers();
+            loadRiders();
+            loadRides();
+        });
+
+        // ── Vehicles Admin ─────────────────────────────────────────────
+        let adminVehiclesList = [];
+        let allRides = [];
+        let lastListPage = 'drivers';
+        let currentDetailType = null;
+        let currentDetailId = null;
+        let currentDetailRows = [];
+        let detailEditMode = false;
+
+        function adminStatusBadge(status) {
+            const normalized = String(status || '').toLowerCase();
+            const klass = normalized === 'completed'
+                ? 'success'
+                : (normalized === 'accepted' || normalized === 'started' || normalized === 'pickup')
+                    ? 'warning'
+                    : normalized === 'cancelled'
+                        ? 'neutral'
+                        : 'neutral';
+            const label = normalized ? (normalized.charAt(0).toUpperCase() + normalized.slice(1)) : 'Unknown';
+            return `<span class="admin-badge ${klass}">${label}</span>`;
+        }
+
+        function formatRideFare(ride) {
+            const finalFare = Number(ride.fare_final || 0);
+            const estimateFare = Number(ride.fare_estimate || 0);
+            const shown = finalFare > 0 ? finalFare : estimateFare;
+            return shown > 0 ? `৳${shown.toLocaleString()}` : 'N/A';
+        }
+
+        async function loadRides() {
+            const container = document.getElementById('ridesCardsContainer');
+            if (container) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--admin-text-secondary);">Loading rides…</div>';
+            }
+
+            try {
+                const response = await oijabaApi.rides.list();
+                allRides = response.rides || response.data || response || [];
+
+                const completedCount = allRides.filter(r => String(r.status || '').toLowerCase() === 'completed').length;
+                document.getElementById('ridesSubtitle').textContent = `${allRides.length} rides loaded • ${completedCount} completed`;
+
+                filterAndRenderRides();
+            } catch (error) {
+                console.error('Error loading rides:', error);
+                document.getElementById('ridesSubtitle').textContent = 'Error loading rides';
+                if (container) {
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--admin-text-secondary);">Failed to load rides</div>';
+                }
+            }
+        }
+
+        const VEHICLE_ICONS = { cng:'🛺', motorbike:'🏍️', boat:'⛵', van:'🚐', battery:'⚡', tractor:'🚜', car:'🚗', 'easy bike':'🛵' };
+        const VEHICLE_LABELS = { cng:'CNG', motorbike:'Motorbike', boat:'Boat', van:'Van', battery:'Battery Rickshaw', tractor:'Tractor', car:'Car' };
+
+        function vehicleDisplay(type) {
+            const k = String(type||'').toLowerCase();
+            return (VEHICLE_ICONS[k]||'🚗') + ' ' + (VEHICLE_LABELS[k]||type||'N/A');
+        }
+
+        function filterAndRenderRides() {
+            const searchVal = (document.getElementById('rideSearchInput')?.value || '').toLowerCase();
+            const statusVal = (document.getElementById('rideStatusFilter')?.value || '').toLowerCase();
+            const vehicleVal = (document.getElementById('rideVehicleFilter')?.value || '').toLowerCase();
+
+            let filtered = allRides.filter(ride => {
+                if (statusVal && String(ride.status||'').toLowerCase() !== statusVal) return false;
+                if (vehicleVal && String(ride.vehicle_type||'').toLowerCase() !== vehicleVal) return false;
+                if (searchVal) {
+                    const hay = [ride.ride_ref, ride.rider_name, ride.driver_name, ride.pickup_name,
+                        ride.destination_name, ride.rider_phone, ride.driver_phone].join(' ').toLowerCase();
+                    if (!hay.includes(searchVal)) return false;
+                }
+                return true;
+            });
+
+            renderRideCards(filtered);
+        }
+
+        function renderRideCards(rides) {
+            const container = document.getElementById('ridesCardsContainer');
+            if (!container) return;
+
+            if (!rides.length) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--admin-text-secondary);">No rides found</div>';
+                return;
+            }
+
+            const statusColorMap = { completed:'#16a34a', started:'#0284c7', accepted:'#0284c7', pickup:'#7c3aed', cancelled:'#dc2626', searching:'#d97706' };
+            const statusBgMap   = { completed:'rgba(22,163,74,0.1)', started:'rgba(2,132,199,0.1)', accepted:'rgba(2,132,199,0.1)', pickup:'rgba(124,58,237,0.1)', cancelled:'rgba(220,38,38,0.1)', searching:'rgba(217,119,6,0.1)' };
+
+            container.innerHTML = rides.map(ride => {
+                const fare = formatRideFare(ride);
+                const createdDate = ride.created_at ? new Date(ride.created_at) : null;
+                const dateText = createdDate ? createdDate.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : 'N/A';
+                const timeText = createdDate ? createdDate.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) : '';
+
+                const rideRef  = ride.ride_ref || ('#' + String(ride.id||'').slice(0,8));
+                const vType    = String(ride.vehicle_type||'').toLowerCase();
+                const vIcon    = VEHICLE_ICONS[vType] || '🚗';
+                const vLabel   = VEHICLE_LABELS[vType] || (ride.vehicle_type||'N/A');
+                const status   = String(ride.status||'N/A').toLowerCase();
+                const statusColor = statusColorMap[status] || '#6b7280';
+                const statusBg    = statusBgMap[status]    || 'rgba(107,114,128,0.1)';
+                const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+
+                const payIcon  = ride.payment_method === 'bkash' ? '📱' : (ride.payment_method === 'nagad' ? '💳' : '💵');
+                const payLabel = ride.payment_method ? (ride.payment_method.charAt(0).toUpperCase() + ride.payment_method.slice(1)) : 'Cash';
+
+                const riderName  = ride.rider_name || 'Unknown Rider';
+                const driverName = ride.driver_name || 'Not Assigned';
+
+                const ratingRow = (ride.driver_rating || ride.rider_rating) ? `
+                  <div style="display:flex; gap:16px; padding:8px 14px; background:rgba(245,158,11,0.06); border-top:1px solid var(--admin-border);">
+                    ${ride.driver_rating != null ? `<span style="font-size:11px; color:#92400e;">Rider→Driver: ${'★'.repeat(ride.driver_rating)}${'☆'.repeat(5-ride.driver_rating)}</span>` : ''}
+                    ${ride.rider_rating  != null ? `<span style="font-size:11px; color:#92400e;">Driver→Rider: ${'★'.repeat(ride.rider_rating)}${'☆'.repeat(5-ride.rider_rating)}</span>` : ''}
+                  </div>` : '';
+
+                return `
+                <div style="background:var(--admin-bg-card); border:1px solid var(--admin-border); border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column;">
+
+                  <!-- card head -->
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--admin-bg-dark); border-bottom:1px solid var(--admin-border);">
+                    <span style="font-weight:800; font-size:13px; color:var(--admin-primary);">${rideRef}</span>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                      <span style="font-size:11px; padding:3px 8px; border-radius:4px; font-weight:600; background:rgba(0,106,78,0.09); color:var(--admin-primary);">${vIcon} ${vLabel}</span>
+                      <span style="font-size:11px; padding:3px 9px; border-radius:4px; font-weight:700; color:${statusColor}; background:${statusBg};">${statusLabel}</span>
+                    </div>
+                  </div>
+
+                  <!-- route -->
+                  <div style="padding:12px 14px 10px; border-bottom:1px solid var(--admin-border); display:flex; align-items:stretch; justify-content:space-between; gap:12px;">
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
+                        <span style="width:9px; height:9px; border-radius:50%; background:#16a34a; flex-shrink:0; display:inline-block;"></span>
+                        <span style="font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--admin-text);">${ride.pickup_name||'N/A'}</span>
+                      </div>
+                      <div style="width:1px; height:14px; background:var(--admin-border); margin:0 0 6px 4px;"></div>
+                      <div style="display:flex; align-items:center; gap:7px;">
+                        <span style="width:9px; height:9px; border-radius:50%; background:#dc2626; flex-shrink:0; display:inline-block;"></span>
+                        <span style="font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--admin-text);">${ride.destination_name||'N/A'}</span>
+                      </div>
+                    </div>
+                    <div style="text-align:right; flex-shrink:0;">
+                      <div style="font-size:20px; font-weight:800; color:var(--admin-primary);">${fare}</div>
+                      <div style="font-size:11px; color:var(--admin-text-secondary);">${payIcon} ${payLabel}</div>
+                    </div>
+                  </div>
+
+                  <!-- people -->
+                  <div style="display:flex;">
+                    <div style="flex:1; padding:9px 14px; border-right:1px solid var(--admin-border);">
+                      <div style="font-size:10px; font-weight:700; letter-spacing:0.6px; color:var(--admin-text-secondary); text-transform:uppercase; margin-bottom:2px;">Rider</div>
+                      <div style="font-size:13px; font-weight:600; color:var(--admin-text);">${riderName}</div>
+                      ${ride.rider_phone ? `<div style="font-size:11px; color:var(--admin-text-secondary);">${ride.rider_phone}</div>` : ''}
+                    </div>
+                    <div style="flex:1; padding:9px 14px;">
+                      <div style="font-size:10px; font-weight:700; letter-spacing:0.6px; color:var(--admin-text-secondary); text-transform:uppercase; margin-bottom:2px;">Driver</div>
+                      <div style="font-size:13px; font-weight:600; color:var(--admin-text);">${driverName}</div>
+                      ${ride.driver_phone ? `<div style="font-size:11px; color:var(--admin-text-secondary);">${ride.driver_phone}</div>` : ''}
+                    </div>
+                  </div>
+
+                  <!-- ratings (only if present) -->
+                  ${ratingRow}
+
+                  <!-- footer -->
+                  <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--admin-bg-dark); border-top:1px solid var(--admin-border);">
+                    <span style="font-size:11px; color:var(--admin-text-secondary);">🕐 ${dateText} · ${timeText}</span>
+                    <button onclick="viewRideDetails('${ride.id}')"
+                      style="padding:5px 12px; background:var(--admin-primary); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:11px; font-weight:600; letter-spacing:0.3px;">
+                      View Details
+                    </button>
+                  </div>
+                </div>`;
+            }).join('');
+        }
+
+        function viewRideDetails(rideId) {
+            const ride = allRides.find(r => r.id === rideId);
+            if (!ride) { alert('Ride details not found'); return; }
+
+            const modal = document.getElementById('rideDetailModal');
+            const body  = document.getElementById('rideDetailBody');
+            if (!modal || !body) return;
+
+            // Update header
+            document.getElementById('modalRideRef').textContent    = ride.ride_ref || ('Ride #' + String(ride.id||'').slice(0,8));
+            document.getElementById('modalRideStatus').textContent = '● ' + (String(ride.status||'').charAt(0).toUpperCase() + String(ride.status||'').slice(1));
+
+            const f = v => (v != null && String(v).trim() !== '') ? String(v) : '—';
+            const fDate = ts => ts ? new Date(ts).toLocaleString('en-GB', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
+            const fFare = amt => (amt != null && Number(amt) > 0) ? `৳${Number(amt).toLocaleString()}` : '—';
+            const fStars = n => n != null ? ('★'.repeat(n) + '☆'.repeat(5-n) + ` (${n}/5)`) : '—';
+
+            const sectionCard = (title, rows) => `
+              <div style="background:var(--admin-bg-dark); border:1px solid var(--admin-border); border-radius:8px; overflow:hidden;">
+                <div style="padding:10px 14px; border-bottom:1px solid var(--admin-border); font-size:11px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--admin-primary);">${title}</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0;">
+                  ${rows.map(([label, val], i) => `
+                    <div style="padding:9px 14px; ${i%2===0 && rows.length>i+1 ? 'border-right:1px solid var(--admin-border);' : ''} ${i >= rows.length-2 ? '' : 'border-bottom:1px solid var(--admin-border);'}">
+                      <div style="font-size:10px; font-weight:600; color:var(--admin-text-secondary); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">${label}</div>
+                      <div style="font-size:13px; font-weight:600; color:var(--admin-text);">${val}</div>
+                    </div>`).join('')}
+                </div>
+              </div>`;
+
+            // Route section (full-width)
+            const routeSection = `
+              <div style="background:var(--admin-bg-dark); border:1px solid var(--admin-border); border-radius:8px; padding:14px 16px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--admin-primary); margin-bottom:10px;">Route</div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#16a34a; display:block;"></span>
+                    <span style="width:2px; flex:1; min-height:24px; background:var(--admin-border); display:block;"></span>
+                    <span style="width:10px; height:10px; border-radius:50%; background:#dc2626; display:block;"></span>
+                  </div>
+                  <div style="flex:1;">
+                    <div style="font-size:13px; font-weight:700; color:var(--admin-text); margin-bottom:18px;">${f(ride.pickup_name)}</div>
+                    <div style="font-size:13px; font-weight:700; color:var(--admin-text);">${f(ride.destination_name)}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:22px; font-weight:800; color:var(--admin-primary);">${fFare(ride.fare_final || ride.fare_estimate)}</div>
+                    <div style="font-size:11px; color:var(--admin-text-secondary);">${f(ride.vehicle_type)} · ${f(ride.payment_method)}</div>
+                  </div>
+                </div>
+              </div>`;
+
+            // People section
+            const peopleSection = `
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="background:var(--admin-bg-dark); border:1px solid var(--admin-border); border-radius:8px; padding:12px 14px;">
+                  <div style="font-size:10px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--admin-text-secondary); margin-bottom:6px;">Rider</div>
+                  <div style="font-size:14px; font-weight:700; color:var(--admin-text);">${f(ride.rider_name)}</div>
+                  <div style="font-size:12px; color:var(--admin-text-secondary); margin-top:2px;">📞 ${f(ride.rider_phone)}</div>
+                  ${ride.driver_rating != null ? `<div style="font-size:12px; color:#92400e; margin-top:4px;">Rated driver: ${fStars(ride.driver_rating)}</div>` : ''}
+                </div>
+                <div style="background:var(--admin-bg-dark); border:1px solid var(--admin-border); border-radius:8px; padding:12px 14px;">
+                  <div style="font-size:10px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--admin-text-secondary); margin-bottom:6px;">Driver</div>
+                  <div style="font-size:14px; font-weight:700; color:var(--admin-text);">${f(ride.driver_name)}</div>
+                  <div style="font-size:12px; color:var(--admin-text-secondary); margin-top:2px;">📞 ${f(ride.driver_phone)}</div>
+                  ${ride.rider_rating != null ? `<div style="font-size:12px; color:#92400e; margin-top:4px;">Rated rider: ${fStars(ride.rider_rating)}</div>` : ''}
+                </div>
+              </div>`;
+
+            // Timeline
+            const timelineItems = [
+                ['🔍 Requested', ride.created_at],
+                ['✅ Accepted',  ride.accepted_at],
+                ['🚗 Started',   ride.started_at],
+                ['🏁 Completed', ride.completed_at]
+            ].filter(([, ts]) => ts);
+
+            const timeline = timelineItems.length ? `
+              <div style="background:var(--admin-bg-dark); border:1px solid var(--admin-border); border-radius:8px; padding:12px 16px;">
+                <div style="font-size:11px; font-weight:700; letter-spacing:0.7px; text-transform:uppercase; color:var(--admin-primary); margin-bottom:10px;">Timeline</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  ${timelineItems.map(([label, ts]) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                      <span style="font-weight:600; color:var(--admin-text);">${label}</span>
+                      <span style="color:var(--admin-text-secondary);">${fDate(ts)}</span>
+                    </div>`).join('')}
+                </div>
+              </div>` : '';
+
+            body.innerHTML = routeSection + peopleSection +
+                sectionCard('Trip Info', [
+                    ['Ride Ref',    f(ride.ride_ref)],
+                    ['Vehicle',     f(ride.vehicle_type)],
+                    ['Payment',     f(ride.payment_method)],
+                    ['Pay Status',  f(ride.payment_status)],
+                    ['Fare Est.',   fFare(ride.fare_estimate)],
+                    ['Fare Final',  fFare(ride.fare_final)],
+                ]) +
+                timeline;
+
+            modal.style.display = 'block';
+        }
+
+        function closeRideDetailModal() {
+            const modal = document.getElementById('rideDetailModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function ratingText(ratingSum, ratingCount) {
+            const count = Number(ratingCount || 0);
+            const sum = Number(ratingSum || 0);
+            const avg = count > 0 ? (sum / count) : 0;
+            return `${avg.toFixed(1)}★`;
+        }
+
+        function starVisual(avg) {
+            const roundedHalf = Math.round(avg * 2) / 2;
+            const fullStars = Math.floor(roundedHalf);
+            const hasHalf = (roundedHalf - fullStars) >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+
+            const full = `<span style="color:#f59e0b;">${'★'.repeat(fullStars)}</span>`;
+            const half = hasHalf
+                ? '<span style="background:linear-gradient(90deg,#f59e0b 50%,#d1d5db 50%);-webkit-background-clip:text;background-clip:text;color:transparent;">★</span>'
+                : '';
+            const empty = `<span style="color:#d1d5db;">${'★'.repeat(emptyStars)}</span>`;
+            return `${full}${half}${empty}`;
+        }
+
+        function userCellWithRating(name, ratingSum, ratingCount) {
+            const displayName = name || 'N/A';
+            const count = Number(ratingCount || 0);
+            const sum = Number(ratingSum || 0);
+            const avg = count > 0 ? (sum / count) : 0;
+            const starHtml = starVisual(avg);
+            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;"><span>${displayName}</span><span style="font-size:11px;white-space:nowrap;"><span style="font-weight:700;color:#111827;">${avg.toFixed(1)}</span> ${starHtml} <span style="color:var(--admin-text-secondary);">(${count.toLocaleString()})</span></span></div>`;
+        }
+
+        function addressSummary(user) {
+            const upazilla = String(user.upazilla || '').trim();
+            const district = String(user.district || '').trim();
+            const parts = [upazilla, district].filter(v => v && v.toUpperCase() !== 'N/A');
+            if (parts.length) return parts.join(', ');
+
+            const area = String(user.area || '').trim();
+            return area && area.toUpperCase() !== 'N/A' ? area : 'N/A';
+        }
+
+        async function loadAdminVehicles() {
+            const tbody = document.getElementById('vehiclesAdminTableBody');
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--admin-text-secondary);">Loading...</td></tr>';
+            try {
+                const res = await fetch(API_URL + '/vehicles?include_disabled=true', {
+                    headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('oijaba_token') || '') }
+                });
+                const data = await res.json();
+                adminVehiclesList = data.vehicles || data || [];
+                document.getElementById('vehiclesSubtitle').textContent =
+                    adminVehiclesList.length + ' vehicle types • click a row to edit, then Save';
+                renderVehiclesAdminTable();
+            } catch (err) {
+                console.error('Error loading vehicles:', err);
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--admin-text-secondary);">Failed to load vehicles</td></tr>';
+            }
+        }
+
+        function renderVehiclesAdminTable() {
+            const tbody = document.getElementById('vehiclesAdminTableBody');
+            tbody.innerHTML = '';
+            adminVehiclesList.forEach(v => {
+                const enabledBadge = v.enabled
+                    ? '<span class="admin-badge success">Enabled</span>'
+                    : '<span class="admin-badge neutral">Disabled</span>';
+                const row = document.createElement('tr');
+                row.dataset.vid = v.id;
+                row.innerHTML = `
+                    <td style="font-weight:600;white-space:nowrap;">${v.id}</td>
+                    <td style="white-space:nowrap;">${v.name}<br><span style="color:var(--admin-text-secondary);font-size:11px;">${v.name_bn || ''}</span></td>
+                    <td><input type="number" min="0" step="0.5" value="${v.base_fare || 0}" data-field="base_fare" style="width:70px;padding:4px 6px;border:1px solid var(--admin-border);border-radius:6px;font-size:12px;"></td>
+                    <td><input type="number" min="0" step="0.5" value="${v.per_km_rate || 0}" data-field="per_km_rate" style="width:70px;padding:4px 6px;border:1px solid var(--admin-border);border-radius:6px;font-size:12px;"></td>
+                    <td><input type="number" min="0" step="0.5" value="${v.min_fare || 0}" data-field="min_fare" style="width:70px;padding:4px 6px;border:1px solid var(--admin-border);border-radius:6px;font-size:12px;"></td>
+                    <td><input type="text" value="${escAttr(v.fare_rule_en || '')}" data-field="fare_rule_en" style="width:180px;padding:4px 6px;border:1px solid var(--admin-border);border-radius:6px;font-size:12px;"></td>
+                    <td><input type="text" value="${escAttr(v.fare_rule_bn || '')}" data-field="fare_rule_bn" style="width:180px;padding:4px 6px;border:1px solid var(--admin-border);border-radius:6px;font-size:12px;"></td>
+                    <td>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                            <input type="checkbox" ${v.enabled ? 'checked' : ''} data-field="enabled"
+                                style="width:16px;height:16px;accent-color:var(--admin-primary);">
+                            <span>${v.enabled ? 'On' : 'Off'}</span>
+                        </label>
+                    </td>
+                    <td><button onclick="saveVehicleRow('${v.id}', this)" style="padding:5px 12px;background:var(--admin-primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;">Save</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function escAttr(str) {
+            return String(str).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        async function saveVehicleRow(vid, btn) {
+            const row = btn.closest('tr');
+            const inputs = row.querySelectorAll('[data-field]');
+            const payload = {};
+            inputs.forEach(inp => {
+                const field = inp.dataset.field;
+                if (inp.type === 'checkbox') payload[field] = inp.checked;
+                else if (inp.type === 'number') payload[field] = parseFloat(inp.value) || 0;
+                else payload[field] = inp.value.trim();
+            });
+
+            btn.textContent = '...';
+            btn.disabled = true;
+            try {
+                const data = await oijabaApi.vehicles.update(vid, payload);
+                if (data.success || data.vehicle) {
+                    btn.textContent = '✓ Saved';
+                    btn.style.background = '#16a34a';
+                    setTimeout(() => { btn.textContent = 'Save'; btn.style.background = ''; btn.disabled = false; }, 1800);
+                } else {
+                    throw new Error(data.error || 'Save failed');
+                }
+            } catch (err) {
+                btn.textContent = '✗ Error';
+                btn.style.background = '#dc2626';
+                btn.disabled = false;
+                setTimeout(() => { btn.textContent = 'Save'; btn.style.background = ''; }, 2500);
+                console.error('Save vehicle error:', err);
+            }
+        }
+
+        // Auto-load vehicles when that page is shown
+        const _origShowPage = showPage;
+        showPage = function(pageId, element) {
+            _origShowPage(pageId, element);
+            if (pageId === 'vehicles' && adminVehiclesList.length === 0) {
+                loadAdminVehicles();
+            }
+            if (pageId === 'rides') {
+                loadRides();
+            }
+        };
+
+        // Load Drivers from API
+        async function loadDrivers() {
+            try {
+                const response = await oijabaApi.drivers.list('all');
+                const drivers = response.data || response.drivers || response || [];
+
+                // Update badge count
+                document.getElementById('driversBadge').textContent = drivers.length;
+
+                // Count online/offline drivers
+                const onlineCount = drivers.filter(d => d.is_online === true || d.status === 'online').length;
+                const offlineCount = drivers.length - onlineCount;
+
+                // Update subtitle
+                document.getElementById('driversSubtitle').textContent =
+                    `${drivers.length} total drivers • ${onlineCount} online • ${offlineCount} offline`;
+
+                // Populate table
+                const tbody = document.getElementById('driversTableBody');
+                tbody.innerHTML = '';
+
+                if (drivers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">No drivers found</td></tr>';
+                    return;
+                }
+
+                drivers.forEach(driver => {
+                    const isOnline = driver.is_online === true || driver.status === 'online';
+                    const statusBadgeClass = isOnline ? 'success' :
+                        driver.status === 'busy' ? 'warning' : 'neutral';
+                    const earnings = driver.total_earned || 0;
+                    const rides = driver.total_rides || 0;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${userCellWithRating(driver.name, driver.rating_sum, driver.rating_count)}</td>
+                        <td>${driver.phone || 'N/A'}</td>
+                        <td>${driver.vehicle_type || 'Vehicle'}</td>
+                        <td><span class="admin-badge ${statusBadgeClass}">${isOnline ? 'Online' : driver.status === 'busy' ? 'Busy' : 'Offline'}</span></td>
+                        <td>${rides}</td>
+                        <td>৳${earnings.toLocaleString()}</td>
+                        <td><button onclick="viewDriverDetails('${driver.id}')" style="padding: 4px 8px; background: var(--admin-primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">View</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading drivers:', error);
+                document.getElementById('driversBadge').textContent = '0';
+                document.getElementById('driversSubtitle').textContent = 'Error loading drivers';
+                const tbody = document.getElementById('driversTableBody');
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">Failed to load drivers</td></tr>';
+            }
+        }
+
+        // Load Riders from API
+        async function loadRiders() {
+            try {
+                const response = await oijabaApi.riders.list('all');
+                const riders = response.data || response.riders || response || [];
+
+                // Update badge count
+                document.getElementById('ridersBadge').textContent = riders.length;
+
+                // Count active riders
+                const activeCount = riders.filter(r => r.status === 'active').length;
+
+                // Update subtitle
+                document.getElementById('ridersSubtitle').textContent =
+                    `${riders.length} total riders • ${activeCount} active today`;
+
+                // Populate table
+                const tbody = document.getElementById('ridersTableBody');
+                tbody.innerHTML = '';
+
+                if (riders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">No riders found</td></tr>';
+                    return;
+                }
+
+                riders.forEach(rider => {
+                    const statusBadgeClass = rider.status === 'active' ? 'success' : 'neutral';
+                    const rides = rider.rides_completed || 0;
+                    const phone = rider.phone || 'N/A';
+                    const createdDate = rider.created_at ? new Date(rider.created_at).toLocaleDateString() : 'N/A';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${userCellWithRating(rider.name, rider.rating_sum, rider.rating_count)}</td>
+                        <td>${phone}</td>
+                        <td>${rides}</td>
+                        <td><span class="admin-badge ${statusBadgeClass}">${rider.status === 'active' ? 'Active' : 'Inactive'}</span></td>
+                        <td>${createdDate}</td>
+                        <td><button onclick="viewRiderDetails('${rider.id}')" style="padding: 4px 8px; background: var(--admin-primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">View</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading riders:', error);
+                document.getElementById('ridersBadge').textContent = '0';
+                document.getElementById('ridersSubtitle').textContent = 'Error loading riders';
+                const tbody = document.getElementById('ridersTableBody');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">Failed to load riders</td></tr>';
+            }
+        }
+
+        // Store original drivers and riders for filtering
+        let allDrivers = [];
+        let allRiders = [];
+
+        // Updated loadDrivers to store original data
+        const originalLoadDrivers = loadDrivers;
+        loadDrivers = async function () {
+            try {
+                const response = await oijabaApi.drivers.list('all');
+                allDrivers = response.data || response.drivers || response || [];
+
+                document.getElementById('driversBadge').textContent = allDrivers.length;
+
+                const onlineCount = allDrivers.filter(d => d.is_online === true || d.status === 'online').length;
+                const offlineCount = allDrivers.length - onlineCount;
+
+                document.getElementById('driversSubtitle').textContent =
+                    `${allDrivers.length} total drivers • ${onlineCount} online • ${offlineCount} offline`;
+
+                populateDriversTable(allDrivers);
+            } catch (error) {
+                console.error('Error loading drivers:', error);
+                document.getElementById('driversBadge').textContent = '0';
+                document.getElementById('driversSubtitle').textContent = 'Error loading drivers';
+                const tbody = document.getElementById('driversTableBody');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">Failed to load drivers</td></tr>';
+            }
+        };
+
+        // Updated loadRiders to store original data
+        const originalLoadRiders = loadRiders;
+        loadRiders = async function () {
+            try {
+                const response = await oijabaApi.riders.list('all');
+                allRiders = response.data || response.riders || response || [];
+
+                document.getElementById('ridersBadge').textContent = allRiders.length;
+
+                const activeCount = allRiders.filter(r => r.status === 'active').length;
+
+                document.getElementById('ridersSubtitle').textContent =
+                    `${allRiders.length} total riders • ${activeCount} active today`;
+
+                populateRidersTable(allRiders);
+            } catch (error) {
+                console.error('Error loading riders:', error);
+                document.getElementById('ridersBadge').textContent = '0';
+                document.getElementById('ridersSubtitle').textContent = 'Error loading riders';
+                const tbody = document.getElementById('ridersTableBody');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">Failed to load riders</td></tr>';
+            }
+        };
+
+        // Function to populate drivers table
+        function populateDriversTable(drivers) {
+            const tbody = document.getElementById('driversTableBody');
+            tbody.innerHTML = '';
+
+            if (drivers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">No drivers found</td></tr>';
+                return;
+            }
+
+            drivers.forEach(driver => {
+                const isOnline = driver.is_online === true || driver.status === 'online';
+                const statusBadgeClass = isOnline ? 'success' :
+                    driver.status === 'busy' ? 'warning' : 'neutral';
+                const earnings = driver.total_earned || 0;
+                const rides = driver.total_rides || 0;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${userCellWithRating(driver.name, driver.rating_sum, driver.rating_count)}</td>
+                    <td>${driver.phone || 'N/A'}</td>
+                    <td>${driver.vehicle_type || 'Vehicle'}</td>
+                    <td>${addressSummary(driver)}</td>
+                    <td><span class="admin-badge ${statusBadgeClass}">${isOnline ? 'Online' : driver.status === 'busy' ? 'Busy' : 'Offline'}</span></td>
+                    <td>${rides}</td>
+                    <td>৳${earnings.toLocaleString()}</td>
+                    <td><button onclick="viewDriverDetails('${driver.id}')" style="padding: 4px 8px; background: var(--admin-primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">View</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function viewDriverDetails(driverId) {
+            let driver = null;
+            try {
+                const listRes = await oijabaApi.drivers.list('all');
+                allDrivers = listRes.data || listRes.drivers || listRes || [];
+                driver = allDrivers.find(d => d.id === driverId) || null;
+            } catch (err) {
+                console.warn('Could not refresh driver list:', err.message);
+                driver = allDrivers.find(d => d.id === driverId) || null;
+            }
+
+            try {
+                const detail = await oijabaApi.drivers.getProfile(driverId);
+                if (detail && detail.driver) {
+                    driver = { ...(driver || {}), ...detail.driver };
+                    const idx = allDrivers.findIndex(d => d.id === driverId);
+                    if (idx >= 0) allDrivers[idx] = { ...allDrivers[idx], ...detail.driver };
+                }
+            } catch (err) {
+                console.warn('Could not load fresh driver detail:', err.message);
+            }
+
+            if (!driver) {
+                alert('Driver details not found');
+                return;
+            }
+            const ratingCount = driver.rating_count || 0;
+            const ratingSum = driver.rating_sum || 0;
+            const rating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : '0.0';
+
+            const rows = [
+                ['Name', driver.name || 'N/A'],
+                ['Name (Bangla)', driver.name_bn || 'N/A'],
+                ['Phone', driver.phone || 'N/A'],
+                ['Vehicle', driver.vehicle_type || 'N/A'],
+                ['Vehicle Model', driver.vehicle_model || 'N/A'],
+                ['Vehicle Plate', driver.vehicle_plate || 'N/A'],
+                ['District', driver.district || 'N/A'],
+                ['Upazilla', driver.upazilla || 'N/A'],
+                ['Post Office', driver.post_office || 'N/A'],
+                ['House No.', driver.house_no || 'N/A'],
+                ['Road No.', driver.road_no || 'N/A'],
+                ['Landmark', driver.landmark || 'N/A'],
+                ['Status', driver.status || 'N/A'],
+                ['Online', driver.is_online ? 'Yes' : 'No'],
+                ['Rating', rating],
+                ['Total rides', driver.total_rides || 0],
+                ['Total earned', `৳${Number(driver.total_earned || 0).toLocaleString()}`],
+                ['NID Number', driver.nid_number || 'N/A']
+            ];
+
+            openUserDetailView('driver', driver, rows);
+        }
+
+        // Function to populate riders table
+        function populateRidersTable(riders) {
+            const tbody = document.getElementById('ridersTableBody');
+            tbody.innerHTML = '';
+
+            if (riders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: var(--admin-text-secondary);">No riders found</td></tr>';
+                return;
+            }
+
+            riders.forEach(rider => {
+                const statusBadgeClass = rider.status === 'active' ? 'success' : 'neutral';
+                const rides = rider.rides_completed || 0;
+                const phone = rider.phone || 'N/A';
+                const createdDate = rider.created_at ? new Date(rider.created_at).toLocaleDateString() : 'N/A';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${userCellWithRating(rider.name, rider.rating_sum, rider.rating_count)}</td>
+                    <td>${phone}</td>
+                    <td>${addressSummary(rider)}</td>
+                    <td>${rides}</td>
+                    <td><span class="admin-badge ${statusBadgeClass}">${rider.status === 'active' ? 'Active' : 'Inactive'}</span></td>
+                    <td>${createdDate}</td>
+                    <td><button onclick="viewRiderDetails('${rider.id}')" style="padding: 4px 8px; background: var(--admin-primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px;">View</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function viewRiderDetails(riderId) {
+            let rider = null;
+
+            try {
+                const listRes = await oijabaApi.riders.list('all');
+                allRiders = listRes.data || listRes.riders || listRes || [];
+                rider = allRiders.find(r => r.id === riderId) || null;
+            } catch (err) {
+                console.warn('Could not refresh rider list:', err.message);
+                rider = allRiders.find(r => r.id === riderId) || null;
+            }
+
+            let recentRides = [];
+            try {
+                const detail = await oijabaApi.riders.getProfile(riderId);
+                if (detail && detail.rider) {
+                    rider = { ...(rider || {}), ...detail.rider };
+                    const idx = allRiders.findIndex(r => r.id === riderId);
+                    if (idx >= 0) allRiders[idx] = { ...allRiders[idx], ...detail.rider };
+                }
+                recentRides = detail.recent_rides || [];
+            } catch (err) {
+                console.warn('Could not load rider ride history:', err.message);
+            }
+
+            if (!rider) {
+                alert('Rider details not found');
+                return;
+            }
+
+            const rows = [
+                ['Name', rider.name || 'N/A'],
+                ['Name (Bangla)', rider.name_bn || 'N/A'],
+                ['Phone', rider.phone || 'N/A'],
+                ['Status', rider.status || 'N/A'],
+                ['District', rider.district || 'N/A'],
+                ['Upazilla', rider.upazilla || 'N/A'],
+                ['Post Office', rider.post_office || 'N/A'],
+                ['House No.', rider.house_no || 'N/A'],
+                ['Road No.', rider.road_no || 'N/A'],
+                ['Landmark', rider.landmark || 'N/A'],
+                ['Membership', rider.membership || 'N/A'],
+                ['Total rides', rider.rides_completed || 0],
+                ['Joined', rider.created_at ? new Date(rider.created_at).toLocaleString() : 'N/A'],
+                ['Recent rides loaded', recentRides.length]
+            ];
+
+            openUserDetailView('rider', rider, rows, recentRides);
+        }
+
+        function openUserDetailView(type, user, rows, recentRides = []) {
+            lastListPage = type === 'driver' ? 'drivers' : 'riders';
+            currentDetailType = type;
+            currentDetailId = user.id;
+            currentDetailRows = rows;
+            detailEditMode = false;
+
+            document.getElementById('userEditBtn').style.display = 'inline-block';
+            document.getElementById('userSaveBtn').style.display = 'none';
+            document.getElementById('userCancelBtn').style.display = 'none';
+            document.getElementById('userDeleteBtn').style.display = 'inline-block';
+
+            setAdminPageVisible('user-detail');
+
+            // Keep sidebar context on the source section while viewing detail.
+            document.querySelectorAll('.admin-nav-item').forEach(item => item.classList.remove('active'));
+            const sourceNav = document.querySelector(`.admin-nav-item[onclick*=\"showPage('${lastListPage}'\"]`);
+            if (sourceNav) sourceNav.classList.add('active');
+
+            const title = type === 'driver' ? 'Driver Details' : 'Rider Details';
+            document.getElementById('userDetailTitle').textContent = title;
+            document.getElementById('userDetailSubtitle').textContent = user.name || user.phone || 'User';
+            document.getElementById('userDetailCardTitle').textContent = `${title} Information`;
+
+            const body = document.getElementById('userDetailBody');
+            body.innerHTML = rows.map(([k, v]) => `<tr><th style="width:220px;">${k}</th><td>${v}</td></tr>`).join('');
+
+            if (type === 'rider') {
+                const ridesText = recentRides.length
+                    ? recentRides.slice(0, 5).map(r => `${r.ride_ref || 'N/A'} • ${r.pickup_name || 'N/A'} → ${r.destination_name || 'N/A'} • ${r.status || 'N/A'}`).join('<br>')
+                    : 'No recent rides';
+                body.innerHTML += `<tr><th>Recent ride history</th><td>${ridesText}</td></tr>`;
+            }
+        }
+
+        function isEditableField(label) {
+            const blocked = ['Name', 'Phone', 'Rating', 'Total rides', 'Total earned', 'Joined', 'Recent rides loaded', 'Recent ride history', 'Online'];
+            return !blocked.includes(label);
+        }
+
+        function keyFromLabel(label) {
+            const map = {
+                'Name': 'name',
+                'Name (Bangla)': 'name_bn',
+                'District': 'district',
+                'Upazilla': 'upazilla',
+                'Post Office': 'post_office',
+                'House No.': 'house_no',
+                'Road No.': 'road_no',
+                'Landmark': 'landmark',
+                'Status': 'status',
+                'Membership': 'membership',
+                'Vehicle': 'vehicle_type',
+                'Vehicle Plate': 'vehicle_plate',
+                'Vehicle Model': 'vehicle_model',
+                'NID Number': 'nid_number'
+            };
+            return map[label] || null;
+        }
+
+        function optionsForField(fieldKey) {
+            const map = {
+                status: currentDetailType === 'driver'
+                    ? ['pending', 'active', 'busy', 'rejected', 'suspended']
+                    : ['active', 'suspended'],
+                membership: ['New', 'Regular', 'Frequent'],
+                vehicle_type: ['auto', 'bike', 'rickshaw', 'van', 'boat', 'tractor', 'shared', 'car']
+            };
+            return map[fieldKey] || null;
+        }
+
+        function renderFieldEditor(fieldKey, value) {
+            const options = optionsForField(fieldKey);
+            const safeValue = String(value || '').trim();
+            const inputStyle = 'width:100%;padding:8px 10px;border:1px solid var(--admin-border);border-radius:8px;background:#fff;';
+
+            if (fieldKey === 'district') {
+                const opts = BD_DISTRICTS.map(function(d) {
+                    return '<option value="' + escAttr(d) + '"' + (d === safeValue ? ' selected' : '') + '>' + d + '</option>';
+                }).join('');
+                return '<select data-field="district" onchange="adminOnDistrictChange(this)" style="' + inputStyle + '">' +
+                    '<option value="">-- Select District --</option>' + opts + '</select>';
+            }
+
+            if (fieldKey === 'upazilla') {
+                // Use district from currentDetailRows to pre-populate options
+                const districtRow = currentDetailRows.find(function(r) { return r[0] === 'District'; });
+                const district = districtRow ? String(districtRow[1] || '').replace(/^N\/A$/, '') : '';
+                const list = (district && BD_LOCATIONS[district]) ? BD_LOCATIONS[district] : [];
+                const opts = list.map(function(u) {
+                    return '<option value="' + escAttr(u) + '"' + (u === safeValue ? ' selected' : '') + '>' + u + '</option>';
+                }).join('');
+                return '<select data-field="upazilla" onchange="adminOnUpazillaChange(this)" style="' + inputStyle + '">' +
+                    '<option value="">-- Select Upazilla --</option>' + opts + '</select>';
+            }
+
+            if (fieldKey === 'post_office') {
+                const displayVal = safeValue && safeValue !== 'N/A' ? safeValue : '';
+                return '<select data-field="post_office" id="adminPoSelect" style="' + inputStyle + '">' +
+                    '<option value="">-- Loading... --</option>' +
+                    (displayVal ? '<option value="' + escAttr(displayVal) + '" selected>' + displayVal + '</option>' : '') +
+                    '</select>';
+            }
+
+            if (!options) {
+                return `<input data-field="${fieldKey}" value="${escAttr(safeValue)}" style="width:100%;padding:8px 10px;border:1px solid var(--admin-border);border-radius:8px;">`;
+            }
+
+            const lower = safeValue.toLowerCase();
+            const opts = options.map((opt) => {
+                const selected = opt.toLowerCase() === lower ? 'selected' : '';
+                return `<option value="${escAttr(opt)}" ${selected}>${opt}</option>`;
+            }).join('');
+
+            return `<select data-field="${fieldKey}" style="width:100%;padding:8px 10px;border:1px solid var(--admin-border);border-radius:8px;background:#fff;">${opts}</select>`;
+        }
+
+        function enableUserDetailEdit() {
+            detailEditMode = true;
+            document.getElementById('userEditBtn').style.display = 'none';
+            document.getElementById('userSaveBtn').style.display = 'inline-block';
+            document.getElementById('userCancelBtn').style.display = 'inline-block';
+            document.getElementById('userDeleteBtn').style.display = 'none';
+
+            const body = document.getElementById('userDetailBody');
+            body.innerHTML = currentDetailRows.map(([k, v]) => {
+                const fieldKey = keyFromLabel(k);
+                if (fieldKey && isEditableField(k)) {
+                    return `<tr><th style="width:220px;">${k}</th><td>${renderFieldEditor(fieldKey, v)}</td></tr>`;
+                }
+                return `<tr><th style="width:220px;">${k}</th><td>${v}</td></tr>`;
+            }).join('');
+            // Async: populate post office dropdown based on current district+upazilla
+            const distRow = currentDetailRows.find(function(r) { return r[0] === 'District'; });
+            const upRow = currentDetailRows.find(function(r) { return r[0] === 'Upazilla'; });
+            const poRow = currentDetailRows.find(function(r) { return r[0] === 'Post Office'; });
+            const savedDistrict = distRow ? String(distRow[1] || '').replace(/^N\/A$/, '') : '';
+            const savedUpazilla = upRow ? String(upRow[1] || '').replace(/^N\/A$/, '') : '';
+            const savedPo = poRow ? String(poRow[1] || '').replace(/^N\/A$/, '') : '';
+            adminRepopulatePostOffice(savedDistrict, savedUpazilla, savedPo);
+        }
+
+        function cancelUserDetailEdit() {
+            detailEditMode = false;
+            document.getElementById('userEditBtn').style.display = 'inline-block';
+            document.getElementById('userSaveBtn').style.display = 'none';
+            document.getElementById('userCancelBtn').style.display = 'none';
+            document.getElementById('userDeleteBtn').style.display = 'inline-block';
+
+            if (currentDetailType === 'driver') {
+                viewDriverDetails(currentDetailId);
+            } else {
+                viewRiderDetails(currentDetailId);
+            }
+        }
+
+        async function saveUserDetailEdit() {
+            if (!currentDetailType || !currentDetailId) return;
+            const saveBtn = document.getElementById('userSaveBtn');
+            const inputs = document.querySelectorAll('#userDetailBody [data-field]');
+            const payload = {};
+            inputs.forEach(inp => {
+                payload[inp.dataset.field] = inp.value.trim();
+            });
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            try {
+                let res;
+                if (currentDetailType === 'driver') {
+                    res = await oijabaApi.drivers.updateById(currentDetailId, payload);
+                    const updated = (res.user || {});
+                    const idx = allDrivers.findIndex(d => d.id === currentDetailId);
+                    if (idx >= 0) allDrivers[idx] = { ...allDrivers[idx], ...updated };
+                    viewDriverDetails(currentDetailId);
+                } else {
+                    res = await oijabaApi.riders.updateById(currentDetailId, payload);
+                    const updated = (res.user || {});
+                    const idx = allRiders.findIndex(r => r.id === currentDetailId);
+                    if (idx >= 0) allRiders[idx] = { ...allRiders[idx], ...updated };
+                    await viewRiderDetails(currentDetailId);
+                }
+            } catch (err) {
+                alert(err.message || 'Failed to save');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save';
+            }
+        }
+
+        async function deleteCurrentUser() {
+            if (!currentDetailType || !currentDetailId) return;
+
+            const kind = currentDetailType === 'driver' ? 'driver' : 'rider';
+            const confirmed = confirm(`Delete this ${kind}? This cannot be undone.`);
+            if (!confirmed) return;
+
+            const deleteBtn = document.getElementById('userDeleteBtn');
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Deleting...';
+
+            try {
+                if (currentDetailType === 'driver') {
+                    await oijabaApi.drivers.deleteById(currentDetailId);
+                    allDrivers = allDrivers.filter((driver) => driver.id !== currentDetailId);
+                    populateDriversTable(allDrivers);
+                } else {
+                    await oijabaApi.riders.deleteById(currentDetailId);
+                    allRiders = allRiders.filter((rider) => rider.id !== currentDetailId);
+                    populateRidersTable(allRiders);
+                }
+                backToLastListPage();
+            } catch (err) {
+                alert(err.message || `Failed to delete ${kind}`);
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = 'Delete';
+            }
+        }
+
+        function backToLastListPage() {
+            const navItem = document.querySelector(`.admin-nav-item[onclick*="showPage('${lastListPage}'"]`);
+            if (navItem) {
+                showPage(lastListPage, navItem);
+            }
+        }
+
+        // Filter function for drivers
+        function filterDrivers() {
+            const searchValue = document.getElementById('driverSearch').value.toLowerCase();
+            const filtered = allDrivers.filter(driver => {
+                const name = (driver.name || '').toLowerCase();
+                const phone = (driver.phone || '').toLowerCase();
+                return name.includes(searchValue) || phone.includes(searchValue);
+            });
+            populateDriversTable(filtered);
+        }
+
+        // Filter function for riders
+        function filterRiders() {
+            const searchValue = document.getElementById('riderSearch').value.toLowerCase();
+            const filtered = allRiders.filter(rider => {
+                const name = (rider.name || '').toLowerCase();
+                const phone = (rider.phone || '').toLowerCase();
+                return name.includes(searchValue) || phone.includes(searchValue);
+            });
+            populateRidersTable(filtered);
+        }
+
+        // Mobile navbar toggle
+        if (window.innerWidth < 768) {
+            document.querySelector('.admin-btn-icon').style.display = 'flex';
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 768) {
+                document.querySelector('.admin-btn-icon').style.display = 'flex';
+            } else {
+                document.querySelector('.admin-btn-icon').style.display = 'none';
+            }
+        });
+    </script>
+    <script src="../js/bd-locations.js"></script>
+    <script>
+        // ── Post-office cascade helpers (shared with admin edit mode) ──
+        let ADMIN_PO_MAP = null;
+        let ADMIN_PO_MAP_PROMISE = null;
+
+        function adminNormKey(v) {
+            return String(v || '')
+                .replace(/\s*\(.*?\)\s*/g, ' ')
+                .replace(/[^a-zA-Z0-9 ]+/g, ' ')
+                .replace(/\s+/g, ' ').trim().toLowerCase();
+        }
+
+        function adminFindKey(obj, wanted) {
+            if (!obj || !wanted) return null;
+            const wn = adminNormKey(wanted);
+            let best = null, bestScore = 0;
+            Object.keys(obj).forEach(function(k) {
+                const kn = adminNormKey(k);
+                if (!kn) return;
+                if (kn === wn) { best = k; bestScore = 999; return; }
+                let score = 0;
+                if (kn.includes(wn) || wn.includes(kn)) score += 10;
+                wn.split(' ').forEach(function(p) { if (p && kn.includes(p)) score += 1; });
+                if (score > bestScore) { best = k; bestScore = score; }
+            });
+            return best;
+        }
+
+        function adminBuildPoMap(raw) {
+            const map = {};
+            Object.keys(raw || {}).forEach(function(ck) {
+                const row = raw[ck] && raw[ck].en;
+                if (!row) return;
+                const dist = String(row.district || '').trim();
+                const thana = String(row.thana || '').trim();
+                const office = String(row.suboffice || '').trim();
+                const code = String(row.postcode || '').trim();
+                if (!dist || !thana || !office || !code) return;
+                if (!map[dist]) map[dist] = {};
+                if (!map[dist][thana]) map[dist][thana] = [];
+                const list = map[dist][thana];
+                if (!list.some(function(x) { return x.office === office && x.code === code; })) {
+                    list.push({ office: office, code: code });
+                }
+            });
+            Object.keys(map).forEach(function(d) {
+                Object.keys(map[d]).forEach(function(tn) {
+                    map[d][tn].sort(function(a, b) { return a.office.localeCompare(b.office); });
+                });
+            });
+            return map;
+        }
+
+        async function adminEnsurePoMap() {
+            if (ADMIN_PO_MAP) return ADMIN_PO_MAP;
+            if (ADMIN_PO_MAP_PROMISE) return ADMIN_PO_MAP_PROMISE;
+            ADMIN_PO_MAP_PROMISE = fetch('https://raw.githubusercontent.com/saaiful/postcode-bd/master/postcode.json')
+                .then(function(r) { return r.json(); })
+                .then(function(data) { ADMIN_PO_MAP = adminBuildPoMap(data); return ADMIN_PO_MAP; })
+                .catch(function() { ADMIN_PO_MAP = {}; return ADMIN_PO_MAP; });
+            return ADMIN_PO_MAP_PROMISE;
+        }
+
+        async function adminRepopulatePostOffice(district, upazilla, savedPo) {
+            const sel = document.getElementById('adminPoSelect');
+            if (!sel) return;
+            await adminEnsurePoMap();
+            const dk = adminFindKey(ADMIN_PO_MAP, district);
+            const byThana = dk ? ADMIN_PO_MAP[dk] : null;
+            const tk = adminFindKey(byThana, upazilla);
+            const list = tk ? byThana[tk] : [];
+            const saveVal = sel.value || savedPo || '';
+            sel.innerHTML = '<option value="">-- Select Post Office --</option>' +
+                list.map(function(po) {
+                    const v = escAttr(po.office + ' (' + po.code + ')');
+                    return '<option value="' + v + '">' + po.office + ' (' + po.code + ')</option>';
+                }).join('');
+            if (saveVal) {
+                sel.value = saveVal;
+                if (!sel.value) {
+                    const base = saveVal.replace(/\s*\(\d{4}\)\s*$/, '').trim();
+                    const found = Array.from(sel.options).find(function(o) { return o.value.startsWith(base + ' ('); });
+                    if (found) sel.value = found.value;
+                }
+            }
+        }
+
+        function adminOnDistrictChange(distSel) {
+            const district = distSel.value;
+            const upSel = document.querySelector('#userDetailBody [data-field="upazilla"]');
+            if (upSel) {
+                const list = (district && BD_LOCATIONS[district]) ? BD_LOCATIONS[district] : [];
+                upSel.innerHTML = '<option value="">-- Select Upazilla --</option>' +
+                    list.map(function(u) { return '<option value="' + escAttr(u) + '">' + u + '</option>'; }).join('');
+            }
+            adminRepopulatePostOffice(district, '', '');
+        }
+
+        function adminOnUpazillaChange(upSel) {
+            const upazilla = upSel.value;
+            const distSel = document.querySelector('#userDetailBody [data-field="district"]');
+            const district = distSel ? distSel.value : '';
+            adminRepopulatePostOffice(district, upazilla, '');
+        }
+    </script>
+</body>
+
+</html>
