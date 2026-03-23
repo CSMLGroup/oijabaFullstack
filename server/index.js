@@ -1,3 +1,11 @@
+// Root endpoint for API-only backend
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Oijaba backend API is running.',
+        status: 'ok',
+        timestamp: new Date().toISOString()
+    });
+});
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
