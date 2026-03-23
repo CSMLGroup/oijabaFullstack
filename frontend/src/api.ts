@@ -4,8 +4,8 @@ const getApiUrl = (): string => {
     // Development: connect to local backend
     return 'http://localhost:3001/api'
   }
-  // Production: use same host (Vercel will route /api to serverless backend)
-  return '/api'
+  // Production: use deployed backend URL
+  return 'https://oijaba-backend.vercel.app/api'
 }
 
 const API_URL = getApiUrl()
