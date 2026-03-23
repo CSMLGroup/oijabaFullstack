@@ -4,8 +4,8 @@ const getApiUrl = (): string => {
     // Development: connect to local backend
     return 'http://localhost:3001/api'
   }
-  // Production: use deployed backend URL
-  return 'https://oijaba-backend.vercel.app/api'
+  // Production: use Render backend URL
+  return 'https://oijabasbackend.onrender.com/api'
 }
 
 const API_URL = getApiUrl()
