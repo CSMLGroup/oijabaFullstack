@@ -41,7 +41,13 @@ async function call<T = any>(endpoint: string, options: ApiOptions = {}): Promis
   const config: RequestInit = { ...options, headers }
   if (config.body && typeof config.body === 'object') config.body = JSON.stringify(config.body)
   const res = await fetch(url, config)
-  const data = await res.json()
+  let data: any
+  try {
+    data = await res.json()
+  } catch (err) {
+    // If response is empty or not JSON, fallback to empty object
+    data = {}
+  }
   if (!res.ok) throw new Error(data.error || 'API error')
   return data as T
 }
