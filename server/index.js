@@ -12,36 +12,44 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 
-// CORS Middleware (must be first)
+// --- CORS Setup (single, clean config) ---
 const corsOrigin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
 console.log('CORS_ORIGIN in use:', corsOrigin);
-// CORS middleware must be first
-app.use(cors({
+
+const corsOptions = {
     origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
-}));
-// Manual fallback for OPTIONS requests (Vercel sometimes needs this)
-app.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Origin', corsOrigin);
-        res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        return res.sendStatus(200);
-    }
-    next();
-});
+};
 
-// Root endpoint for API-only backend
+// Apply CORS middleware ONCE, before everything else
+app.use(cors(corsOptions));
+
+// Explicitly handle all OPTIONS preflight requests
+app.options('*', cors(corsOptions));
+
+// Body parsers (must come after CORS, before routes)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Root endpoint
 app.get('/', (req, res) => {
     res.json({
         message: 'Oijaba backend API is running.',
         status: 'ok',
         timestamp: new Date().toISOString()
     });
+});
+
+// Health check
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api', (req, res) => {
+    res.json({ status: 'API root is reachable' });
 });
 
 // Routes
@@ -54,53 +62,6 @@ const paymentsRoutes = require('./routes/payments');
 const vehiclesRoutes = require('./routes/vehicles');
 const earningsRoutes = require('./routes/earnings');
 
-
-
-// Setup Socket.io with Vercel-compatible configuration
-const io = new Server(server, {
-    cors: { 
-        origin: process.env.SOCKET_IO_CORS_ORIGIN || '*',
-        methods: ['GET', 'POST']
-    },
-    // Vercel serverless functions have limited WebSocket support
-    transports: ['websocket', 'polling']
-});
-require('./sockets/rides')(io);
-app.set('io', io);
-
-// CORS Middleware (must be before all routes)
-app.use(cors({
-    origin: 'https://oijaba-front.vercel.app',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
-}));
-// Handle preflight requests explicitly (for serverless environments)
-app.options('*', cors({
-    origin: 'https://oijaba-front.vercel.app',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
-}));
-// Allow larger JSON payloads for image uploads (data URIs)
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Health check endpoint for Vercel
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-    
-    // Add a simple /api route for health/status
-    app.get('/api', (req, res) => {
-        res.json({ status: 'API root is reachable' });
-    });
-
-// ...existing code...
-
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/rides', ridesRoutes);
 app.use('/api/drivers', driversRoutes);
@@ -110,6 +71,18 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/earnings', earningsRoutes);
 
+// Socket.io
+const io = new Server(server, {
+    cors: {
+        origin: process.env.SOCKET_IO_CORS_ORIGIN || '*',
+        methods: ['GET', 'POST']
+    },
+    transports: ['websocket', 'polling']
+});
+require('./sockets/rides')(io);
+app.set('io', io);
+
+// Server start (local dev only)
 const PORT = process.env.PORT || 3002;
 
 function startServer(port, allowFallback = false) {
@@ -125,13 +98,11 @@ function startServer(port, allowFallback = false) {
                 startServer(fallbackPort, fallbackPort < 3011);
                 return;
             }
-
             if (err?.code === 'EADDRINUSE') {
                 console.error(`❌ Port ${port} is already in use. Set PORT to a free port and restart the server.`);
             } else {
                 console.error('❌ Server failed to start:', err?.message || err);
             }
-
             process.exit(1);
         });
 }
@@ -142,5 +113,5 @@ if (require.main === module) {
     startServer(requestedPort, usingDefaultPort);
 }
 
+// Export the Express app (NOT the http server) — Vercel needs this
 module.exports = app;
-module.exports = server;
