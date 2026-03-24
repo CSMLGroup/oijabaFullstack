@@ -45,10 +45,21 @@ const io = new Server(server, {
 require('./sockets/rides')(io);
 app.set('io', io);
 
-// Middleware
+// CORS Middleware (must be before all routes)
 app.use(cors({
     origin: 'https://oijaba-front.vercel.app',
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
+}));
+// Handle preflight requests explicitly (for serverless environments)
+app.options('*', cors({
+    origin: 'https://oijaba-front.vercel.app',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 }));
 // Allow larger JSON payloads for image uploads (data URIs)
 app.use(express.json({ limit: '10mb' }));
