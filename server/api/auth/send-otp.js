@@ -1,0 +1,73 @@
+// Vercel API route for /api/auth/send-otp with CORS headers
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
+export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  const { phone, user_type = 'rider', mode = 'login' } = req.body;
+  if (!phone) {
+    res.status(400).json({ error: 'Phone number required' });
+    return;
+  }
+  if (!['rider', 'driver', 'admin'].includes(user_type)) {
+    res.status(400).json({ error: 'Invalid user type' });
+    return;
+  }
+  if (user_type === 'admin' && mode !== 'login') {
+    res.status(400).json({ error: 'Admin registration is disabled' });
+    return;
+  }
+
+  try {
+    if (mode === 'register') {
+      const table = user_type === 'driver' ? 'drivers' : 'riders';
+      const exists = await pool.query(`SELECT id FROM ${table} WHERE phone = $1`, [phone]);
+      if (exists.rows.length > 0) {
+        res.status(409).json({ error: 'This mobile number is already registered. Please log in instead.' });
+        return;
+      }
+    }
+    if (user_type === 'admin') {
+      const admin = await pool.query('SELECT id FROM admins WHERE phone = $1 AND status = $2', [phone, 'active']);
+      if (admin.rows.length === 0) {
+        res.status(403).json({ error: 'admin_only', message: 'Admin account not found or inactive.' });
+        return;
+      }
+    }
+    if (mode === 'login' && user_type === 'rider') {
+      const isDriver = await pool.query('SELECT id FROM drivers WHERE phone = $1', [phone]);
+      if (isDriver.rows.length > 0) {
+        const isAlsoRider = await pool.query('SELECT id FROM riders WHERE phone = $1', [phone]);
+        if (isAlsoRider.rows.length === 0) {
+          res.status(403).json({ error: 'driver_portal', message: 'This number is registered as a driver. Please use the Driver Portal to log in.' });
+          return;
+        }
+      }
+    }
+    // Generate OTP (for demo, always 1234)
+    const otp = '1234';
+    // In production, send OTP via SMS here
+    res.status(200).json({ success: true, otp });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+}

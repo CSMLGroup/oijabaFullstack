@@ -29,64 +29,7 @@ router.post('/send-otp', async (req, res) => {
                     });
             }
         }
-
-        // Admin login: only allow OTP for active pre-created admin accounts.
-        if (user_type === 'admin') {
-            const admin = await queryOne('SELECT id FROM admins WHERE phone = $1 AND status = $2', [phone, 'active']);
-            if (!admin) {
-                return res.status(403).json({
-                    error: 'admin_only',
-                    message: 'Admin account not found or inactive.'
-                });
-            }
-        }
-
-        // Rider login via main portal: block if phone belongs to a driver but has no rider account.
-        if (mode === 'login' && user_type === 'rider') {
-            const isDriver = await queryOne('SELECT id FROM drivers WHERE phone = $1', [phone]);
-            if (isDriver) {
-                const isAlsoRider = await queryOne('SELECT id FROM riders WHERE phone = $1', [phone]);
-                if (!isAlsoRider) {
-                    return res.status(403).json({
-                        error: 'driver_portal',
-                        message: 'This number is registered as a driver. Please use the Driver Portal to log in.'
-                    });
-                }
-            }
-        }
-
-        // Generate OTP
-        let otp = Math.floor(100000 + Math.random() * 900000).toString();
-        // Requirement: 1234 for each time verification for both drivers and riders
-        otp = '1234';
-        const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
-
-        // Invalidate old OTPs for this phone
-        await query('UPDATE otps SET used = TRUE WHERE phone = $1 AND used = FALSE', [phone]);
-
-        // Store new OTP
-        await query(
-            'INSERT INTO otps (phone, otp, user_type, expires_at) VALUES ($1, $2, $3, $4)',
-            [phone, otp, user_type, expiresAt]
-        );
-
-        // In production: call SSL Wireless / Twilio here
-        // For now, log to console (visible in server terminal)
-        console.log(`\n📱 OTP for ${phone}: \x1b[33m${otp}\x1b[0m  (expires in ${OTP_EXPIRY_MINUTES} min)\n`);
-
-        res.json({
-            success: true,
-            message: `OTP sent to ${phone}`,
-            // Only include OTP in development so frontend can auto-fill
-            ...(process.env.NODE_ENV !== 'production' && { dev_otp: otp })
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to send OTP' });
-    }
-});
-
-/* ── POST /api/auth/verify-otp ───────────────
+        // /api/auth/send-otp route removed; now handled by Vercel API route
    Verify OTP → return JWT                    */
 router.post('/verify-otp', async (req, res) => {
     try {
