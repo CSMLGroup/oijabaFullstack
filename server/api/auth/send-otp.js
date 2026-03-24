@@ -12,23 +12,23 @@ if (!global._pgPool) {
 pool = global._pgPool;
 
 export default async function handler(req, res) {
-  // Set CORS headers for every request
+  // Robust CORS: always set headers, handle OPTIONS early
   const allowedOrigin = 'https://oijaba-front.vercel.app';
   const origin = req.headers.origin;
   if (origin === allowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Vary', 'Origin');
-  } else {
-    // For debugging: log unexpected origins
-    console.warn('CORS: Unexpected Origin:', origin);
-    // Optionally, set a safe fallback (not recommended for production)
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Vary', 'Origin');
   }
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  // Only set credentials if you need cookies/auth headers
+  // Uncomment if you need cookies/auth headers
   // res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight OPTIONS request before any body parsing
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
 
   // Handle preflight OPTIONS request before any body parsing
   if (req.method === 'OPTIONS') {
