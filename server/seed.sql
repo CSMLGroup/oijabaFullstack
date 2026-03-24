@@ -261,3 +261,25 @@ INSERT INTO vehicles (id, name, name_bn, img, emoji, enabled, fare, base_fare, p
   ('shared',  'Shared Auto Rickshaw','শেয়ার্ড অটো-রিকশা',   '/assets/vehicles/easybike.jpg',  NULL, TRUE, 15, 12, 6,  15,  'Per seat: base ৳12 + ৳6/km',        'প্রতি সিট: বেস ৳১২ + ৳৬/কিমি',      3, 7),
   ('car',     'Private Car',         'প্রাইভেট কার',         NULL,                              '🚗', TRUE, 120,95, 25, 120, 'Base ৳95 + ৳25/km (min ৳120)',      'বেস ৳৯৫ + ৳২৫/কিমি (ন্যূনতম ৳১২০)',4, 8)
 ON CONFLICT (id) DO NOTHING;
+
+-- ─── ADDITIONAL SEED DATA FOR ALL TABLES ─────────────
+
+-- OTPs
+INSERT INTO otps (id, phone, otp, user_type, expires_at, used, created_at) VALUES
+  ('otp-0001-0000-0000-0000-000000000001', '01900000000', '1234', 'admin', NOW() + interval '10 minutes', FALSE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- PAYMENTS
+INSERT INTO payments (id, reference_id, reference_type, gateway, amount, currency, status, initiated_at) VALUES
+  ('pay-0001-0000-0000-0000-000000000001', (SELECT id FROM rides LIMIT 1), 'ride', 'cash', 100, 'BDT', 'pending', NOW())
+ON CONFLICT DO NOTHING;
+
+-- DRIVER VEHICLES
+INSERT INTO driver_vehicles (id, driver_id, vehicle_type, vehicle_model, vehicle_plate, is_primary, created_at) VALUES
+  ('dv-0001-0000-0000-0000-000000000001', (SELECT id FROM drivers LIMIT 1), 'cng', 'Bajaj RE', 'Fari-ধ-1234', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- DRIVER PAYMENT RECIPIENTS
+INSERT INTO driver_payment_recipients (id, driver_id, gateway, number, label, verified, created_at) VALUES
+  ('dpr-0001-0000-0000-0000-000000000001', (SELECT id FROM drivers LIMIT 1), 'bkash', '01700000001', 'Primary bKash', TRUE, NOW())
+ON CONFLICT DO NOTHING;
