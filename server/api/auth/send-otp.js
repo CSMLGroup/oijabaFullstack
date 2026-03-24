@@ -13,11 +13,16 @@ pool = global._pgPool;
 
 export default async function handler(req, res) {
   // Set CORS headers for every request
-  // DEBUG: Allow all origins for CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigin = 'https://oijaba-front.vercel.app';
+  const origin = req.headers.origin;
+  if (origin === allowedOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // Only set credentials if you need cookies/auth headers
+  // res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight OPTIONS request before any body parsing
   if (req.method === 'OPTIONS') {
