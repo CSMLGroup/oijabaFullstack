@@ -13,8 +13,8 @@ pool = global._pgPool;
 
 export default async function handler(req, res) {
   // Set CORS headers for every request
-  const origin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
-  res.setHeader('Access-Control-Allow-Origin', origin);
+  // DEBUG: Allow all origins for CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -44,14 +44,17 @@ export default async function handler(req, res) {
 
   const { phone, user_type = 'rider', mode = 'login' } = body;
   if (!phone) {
+    console.error('Missing phone in request body:', body);
     res.status(400).json({ error: 'Phone number required' });
     return;
   }
   if (!['rider', 'driver', 'admin'].includes(user_type)) {
+    console.error('Invalid user_type:', user_type);
     res.status(400).json({ error: 'Invalid user type' });
     return;
   }
   if (user_type === 'admin' && mode !== 'login') {
+    console.error('Admin registration attempted:', body);
     res.status(400).json({ error: 'Admin registration is disabled' });
     return;
   }
