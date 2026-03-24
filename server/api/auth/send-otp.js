@@ -7,12 +7,14 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app');
+  // Set CORS headers for every request
+  const origin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
+  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
+  // Handle preflight OPTIONS request before any body parsing
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -23,7 +25,17 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { phone, user_type = 'rider', mode = 'login' } = req.body;
+  // Parse JSON body if not already parsed
+  let body = req.body;
+  if (!body || typeof body !== 'object') {
+    try {
+      body = JSON.parse(req.body);
+    } catch {
+      body = {};
+    }
+  }
+
+  const { phone, user_type = 'rider', mode = 'login' } = body;
   if (!phone) {
     res.status(400).json({ error: 'Phone number required' });
     return;
