@@ -13,8 +13,9 @@ const app = express();
 const server = http.createServer(app);
 
 // CORS Middleware (must be first)
+const corsOrigin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
 app.use(cors({
-    origin: 'https://oijaba-front.vercel.app',
+    origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -23,7 +24,7 @@ app.use(cors({
 
 // Global catch-all OPTIONS handler for CORS preflight
 app.options('*', cors({
-    origin: 'https://oijaba-front.vercel.app',
+    origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
