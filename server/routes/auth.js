@@ -58,6 +58,13 @@ router.post('/send-otp', async (req, res) => {
         }
         // Generate OTP (for demo, always 1234)
         const otp = '1234';
+
+        // Store in database so verify-otp can find it
+        await query(
+            'INSERT INTO otps (phone, otp, user_type, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL \'10 minutes\')',
+            [phone, otp, user_type]
+        );
+
         // In production, send OTP via SMS here
         return res.status(200).json({ success: true, otp });
     } catch (err) {
