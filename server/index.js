@@ -14,6 +14,7 @@ const server = http.createServer(app);
 
 // CORS Middleware (must be first)
 const corsOrigin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
+console.log('CORS_ORIGIN in use:', corsOrigin);
 app.use(cors({
     origin: corsOrigin,
     credentials: true,
