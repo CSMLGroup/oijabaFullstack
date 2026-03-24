@@ -19,7 +19,7 @@ console.log('CORS_ORIGIN in use:', corsOrigin);
 const corsOptions = {
     origin: corsOrigin,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
 };
