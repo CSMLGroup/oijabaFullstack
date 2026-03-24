@@ -1,10 +1,15 @@
 // Vercel API route for /api/auth/send-otp with CORS headers
-import { Pool } from 'pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+import { Pool } from 'pg';
+// Use a global pool to avoid exhausting connections in serverless
+let pool;
+if (!global._pgPool) {
+  global._pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+}
+pool = global._pgPool;
 
 export default async function handler(req, res) {
   // Set CORS headers for every request
@@ -25,12 +30,14 @@ export default async function handler(req, res) {
     return;
   }
 
+
   // Parse JSON body if not already parsed
   let body = req.body;
   if (!body || typeof body !== 'object') {
     try {
       body = JSON.parse(req.body);
-    } catch {
+    } catch (err) {
+      console.error('Body parse error:', err);
       body = {};
     }
   }
@@ -80,6 +87,7 @@ export default async function handler(req, res) {
     // In production, send OTP via SMS here
     res.status(200).json({ success: true, otp });
   } catch (err) {
+    console.error('Handler error:', err);
     res.status(500).json({ error: 'Server error', details: err.message });
   }
 }
