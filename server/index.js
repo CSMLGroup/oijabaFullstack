@@ -15,6 +15,7 @@ const server = http.createServer(app);
 // CORS Middleware (must be first)
 const corsOrigin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
 console.log('CORS_ORIGIN in use:', corsOrigin);
+// CORS middleware must be first
 app.use(cors({
     origin: corsOrigin,
     credentials: true,
@@ -22,15 +23,17 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
 }));
-
-// Global catch-all OPTIONS handler for CORS preflight
-app.options('*', cors({
-    origin: corsOrigin,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
-}));
+// Manual fallback for OPTIONS requests (Vercel sometimes needs this)
+app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Origin', corsOrigin);
+        res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 // Root endpoint for API-only backend
 app.get('/', (req, res) => {
