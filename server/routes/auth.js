@@ -20,16 +20,20 @@ router.post('/send-otp', async (req, res) => {
             return res.status(400).json({ error: 'Admin registration is disabled' });
         }
 
-	if (mode === 'register') {
-		const table = user_type === 'driver' ? 'drivers' : 'riders';
-		const exists = await queryOne(`SELECT id FROM ${table} WHERE phone = $1`, [phone]);
-		if (exists) {
-			return res.status(409).json({
-				error: 'This mobile number is already registered. Please log in instead.'
-			});
-		}
-	}
-    // /api/auth/send-otp route removed; now handled by Vercel API route
+        if (mode === 'register') {
+            const table = user_type === 'driver' ? 'drivers' : 'riders';
+            const exists = await queryOne(`SELECT id FROM ${table} WHERE phone = $1`, [phone]);
+            if (exists) {
+                return res.status(409).json({
+                    error: 'This mobile number is already registered. Please log in instead.'
+                });
+            }
+        }
+        // /api/auth/send-otp route removed; now handled by Vercel API route
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to process send-otp' });
+    }
 });
 
 /* ── POST /api/auth/verify-otp ───────────────
