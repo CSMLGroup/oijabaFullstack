@@ -20,6 +20,7 @@ router.post('/send-otp', async (req, res) => {
         }
 
         const { phone, user_type = 'rider', mode = 'login' } = body;
+        console.log('DEBUG [send-otp]:', { phone, user_type, mode });
         if (!phone) {
             console.error('Missing phone in request body:', body);
             return res.status(400).json({ error: 'Phone number required' });
@@ -78,12 +79,12 @@ router.post('/send-otp', async (req, res) => {
 router.post('/verify-otp', async (req, res) => {
     try {
         const { phone, otp, user_type = 'rider' } = req.body;
+        console.log('DEBUG [verify-otp]:', { phone, otp, user_type });
         if (!phone || !otp) return res.status(400).json({ error: 'Phone and OTP required' });
         if (!['rider', 'driver', 'admin'].includes(user_type)) {
             return res.status(400).json({ error: 'Invalid user type' });
         }
 
-        // Find valid OTP
         const otpRecord = await queryOne(
             `SELECT * FROM otps
        WHERE phone = $1 AND otp = $2 AND user_type = $3 AND used = FALSE
@@ -91,6 +92,7 @@ router.post('/verify-otp', async (req, res) => {
        ORDER BY created_at DESC LIMIT 1`,
             [phone, otp, user_type]
         );
+        console.log('DEBUG [verify-otp] Record found:', otpRecord);
 
         if (!otpRecord) return res.status(401).json({ error: 'Invalid or expired OTP' });
 
