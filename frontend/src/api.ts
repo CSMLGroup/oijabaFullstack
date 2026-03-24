@@ -5,7 +5,7 @@ const getApiUrl = (): string => {
     return 'http://localhost:3001/api'
   }
   // Production: use Render backend URL
-  return 'https://oijabasbackend.onrender.com/api'
+  return 'https://oijaba-back.vercel.app/api'
 }
 
 const API_URL = getApiUrl()

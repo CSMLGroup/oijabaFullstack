@@ -47,7 +47,7 @@ app.set('io', io);
 
 // Middleware
 app.use(cors({
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+    origin: 'https://oijaba-front.vercel.app',
     credentials: true
 }));
 // Allow larger JSON payloads for image uploads (data URIs)
