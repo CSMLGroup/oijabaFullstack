@@ -9,30 +9,60 @@ const OTP_EXPIRY_MINUTES = 10;
    Send (mock) OTP to phone number             */
 router.post('/send-otp', async (req, res) => {
     try {
-        const { phone, user_type = 'rider', mode = 'login' } = req.body;
-        if (!phone) return res.status(400).json({ error: 'Phone number required' });
-
-        if (!['rider', 'driver', 'admin'].includes(user_type)) {
-            return res.status(400).json({ error: 'Invalid user type' });
+        let body = req.body;
+        if (!body || typeof body !== 'object') {
+            try {
+                body = JSON.parse(req.body);
+            } catch (err) {
+                console.error('Body parse error:', err);
+                body = {};
+            }
         }
 
+        const { phone, user_type = 'rider', mode = 'login' } = body;
+        if (!phone) {
+            console.error('Missing phone in request body:', body);
+            return res.status(400).json({ error: 'Phone number required' });
+        }
+        if (!['rider', 'driver', 'admin'].includes(user_type)) {
+            console.error('Invalid user_type:', user_type);
+            return res.status(400).json({ error: 'Invalid user type' });
+        }
         if (user_type === 'admin' && mode !== 'login') {
+            console.error('Admin registration attempted:', body);
             return res.status(400).json({ error: 'Admin registration is disabled' });
         }
 
+        // Use your queryOne helper for DB queries
         if (mode === 'register') {
             const table = user_type === 'driver' ? 'drivers' : 'riders';
             const exists = await queryOne(`SELECT id FROM ${table} WHERE phone = $1`, [phone]);
             if (exists) {
-                return res.status(409).json({
-                    error: 'This mobile number is already registered. Please log in instead.'
-                });
+                return res.status(409).json({ error: 'This mobile number is already registered. Please log in instead.' });
             }
         }
-        // /api/auth/send-otp route removed; now handled by Vercel API route
+        if (user_type === 'admin') {
+            const admin = await queryOne('SELECT id FROM admins WHERE phone = $1 AND status = $2', [phone, 'active']);
+            if (!admin) {
+                return res.status(403).json({ error: 'admin_only', message: 'Admin account not found or inactive.' });
+            }
+        }
+        if (mode === 'login' && user_type === 'rider') {
+            const isDriver = await queryOne('SELECT id FROM drivers WHERE phone = $1', [phone]);
+            if (isDriver) {
+                const isAlsoRider = await queryOne('SELECT id FROM riders WHERE phone = $1', [phone]);
+                if (!isAlsoRider) {
+                    return res.status(403).json({ error: 'driver_portal', message: 'This number is registered as a driver. Please use the Driver Portal to log in.' });
+                }
+            }
+        }
+        // Generate OTP (for demo, always 1234)
+        const otp = '1234';
+        // In production, send OTP via SMS here
+        return res.status(200).json({ success: true, otp });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to process send-otp' });
+        console.error('Handler error:', err);
+        res.status(500).json({ error: 'Failed to process send-otp', details: err.message });
     }
 });
 
