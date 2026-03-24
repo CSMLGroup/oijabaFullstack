@@ -18,6 +18,12 @@ export default async function handler(req, res) {
   if (origin === allowedOrigin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
+  } else {
+    // For debugging: log unexpected origins
+    console.warn('CORS: Unexpected Origin:', origin);
+    // Optionally, set a safe fallback (not recommended for production)
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    res.setHeader('Vary', 'Origin');
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
