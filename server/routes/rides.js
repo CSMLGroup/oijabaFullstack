@@ -102,6 +102,58 @@ router.post('/dummy', async (req, res) => {
         res.status(500).json({ error: 'Failed to create dummy ride' });
     }
 });
+/* ── GET /api/rides/active ────────────────────
+   Get current active ride for the logged-in user */
+router.get('/active', async (req, res) => {
+    try {
+        const activeStatuses = ['searching', 'accepted', 'pickup', 'started'];
+        let result;
+
+        if (req.user.role === 'rider') {
+            result = await query(`
+                SELECT r.*, dr.name as driver_name, dr.phone as driver_phone, dr.vehicle_plate as driver_plate
+                FROM rides r
+                LEFT JOIN drivers dr ON r.driver_id = dr.id
+                WHERE r.rider_id = $1 AND r.status = ANY($2)
+                ORDER BY r.created_at DESC LIMIT 1
+            `, [req.user.id, activeStatuses]);
+        } else if (req.user.role === 'driver') {
+            result = await query(`
+                SELECT r.*, rd.name as rider_name, rd.phone as rider_phone
+                FROM rides r
+                LEFT JOIN riders rd ON r.rider_id = rd.id
+                WHERE r.driver_id = $1 AND r.status = ANY($2)
+                ORDER BY r.created_at DESC LIMIT 1
+            `, [req.user.id, activeStatuses]);
+        } else {
+            return res.json({ ride: null });
+        }
+
+        res.json({ ride: result.rows[0] || null });
+    } catch (err) {
+        console.error('GET /api/rides/active error', err);
+        res.status(500).json({ error: 'Failed to fetch active ride' });
+    }
+});
+
+/* ── GET /api/rides/searching ────────────────
+   Get rides with status 'searching' for driver matching */
+router.get('/searching', async (req, res) => {
+    try {
+        const result = await query(`
+            SELECT r.*, rd.name as rider_name, rd.phone as rider_phone
+            FROM rides r
+            LEFT JOIN riders rd ON r.rider_id = rd.id
+            WHERE r.status = 'searching'
+            ORDER BY r.created_at DESC
+            LIMIT 20
+        `);
+        res.json({ rides: result.rows });
+    } catch (err) {
+        console.error('GET /api/rides/searching error', err);
+        res.status(500).json({ error: 'Failed to fetch searching rides' });
+    }
+});
 
 /* ── GET /api/rides ──────────────────────────
    List rides (Admin: all, Rider: own, Driver: assigned) */
@@ -223,8 +275,7 @@ router.patch('/:id/status', async (req, res) => {
         } else if (status === 'started') {
             updateQuery += ', started_at = NOW()';
         } else if (status === 'completed') {
-            updateQuery += ', completed_at = NOW()';
-            // In a real app, calculate true final fare here
+            updateQuery += ', completed_at = NOW(), fare_final = COALESCE(fare_final, fare_estimate)';
         }
 
         updateQuery += ` WHERE id = $2 RETURNING *`;
@@ -237,13 +288,64 @@ router.patch('/:id/status', async (req, res) => {
 
         const ride = result.rows[0];
 
-        // Emit to the specific rider via socket API
-        const io = req.app.get('io');
-        if (io) {
-            io.to(`rider_${ride.rider_id}`).emit('ride:updated', ride);
+        // On completion: update driver stats and create wallet transaction
+        if (status === 'completed' && ride.driver_id) {
+            const fareAmount = Number(ride.fare_final || ride.fare_estimate || 0);
+            if (fareAmount > 0) {
+                // Update driver stats
+                await query(
+                    `UPDATE drivers SET total_rides = COALESCE(total_rides, 0) + 1,
+                     total_earned = COALESCE(total_earned, 0) + $1,
+                     today_rides = COALESCE(today_rides, 0) + 1,
+                     today_earned = COALESCE(today_earned, 0) + $1
+                     WHERE id = $2`,
+                    [fareAmount, ride.driver_id]
+                );
+
+                // Create or update wallet
+                await query(
+                    `INSERT INTO driver_wallet (driver_id, balance, total_earned)
+                     VALUES ($1, $2, $2)
+                     ON CONFLICT (driver_id) DO UPDATE SET
+                       balance = driver_wallet.balance + $2,
+                       total_earned = driver_wallet.total_earned + $2,
+                       updated_at = NOW()`,
+                    [ride.driver_id, fareAmount]
+                );
+
+                // Create transaction record
+                await query(
+                    `INSERT INTO driver_transactions (driver_id, type, amount, direction, reference_id, reference_type, status)
+                     VALUES ($1, 'ride_earning', $2, 'credit', $3, 'ride', 'completed')`,
+                    [ride.driver_id, fareAmount, ride.id]
+                );
+            }
         }
 
-        res.json({ success: true, ride });
+        // Fetch full ride details with names for socket emission
+        const fullRide = await queryOne(`
+            SELECT r.*, rd.name as rider_name, rd.phone as rider_phone,
+                   dr.name as driver_name, dr.phone as driver_phone, dr.vehicle_plate as driver_plate
+            FROM rides r
+            LEFT JOIN riders rd ON r.rider_id = rd.id
+            LEFT JOIN drivers dr ON r.driver_id = dr.id
+            WHERE r.id = $1
+        `, [rideId]);
+
+        const rideData = fullRide || ride;
+
+        // Emit to both rider and driver via socket
+        const io = req.app.get('io');
+        if (io) {
+            if (rideData.rider_id) {
+                io.to(`rider_${rideData.rider_id}`).emit('ride:updated', rideData);
+            }
+            if (rideData.driver_id) {
+                io.to(`driver_${rideData.driver_id}`).emit('ride:updated', rideData);
+            }
+        }
+
+        res.json({ success: true, ride: rideData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to update ride' });

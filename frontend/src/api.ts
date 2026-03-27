@@ -129,8 +129,20 @@ const api = {
     listByDriver: (driverId: string) => call(`/rides?driver_id=${encodeURIComponent(driverId)}`, { method: 'GET' }),
     listByRider: (riderId: string) => call(`/rides?rider_id=${encodeURIComponent(riderId)}`, { method: 'GET' }),
     get: (id: string) => call(`/rides/${id}`, { method: 'GET' }),
+    create: (data: {
+      pickup_name: string; pickup_lat: number; pickup_lng: number;
+      destination_name: string; destination_lat: number; destination_lng: number;
+      vehicle_type: string; fare_estimate: number; payment_method?: string
+    }) => call('/rides', { method: 'POST', body: data }),
+    updateStatus: (id: string, status: string) =>
+      call(`/rides/${id}/status`, { method: 'PATCH', body: { status } }),
+    active: () => call('/rides/active', { method: 'GET' }),
+    searching: () => call('/rides/searching', { method: 'GET' }),
     rate: (id: string, data: { rating: number; rating_rider_behavior?: number | null; rating_rider_wait_time?: number | null; rating_rider_comment?: string | null; rating_driving?: number | null; rating_behavior?: number | null; rating_cleanliness?: number | null; rating_comment?: string | null }) =>
       call(`/rides/${id}/rate`, { method: 'PATCH', body: data })
+  },
+  vehicles: {
+    list: () => call('/vehicles', { method: 'GET' })
   },
   earnings: {
     summary: () => call('/earnings', { method: 'GET' }),

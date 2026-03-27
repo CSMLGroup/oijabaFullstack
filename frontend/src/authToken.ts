@@ -1,4 +1,5 @@
 export type JwtPayload = {
+  id?: string
   role?: 'rider' | 'driver' | 'admin' | string
   exp?: number
   [key: string]: unknown

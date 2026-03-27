@@ -113,7 +113,13 @@ export default function AuthModal({ isOpen, onClose, language = 'en' }: AuthModa
 
       setTimeout(() => {
         onClose()
-        window.location.hash = '#home'
+        // Only redirect to #home if we are NOT already on a specific targeted panel
+        // (like #book-ride, #driver-home, etc)
+        const currentHash = window.location.hash.replace('#', '')
+        const resetPanels = ['', 'home', 'rider-auth', 'register', 'login']
+        if (resetPanels.includes(currentHash)) {
+          window.location.hash = '#home'
+        }
       }, 1000)
     } catch (error) {
       const msg = error instanceof Error ? error.message : t('Verification failed.', 'যাচাইকরণ ব্যর্থ হয়েছে।')

@@ -148,6 +148,15 @@ export default function HomePage(): JSX.Element {
     { img: '/assets/vehicles/rickshaw.jpg', name: t('Boat', 'নৌকা') },
   ]
 
+  const handleBookClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    if (isLoggedIn) {
+      window.location.hash = '#book-ride'
+    } else {
+      setAuthModalOpen(true)
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: bgLight, fontFamily: "'Inter', 'Hind Siliguri', sans-serif" }}>
       <style>{`
@@ -216,7 +225,7 @@ export default function HomePage(): JSX.Element {
                 <button onClick={() => setAuthModalOpen(true)} style={{
                   padding: '10px 20px', background: 'rgba(0,0,0,0.05)', border: `1px solid ${border}`, borderRadius: 16, fontSize: 13, fontWeight: 600, color: isScrolled ? '#fff' : textSecondary, cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap'
                 }}>{t('Sign In', 'লগইন')}</button>
-                <button onClick={() => setAuthModalOpen(true)} style={{
+                <button onClick={handleBookClick} style={{
                   padding: '10px 20px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', border: 'none', borderRadius: 16, fontSize: 13, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,106,78,0.35)', whiteSpace: 'nowrap', transition: 'all 0.15s'
                 }}>{t('Book Now', 'বুক করুন')}</button>
               </>
@@ -270,7 +279,7 @@ export default function HomePage(): JSX.Element {
                 {t('Book auto-rickshaws, motorbikes, vans and boats from your village to town. Works on 2G. Cash & bKash accepted.', 'আপনার বাড়ি থেকে বাজার পর্যন্ত। মোটরবাইক, অটো-রিকশা, ভ্যান এবং নৌকা বুক করুন। 2G নেটওয়ার্কেও চলে, সাথে ক্যাশ ও বিকাশ সুবিধা।')}
               </p>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 56 }}>
-                <button onClick={() => setAuthModalOpen(true)} style={{ padding: '18px 40px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', borderRadius: 24, border: 'none', fontSize: 17, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,200,83,0.35)', transition: 'all 0.3s' }}>
+                <button onClick={handleBookClick} style={{ padding: '18px 40px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', borderRadius: 24, border: 'none', fontSize: 17, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,200,83,0.35)', transition: 'all 0.3s' }}>
                   📱 {t('Book a Ride', 'রাইড বুক করুন')}
                 </button>
                 <button onClick={() => scrollTo('how-it-works')} style={{ padding: '18px 40px', background: 'transparent', color: primaryGreen, border: `1.5px solid ${primaryGreen}`, borderRadius: 24, fontSize: 17, fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s' }}>
@@ -339,7 +348,7 @@ export default function HomePage(): JSX.Element {
                     <span style={{ color: textSecondary }}>{t('Faridpur Sadar Hospital', 'ফরিদপুর সদর হাসপাতাল')}</span>
                   </div>
                 </div>
-                <button onClick={() => setAuthModalOpen(true)} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', border: 'none', borderRadius: 16, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                <button onClick={handleBookClick} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', border: 'none', borderRadius: 40, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                   {t('Book Now – ৳45', 'এখন বুক করুন – ৳৪৫')}
                 </button>
               </div>
@@ -545,7 +554,7 @@ export default function HomePage(): JSX.Element {
               <p style={{ fontSize: 12, color: textMuted, margin: '0 0 20px' }}>{bookingPayment === 0 ? t('Pay with cash at the end of the trip.', 'ট্রিপ শেষে ক্যাশ দিয়ে পেমেন্ট করুন।') : t('You will be redirected to complete payment.', 'পেমেন্ট সম্পন্ন করতে রিডাইরেক্ট করা হবে।')}</p>
             </div>
 
-            <button onClick={() => setAuthModalOpen(true)} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', border: 'none', borderRadius: 16, fontSize: 16, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,106,78,0.35)' }}>
+            <button onClick={handleBookClick} style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#006a4e,#004c38)', color: '#fff', border: 'none', borderRadius: 16, fontSize: 16, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,106,78,0.35)' }}>
               🛺 {t('Confirm Booking', 'বুকিং নিশ্চিত করুন')}
             </button>
             <p style={{ textAlign: 'center', fontSize: 12, color: textMuted, marginTop: 12, marginBottom: 0 }}>

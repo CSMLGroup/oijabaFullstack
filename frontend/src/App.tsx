@@ -6,12 +6,13 @@ import RidesPage from './pages/RidesPage'
 import RideDetails from './pages/RideDetails'
 import RiderRegister from './pages/RiderRegister'
 import HomePage from './pages/HomePage'
+import RideBooking from './pages/RideBooking'
 import { readJwtPayload } from './authToken'
 import { clearAuthToken } from './api'
 
 type Role = 'guest' | 'rider' | 'driver' | 'admin'
 type Panel = 'home' | 'driver-home' | 'rider-auth' | 'rider-account' | 'ride-details' | 'admin-home'
-type AccountTab = 'profile' | 'rides'
+type AccountTab = 'profile' | 'rides' | 'booking'
 
 function readRoleFromToken(): Role {
   const token = localStorage.getItem('oijaba_token')
@@ -36,6 +37,7 @@ export default function App(): JSX.Element {
   const [userProfileOpen, setUserProfileOpen] = useState(false)
   const [userName, setUserName] = useState('User')
   const [userPhone, setUserPhone] = useState('--')
+  const [userId, setUserId] = useState<string | null>(null)
 
   function goHomeSection(hash: string): void {
     setPanel('home')
@@ -44,6 +46,11 @@ export default function App(): JSX.Element {
 
   function syncUserProfileFromStorage(): void {
     try {
+      const token = localStorage.getItem('oijaba_token')
+      if (token) {
+        const payload = readJwtPayload(token)
+        if (payload?.id) setUserId(payload.id)
+      }
       const profile = localStorage.getItem('userProfile')
       if (!profile) {
         setUserName('User')
@@ -89,6 +96,12 @@ export default function App(): JSX.Element {
       if (hashPanel === 'rider-account') {
         setPanel('rider-account')
         setAccountTab('rides')
+        return
+      }
+
+      if (hashPanel === 'book-ride' || hashPanel === 'booking') {
+        setPanel('rider-account')
+        setAccountTab('booking')
         return
       }
 
@@ -305,6 +318,17 @@ export default function App(): JSX.Element {
           {role === 'rider' && (
             <div className="app-nav">
               <button
+                className={`app-nav-btn ${accountTab === 'booking' ? 'active' : ''}`}
+                onClick={() => {
+                  setPanel('rider-account')
+                  setAccountTab('booking')
+                  window.location.hash = 'book-ride'
+                }}
+                style={accountTab === 'booking' ? { background: 'linear-gradient(135deg, #006a4e, #004c38)', color: '#fff' } : {}}
+              >
+                {language === 'en' ? '🛺 Book Ride' : '🛺 রাইড বুক'}
+              </button>
+              <button
                 className={`app-nav-btn ${accountTab === 'rides' ? 'active' : ''}`}
                 onClick={() => {
                   setPanel('rider-account')
@@ -329,7 +353,8 @@ export default function App(): JSX.Element {
         </div>
 
         <div className="app-panel-body">
-          {role === 'guest' && panel === 'rider-auth' && <RiderRegister />}
+          {role === 'guest' && (panel === 'rider-auth' || panel === 'rider-account') && <RiderRegister />}
+          {role === 'rider' && panel === 'rider-account' && accountTab === 'booking' && <RideBooking language={language} userId={userId || undefined} />}
           {role === 'rider' && panel === 'rider-account' && accountTab === 'profile' && <ProfilePage language={language} />}
           {role === 'rider' && panel === 'rider-account' && accountTab === 'rides' && <RidesPage onOpenRide={openRide} language={language} />}
           {role === 'rider' && panel === 'ride-details' && <RideDetails rideId={selectedRide} />}

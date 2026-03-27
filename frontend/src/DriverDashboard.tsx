@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import api, { clearAuthToken } from './api'
 import AdminRideDetail from './admin/AdminRideDetail'
+import RideRequests from './components/RideRequests'
+import useSocket from './hooks/useSocket'
 import { BD_LOCATIONS, POST_OFFICES } from './bd-post-office-master'
 import {
   BD_DISTRICTS_BN,
@@ -274,6 +276,37 @@ export default function DriverDashboard(): JSX.Element {
   const [onlineSeconds, setOnlineSeconds] = useState(0)
   const [chartPeriod, setChartPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
   const [chartData, setChartData] = useState<ChartDataPoint[]>([])
+
+  // Socket.io connection for real-time ride requests and GPS broadcasting
+  const { on: socketOn, emit: socketEmit, isConnected: socketConnected } = useSocket({
+    role: 'driver',
+    userId: user?.id || null,
+    enabled: isOnline && !!user?.id
+  })
+
+  // Broadcast GPS location every 10 seconds when online
+  useEffect(() => {
+    if (!isOnline || !user?.id || !socketEmit) return
+    const gpsInterval = setInterval(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            socketEmit('driver:location', {
+              driverId: user.id,
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              bearing: 0
+            })
+            // Also update backend
+            api.drivers.updateLocation(pos.coords.latitude, pos.coords.longitude).catch(() => {})
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 8000 }
+        )
+      }
+    }, 10000)
+    return () => clearInterval(gpsInterval)
+  }, [isOnline, user?.id, socketEmit])
 
   useEffect(() => {
     function syncLanguage() {
@@ -1255,6 +1288,13 @@ export default function DriverDashboard(): JSX.Element {
               <div className="driver-panel-content">
                 {tab === 'analytics' && (
                   <section>
+                    {/* ── Ride Requests (when online) ── */}
+                    <RideRequests
+                      isOnline={isOnline}
+                      socketOn={socketOn}
+                      language={isBangla ? 'bn' : 'en'}
+                    />
+
                     {/* ── Account status badge ── */}
                     <h3 className={`driver-status-text driver-status-${driverStatusTone}`}>
                       <span className={`driver-status-light driver-status-light-${driverStatusTone}`} aria-hidden="true" />
