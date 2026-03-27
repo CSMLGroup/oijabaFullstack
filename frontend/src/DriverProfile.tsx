@@ -88,7 +88,7 @@ export default function DriverProfile(): JSX.Element {
             {avatarPreview ? (
               <img src={avatarPreview} alt={t('avatar', 'প্রোফাইল ছবি')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <div style={{ color: '#888' }}>{t('No image', 'কোনো ছবি নেই')}</div>
+              <img src="/assets/dummy-avatar.png" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             )}
           </div>
           <input type="file" accept="image/*" onChange={handleAvatarChange} />
@@ -100,7 +100,7 @@ export default function DriverProfile(): JSX.Element {
             {licensePreview ? (
               <img src={licensePreview} alt={t('license', 'লাইসেন্স')} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
-              <div style={{ color: '#888' }}>{t('No document', 'কোনো ডকুমেন্ট নেই')}</div>
+              <img src="/assets/dummy-license.png" alt="license" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             )}
           </div>
           <input type="file" accept="image/*" onChange={handleLicenseChange} />

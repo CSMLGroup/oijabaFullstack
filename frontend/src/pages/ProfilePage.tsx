@@ -186,30 +186,25 @@ export default function ProfilePage({ language = 'bn' }: { language?: 'en' | 'bn
                   style={{
                     width: 120,
                     height: 120,
-                    borderRadius: '50%',
+                    borderRadius: 12,
                     objectFit: 'cover',
                     border: '2px solid #d6e2da',
                     background: '#f4f7f6'
                   }}
                 />
               ) : (
-                <div
+                <img
+                  src="/assets/dummy-avatar.png"
+                  alt="Rider"
                   style={{
                     width: 120,
                     height: 120,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 42,
-                    fontWeight: 700,
-                    color: '#006a4e',
-                    background: '#e9f3ee',
-                    border: '2px solid #d6e2da'
+                    borderRadius: 12,
+                    objectFit: 'cover',
+                    border: '2px solid #d6e2da',
+                    background: '#f4f7f6'
                   }}
-                >
-                  {(user.name || user.phone || 'U')[0]?.toUpperCase()}
-                </div>
+                />
               )}
             </div>
 

@@ -183,11 +183,11 @@ export default function DriverDashboard(): JSX.Element {
   const [selectedRide, setSelectedRide] = useState<Ride | null>(null)
   const [ridesFilter, setRidesFilter] = useState<string>('all')
   const [ridesSearch, setRidesSearch] = useState('')
-  const [ridesSortBy, setRidesSortBy] = useState<'date-desc'|'date-asc'|'fare-desc'|'fare-asc'>('date-desc')
+  const [ridesSortBy, setRidesSortBy] = useState<'date-desc' | 'date-asc' | 'fare-desc' | 'fare-asc'>('date-desc')
   const [ratingsSearch, setRatingsSearch] = useState('')
-  const [ratingsSortBy, setRatingsSortBy] = useState<'date-desc'|'date-asc'|'score-desc'|'score-asc'>('date-desc')
+  const [ratingsSortBy, setRatingsSortBy] = useState<'date-desc' | 'date-asc' | 'score-desc' | 'score-asc'>('date-desc')
   const [txnSearch, setTxnSearch] = useState('')
-  const [txnSortBy, setTxnSortBy] = useState<'date-desc'|'date-asc'|'amount-desc'|'amount-asc'>('date-desc')
+  const [txnSortBy, setTxnSortBy] = useState<'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc'>('date-desc')
   const [ratingForm, setRatingForm] = useState({ overall: 0, behavior: 0, wait_time: 0, comment: '' })
   const [ratingSubmitting, setRatingSubmitting] = useState(false)
   const [ratingMsg, setRatingMsg] = useState('')
@@ -935,7 +935,7 @@ export default function DriverDashboard(): JSX.Element {
         rating: ratingForm.overall,
         rating_rider_behavior: ratingForm.behavior || null,
         rating_rider_wait_time: ratingForm.wait_time || null,
-        rating_rider_comment:  ratingForm.comment.trim() || null,
+        rating_rider_comment: ratingForm.comment.trim() || null,
       })
       const updated = (res as { ride?: Ride })?.ride
       if (updated) {
@@ -952,7 +952,7 @@ export default function DriverDashboard(): JSX.Element {
   const renderRideDetail = (ride: Ride, onBack: () => void) => {
     const starRow = (val: number | null | undefined, small = true) => (
       <span className={`rt-stars${small ? '' : ' rt-stars-lg'}`}>
-        {[1,2,3,4,5].map((i) => (
+        {[1, 2, 3, 4, 5].map((i) => (
           <span key={i} className={`rt-star${i <= Math.round(val ?? 0) ? ' filled' : ''}`}>★</span>
         ))}
       </span>
@@ -1091,7 +1091,7 @@ export default function DriverDashboard(): JSX.Element {
                   <div className="rate-p-row">
                     <div className="rate-p-label">{t('Overall', 'সামগ্রিক')} <span className="rate-p-req">*</span></div>
                     <div className="rate-p-stars">
-                      {[1,2,3,4,5].map((i) => (
+                      {[1, 2, 3, 4, 5].map((i) => (
                         <span key={i} className={`rate-star${ratingForm.overall >= i ? ' selected' : ''}`}
                           onClick={() => setRatingForm((f) => ({ ...f, overall: i }))}>★</span>
                       ))}
@@ -1100,7 +1100,7 @@ export default function DriverDashboard(): JSX.Element {
                   <div className="rate-p-row">
                     <div className="rate-p-label">👤 {t('Behaviour', 'আচরণ')}</div>
                     <div className="rate-p-stars">
-                      {[1,2,3,4,5].map((i) => (
+                      {[1, 2, 3, 4, 5].map((i) => (
                         <span key={i} className={`rate-star${ratingForm.behavior >= i ? ' selected' : ''}`}
                           onClick={() => setRatingForm((f) => ({ ...f, behavior: i }))}>★</span>
                       ))}
@@ -1109,7 +1109,7 @@ export default function DriverDashboard(): JSX.Element {
                   <div className="rate-p-row">
                     <div className="rate-p-label">⏱️ {t('Wait Time', 'অপেক্ষার সময়')}</div>
                     <div className="rate-p-stars">
-                      {[1,2,3,4,5].map((i) => (
+                      {[1, 2, 3, 4, 5].map((i) => (
                         <span key={i} className={`rate-star${ratingForm.wait_time >= i ? ' selected' : ''}`}
                           onClick={() => setRatingForm((f) => ({ ...f, wait_time: i }))}>★</span>
                       ))}
@@ -1445,1382 +1445,1461 @@ export default function DriverDashboard(): JSX.Element {
                   </section>
                 )}
 
-            {tab === 'rides' && (
-              <section>
-                {selectedRide ? (
-                  <AdminRideDetail rideId={selectedRide.id} onBack={() => setSelectedRide(null)} />
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-                      <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
-                        <div className="admin-stat-header"><span className="admin-stat-label">{t('Total', 'মোট')}</span><span className="admin-stat-icon">🛺</span></div>
-                        <div className="admin-stat-value">{rides.length}</div>
-                      </div>
-                      <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
-                        <div className="admin-stat-header"><span className="admin-stat-label">{t('Completed', 'সম্পন্ন')}</span><span className="admin-stat-icon">✅</span></div>
-                        <div className="admin-stat-value">{completedRides.length}</div>
-                      </div>
-                      <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
-                        <div className="admin-stat-header"><span className="admin-stat-label">{t('Cancelled', 'বাতিল')}</span><span className="admin-stat-icon">❌</span></div>
-                        <div className="admin-stat-value">{rides.filter(r => r.status === 'cancelled').length}</div>
-                      </div>
-                      <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
-                        <div className="admin-stat-header"><span className="admin-stat-label">{t('Earnings', 'আয়')}</span><span className="admin-stat-icon">💰</span></div>
-                        <div className="admin-stat-value">৳{completedRides.reduce((s, r) => s + (r.fare_final ?? r.fare_estimate ?? 0), 0).toLocaleString()}</div>
-                      </div>
-                    </div>
+                {tab === 'rides' && (
+                  <section>
+                    {selectedRide ? (
+                      <AdminRideDetail rideId={selectedRide.id} onBack={() => setSelectedRide(null)} />
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+                          <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
+                            <div className="admin-stat-header"><span className="admin-stat-label">{t('Total', 'মোট')}</span><span className="admin-stat-icon">🛺</span></div>
+                            <div className="admin-stat-value">{rides.length}</div>
+                          </div>
+                          <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
+                            <div className="admin-stat-header"><span className="admin-stat-label">{t('Completed', 'সম্পন্ন')}</span><span className="admin-stat-icon">✅</span></div>
+                            <div className="admin-stat-value">{completedRides.length}</div>
+                          </div>
+                          <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
+                            <div className="admin-stat-header"><span className="admin-stat-label">{t('Cancelled', 'বাতিল')}</span><span className="admin-stat-icon">❌</span></div>
+                            <div className="admin-stat-value">{rides.filter(r => r.status === 'cancelled').length}</div>
+                          </div>
+                          <div className="admin-stat-card" style={{ flex: 1, minWidth: 140 }}>
+                            <div className="admin-stat-header"><span className="admin-stat-label">{t('Earnings', 'আয়')}</span><span className="admin-stat-icon">💰</span></div>
+                            <div className="admin-stat-value">৳{completedRides.reduce((s, r) => s + (r.fare_final ?? r.fare_estimate ?? 0), 0).toLocaleString()}</div>
+                          </div>
+                        </div>
 
-                    {/* Filters and Sort Controls */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Search', 'খুঁজুন')}</label>
-                        <input
-                          type="text"
-                          placeholder={t('Search by ride ID, rider name…', 'রেফ বা যাত্রী নাম দিয়ে খুঁজুন…')}
-                          value={ridesSearch}
-                          onChange={(e) => setRidesSearch(e.target.value)}
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Status Filter', 'স্ট্যাটাস')}</label>
-                        <select
-                          value={ridesFilter}
-                          onChange={(e) => setRidesFilter(e.target.value)}
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
-                        >
-                          <option value="all">{t('All Statuses', 'সব স্ট্যাটাস')}</option>
-                          <option value="completed">{t('Completed', 'সম্পন্ন')}</option>
-                          <option value="cancelled">{t('Cancelled', 'বাতিল')}</option>
-                          <option value="started">{t('In Progress', 'চলমান')}</option>
-                          <option value="accepted">{t('Accepted', 'গৃহীত')}</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Sort By', 'সর্ট করুন')}</label>
-                        <select
-                          value={ridesSortBy}
-                          onChange={(e) => setRidesSortBy(e.target.value as any)}
-                          style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
-                        >
-                          <option value="date-desc">{t('Newest First', 'নতুন আগে')}</option>
-                          <option value="date-asc">{t('Oldest First', 'পুরনো আগে')}</option>
-                          <option value="fare-desc">{t('Fare: High → Low', 'ভাড়া: বেশি → কম')}</option>
-                          <option value="fare-asc">{t('Fare: Low → High', 'ভাড়া: কম → বেশি')}</option>
-                        </select>
-                      </div>
-                    </div>
+                        {/* Filters and Sort Controls */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Search', 'খুঁজুন')}</label>
+                            <input
+                              type="text"
+                              placeholder={t('Search by ride ID, rider name…', 'রেফ বা যাত্রী নাম দিয়ে খুঁজুন…')}
+                              value={ridesSearch}
+                              onChange={(e) => setRidesSearch(e.target.value)}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Status Filter', 'স্ট্যাটাস')}</label>
+                            <select
+                              value={ridesFilter}
+                              onChange={(e) => setRidesFilter(e.target.value)}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
+                            >
+                              <option value="all">{t('All Statuses', 'সব স্ট্যাটাস')}</option>
+                              <option value="completed">{t('Completed', 'সম্পন্ন')}</option>
+                              <option value="cancelled">{t('Cancelled', 'বাতিল')}</option>
+                              <option value="started">{t('In Progress', 'চলমান')}</option>
+                              <option value="accepted">{t('Accepted', 'গৃহীত')}</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Sort By', 'সর্ট করুন')}</label>
+                            <select
+                              value={ridesSortBy}
+                              onChange={(e) => setRidesSortBy(e.target.value as any)}
+                              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
+                            >
+                              <option value="date-desc">{t('Newest First', 'নতুন আগে')}</option>
+                              <option value="date-asc">{t('Oldest First', 'পুরনো আগে')}</option>
+                              <option value="fare-desc">{t('Fare: High → Low', 'ভাড়া: বেশি → কম')}</option>
+                              <option value="fare-asc">{t('Fare: Low → High', 'ভাড়া: কম → বেশি')}</option>
+                            </select>
+                          </div>
+                        </div>
 
-                    {/* Rides Table */}
-                    <div style={{ width: '100%', borderRadius: 10, overflow: 'hidden', boxSizing: 'border-box' }}>
-                      <div style={{ width: '100%', maxHeight: 480, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
-                        <table className="admin-table" style={{ border: '1px solid var(--border)', borderRadius: 0, tableLayout: 'fixed', width: '100%', boxSizing: 'border-box', margin: 0, padding: 0 }}>
-                          <thead>
-                            <tr><th style={{ width: '8%', boxSizing: 'border-box'}}>{t('Ref', 'রেফ')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Rider', 'যাত্রী')}</th><th style={{ width: '13%', boxSizing: 'border-box' }}>{t('Pickup', 'পিকআপ')}</th><th style={{ width: '13%', boxSizing: 'border-box' }}>{t('Destination', 'গন্তব্য')}</th><th style={{ width: '8%', boxSizing: 'border-box' }}>{t('Fare', 'ভাড়া')}</th><th style={{ width: '8%', boxSizing: 'border-box' }}>{t('Their Rating', 'তাদের রেটিং')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Status', 'স্ট্যাটাস')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Date', 'তারিখ')}</th><th style={{ width: '12%', boxSizing: 'border-box' }}>{t('Action', 'অ্যাকশন')}</th></tr>
-                          </thead>
-                          <tbody>
-                            {(() => {
-                              const q = ridesSearch.trim().toLowerCase()
-                              const getRiderRatingAvg = (r: Ride) => {
-                                const vals = [r.rating_rider_behavior, r.rating_rider_wait_time].filter(v => typeof v === 'number')
-                                if (vals.length) return Number((vals.reduce((s, v) => s + (v || 0), 0) / vals.length).toFixed(1))
-                                return r.rider_rating
-                              }
-                              let filtered = ridesFilter === 'all'
-                                ? rides
-                                : rides.filter((r) => String(r.status || '').toLowerCase() === ridesFilter)
-                              if (q) {
-                                filtered = filtered.filter((r) =>
-                                  (r.ride_ref || '').toLowerCase().includes(q) ||
-                                  (r.pickup_name || '').toLowerCase().includes(q) ||
-                                  (r.destination_name || '').toLowerCase().includes(q) ||
-                                  (r.rider_name || '').toLowerCase().includes(q)
-                                )
-                              }
-                              filtered = filtered.slice().sort((a, b) => {
-                                if (ridesSortBy === 'date-asc') return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
-                                if (ridesSortBy === 'fare-desc') return (b.fare_final ?? b.fare_estimate ?? 0) - (a.fare_final ?? a.fare_estimate ?? 0)
-                                if (ridesSortBy === 'fare-asc') return (a.fare_final ?? a.fare_estimate ?? 0) - (b.fare_final ?? b.fare_estimate ?? 0)
-                                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-                              })
-                              return filtered.length === 0 ? (
-                                <tr><td colSpan={9} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
-                                  {rides.length === 0 ? t('No rides found', 'কোনো রাইড পাওয়া যায়নি') : t('No rides match your filters', 'ফিল্টারের সাথে মেলে এমন কোনো রাইড নেই')}
-                                </td></tr>
-                              ) : (
-                                filtered.map(r => {
-                                  const riderRatingAvg = getRiderRatingAvg(r)
-                                  return (
-                                  <tr key={r.id} style={{ cursor: 'pointer' }}>
-                                    <td style={{ boxSizing: 'border-box' }}>{r.ride_ref || r.id?.slice(0, 8)}</td>
-                                    <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.rider_name || '—'}</td>
-                                    <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.pickup_name || '—'}</td>
-                                    <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.destination_name || '—'}</td>
-                                    <td style={{ boxSizing: 'border-box' }}>৳{r.fare_final ?? r.fare_estimate ?? '—'}</td>
-                                    <td style={{ boxSizing: 'border-box' }}>{riderRatingAvg ? `⭐ ${riderRatingAvg}` : '—'}</td>
-                                    <td style={{ boxSizing: 'border-box' }}><span className={`admin-badge ${r.status || 'neutral'}`}>{r.status || '—'}</span></td>
-                                    <td style={{ boxSizing: 'border-box' }}>{r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}</td>
-                                    <td style={{ boxSizing: 'border-box' }}>
-                                      <button
-                                        className="admin-btn success"
-                                        onClick={() => setSelectedRide(r)}
-                                        style={{ padding: '4px 8px', fontSize: 12 }}
-                                      >
-                                        {t('View Details', 'বিবরণ দেখুন')}
-                                      </button>
-                                    </td>
-                                  </tr>
+                        {/* Rides Table */}
+                        <div style={{ width: '100%', borderRadius: 10, overflow: 'hidden', boxSizing: 'border-box' }}>
+                          <div style={{ width: '100%', maxHeight: 480, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
+                            <table className="admin-table" style={{ border: '1px solid var(--border)', borderRadius: 0, tableLayout: 'fixed', width: '100%', boxSizing: 'border-box', margin: 0, padding: 0 }}>
+                              <thead>
+                                <tr><th style={{ width: '8%', boxSizing: 'border-box' }}>{t('Ref', 'রেফ')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Rider', 'যাত্রী')}</th><th style={{ width: '13%', boxSizing: 'border-box' }}>{t('Pickup', 'পিকআপ')}</th><th style={{ width: '13%', boxSizing: 'border-box' }}>{t('Destination', 'গন্তব্য')}</th><th style={{ width: '8%', boxSizing: 'border-box' }}>{t('Fare', 'ভাড়া')}</th><th style={{ width: '8%', boxSizing: 'border-box' }}>{t('Their Rating', 'তাদের রেটিং')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Status', 'স্ট্যাটাস')}</th><th style={{ width: '10%', boxSizing: 'border-box' }}>{t('Date', 'তারিখ')}</th><th style={{ width: '12%', boxSizing: 'border-box' }}>{t('Action', 'অ্যাকশন')}</th></tr>
+                              </thead>
+                              <tbody>
+                                {(() => {
+                                  const q = ridesSearch.trim().toLowerCase()
+                                  const getRiderRatingAvg = (r: Ride) => {
+                                    const vals = [r.rating_rider_behavior, r.rating_rider_wait_time].filter(v => typeof v === 'number')
+                                    if (vals.length) return Number((vals.reduce((s, v) => s + (v || 0), 0) / vals.length).toFixed(1))
+                                    return r.rider_rating
+                                  }
+                                  let filtered = ridesFilter === 'all'
+                                    ? rides
+                                    : rides.filter((r) => String(r.status || '').toLowerCase() === ridesFilter)
+                                  if (q) {
+                                    filtered = filtered.filter((r) =>
+                                      (r.ride_ref || '').toLowerCase().includes(q) ||
+                                      (r.pickup_name || '').toLowerCase().includes(q) ||
+                                      (r.destination_name || '').toLowerCase().includes(q) ||
+                                      (r.rider_name || '').toLowerCase().includes(q)
+                                    )
+                                  }
+                                  filtered = filtered.slice().sort((a, b) => {
+                                    if (ridesSortBy === 'date-asc') return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+                                    if (ridesSortBy === 'fare-desc') return (b.fare_final ?? b.fare_estimate ?? 0) - (a.fare_final ?? a.fare_estimate ?? 0)
+                                    if (ridesSortBy === 'fare-asc') return (a.fare_final ?? a.fare_estimate ?? 0) - (b.fare_final ?? b.fare_estimate ?? 0)
+                                    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+                                  })
+                                  return filtered.length === 0 ? (
+                                    <tr><td colSpan={9} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
+                                      {rides.length === 0 ? t('No rides found', 'কোনো রাইড পাওয়া যায়নি') : t('No rides match your filters', 'ফিল্টারের সাথে মেলে এমন কোনো রাইড নেই')}
+                                    </td></tr>
+                                  ) : (
+                                    filtered.map(r => {
+                                      const riderRatingAvg = getRiderRatingAvg(r)
+                                      return (
+                                        <tr key={r.id} style={{ cursor: 'pointer' }}>
+                                          <td style={{ boxSizing: 'border-box' }}>{r.ride_ref || r.id?.slice(0, 8)}</td>
+                                          <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.rider_name || '—'}</td>
+                                          <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.pickup_name || '—'}</td>
+                                          <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.destination_name || '—'}</td>
+                                          <td style={{ boxSizing: 'border-box' }}>৳{r.fare_final ?? r.fare_estimate ?? '—'}</td>
+                                          <td style={{ boxSizing: 'border-box' }}>{riderRatingAvg ? `⭐ ${riderRatingAvg}` : '—'}</td>
+                                          <td style={{ boxSizing: 'border-box' }}><span className={`admin-badge ${r.status || 'neutral'}`}>{r.status || '—'}</span></td>
+                                          <td style={{ boxSizing: 'border-box' }}>{r.created_at ? new Date(r.created_at).toLocaleDateString() : '—'}</td>
+                                          <td style={{ boxSizing: 'border-box' }}>
+                                            <button
+                                              className="admin-btn success"
+                                              onClick={() => setSelectedRide(r)}
+                                              style={{ padding: '4px 8px', fontSize: 12 }}
+                                            >
+                                              {t('View Details', 'বিবরণ দেখুন')}
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      )
+                                    })
                                   )
-                                })
-                              )
-                            })()}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </section>
-            )}
-
-            {tab === 'vehicles' && (
-              <section>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 12 }}>
-                  <h3 className="admin-heading" style={{ margin: 0 }}>{t('Vehicles', 'গাড়ি')}</h3>
-                  {!showVehicleForm && (
-                    <button className="btn driver-add-vehicle-btn" onClick={toggleVehicleForm} style={{ padding: '8px 16px', fontSize: 14 }}>
-                      <span style={{ marginRight: 6 }}>+</span>
-                      <span>{t('Add Vehicle', 'গাড়ি যোগ করুন')}</span>
-                    </button>
-                  )}
-                </div>
-
-                {showVehicleForm && (
-                  <div className="admin-card" style={{ marginBottom: 20 }}>
-                    <h4 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 600 }}>{t('Add a new vehicle', 'নতুন গাড়ি যোগ করুন')}</h4>
-                    <div ref={vehicleFormAnchorRef} />
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      {(['vehicle_type', 'vehicle_model', 'vehicle_plate', 'year', 'color', 'capacity', 'registration_number', 'engine_chassis_number'] as const).map((key) => {
-                        const labels: Record<string, string> = {
-                          vehicle_type: t('Type', 'ধরন'),
-                          vehicle_model: t('Model', 'মডেল'),
-                          vehicle_plate: t('Plate No.', 'প্লেট নম্বর'),
-                          year: t('Year', 'বছর'),
-                          color: t('Color', 'রং'),
-                          capacity: t('Capacity', 'ধারণক্ষমতা'),
-                          registration_number: t('Reg. No.', 'নিবন্ধন নম্বর'),
-                          engine_chassis_number: t('Engine/Chassis', 'ইঞ্জিন/চ্যাসিস')
-                        }
-                        return (
-                          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                              {labels[key]}
-                            </label>
-                            <input
-                              style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff' }}
-                              value={(vehicleForm[key as keyof typeof vehicleForm] as string) || ''}
-                              onChange={(e) => setVehicleForm({ ...vehicleForm, [key]: e.target.value })}
-                            />
+                                })()}
+                              </tbody>
+                            </table>
                           </div>
-                        )
-                      })}
+                        </div>
+                      </>
+                    )}
+                  </section>
+                )}
+
+                {tab === 'vehicles' && (
+                  <section>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, gap: 12 }}>
+                      <h3 className="admin-heading" style={{ margin: 0 }}>{t('Vehicles', 'গাড়ি')}</h3>
+                      {!showVehicleForm && (
+                        <button className="btn driver-add-vehicle-btn" onClick={toggleVehicleForm} style={{ padding: '8px 16px', fontSize: 14 }}>
+                          <span style={{ marginRight: 6 }}>+</span>
+                          <span>{t('Add Vehicle', 'গাড়ি যোগ করুন')}</span>
+                        </button>
+                      )}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
-                      <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        {t('Notes', 'নোট')}
-                      </label>
-                      <textarea
-                        style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff', minHeight: 72, resize: 'vertical' }}
-                        value={vehicleForm.notes}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, notes: e.target.value })}
-                      />
-                    </div>
+                    {showVehicleForm && (
+                      <div className="admin-modal-overlay driver-modal-overlay">
+                        <div className="admin-modal admin-modal-wide driver-modal" style={{ maxWidth: 860, width: '90%', borderRadius: 24 }}>
+                          <div className="admin-modal-header" style={{ padding: '24px 32px' }}>
+                            <h3 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t('Add a new vehicle', 'নতুন গাড়ি যোগ করুন')}</h3>
+                            <button className="admin-modal-close" onClick={toggleVehicleForm} style={{ background: 'rgba(15,23,42,0.06)', border: 'none', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, color: 'var(--text-sub)' }}>✕</button>
+                          </div>
+                          <div className="admin-modal-body" style={{ padding: '0 32px 32px', maxHeight: '75vh', overflowY: 'auto' }}>
+                            <div ref={vehicleFormAnchorRef} />
 
-                    <h5 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      {t('Vehicle Photos', 'গাড়ির ছবি')}
-                    </h5>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      {(['vehicle_front_image', 'vehicle_rear_image', 'vehicle_left_image', 'vehicle_right_image'] as const).map((key) => {
-                        const labels: Record<string, string> = {
-                          vehicle_front_image: t('Front', 'সামনে'),
-                          vehicle_rear_image: t('Rear', 'পেছনে'),
-                          vehicle_left_image: t('Left', 'বাম'),
-                          vehicle_right_image: t('Right', 'ডান')
-                        }
-                        return (
-                          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                              {labels[key]}
-                            </label>
-                            {(vehicleForm[key] as string) ? (
-                              <img src={vehicleForm[key] as string} alt={labels[key]} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
-                            ) : (
-                              <div style={{ height: 96, borderRadius: 8, border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-sub)', fontSize: 12 }}>
-                                {t('No photo', 'ছবি নেই')}
-                              </div>
-                            )}
-                            <label style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', borderRadius: 6, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s' }}>
-                              📸 {t('Upload', 'আপলোড')}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={(e) => onVehiclePhotoSelect(e, key)}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16, marginTop: 4 }}>
+                              {(['vehicle_type', 'vehicle_model', 'vehicle_plate', 'year', 'color', 'capacity', 'registration_number', 'engine_chassis_number'] as const).map((key) => {
+                                const labels: Record<string, string> = {
+                                  vehicle_type: t('Type', 'ধরন'),
+                                  vehicle_model: t('Model', 'মডেল'),
+                                  vehicle_plate: t('Plate No.', 'প্লেট নম্বর'),
+                                  year: t('Year', 'বছর'),
+                                  color: t('Color', 'রং'),
+                                  capacity: t('Capacity', 'ধারণক্ষমতা'),
+                                  registration_number: t('Reg. No.', 'নিবন্ধন নম্বর'),
+                                  engine_chassis_number: t('Engine/Chassis', 'ইঞ্জিন/চ্যাসিস')
+                                }
+                                return (
+                                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                      {labels[key]}
+                                    </label>
+                                    <input
+                                      style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff' }}
+                                      value={(vehicleForm[key as keyof typeof vehicleForm] as string) || ''}
+                                      onChange={(e) => setVehicleForm({ ...vehicleForm, [key]: e.target.value })}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+                              <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                {t('Notes', 'নোট')}
+                              </label>
+                              <textarea
+                                style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff', minHeight: 72, resize: 'vertical' }}
+                                value={vehicleForm.notes}
+                                onChange={(e) => setVehicleForm({ ...vehicleForm, notes: e.target.value })}
                               />
-                            </label>
-                          </div>
-                        )
-                      })}
-                    </div>
+                            </div>
 
-                    <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                      <button className="btn btn-primary" onClick={() => void addVehicle()} style={{ flex: 1 }}>
-                        {t('✓ Add Vehicle', '✓ গাড়ি যোগ করুন')}
-                      </button>
-                      <button className="btn" onClick={toggleVehicleForm} style={{ flex: 1 }}>
-                        {t('Cancel', 'বাতিল')}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                            <h5 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                              {t('Vehicle Photos', 'গাড়ির ছবি')}
+                            </h5>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
+                              {(['vehicle_front_image', 'vehicle_rear_image', 'vehicle_left_image', 'vehicle_right_image'] as const).map((key) => {
+                                const labels: Record<string, string> = {
+                                  vehicle_front_image: t('Front', 'সামনে'),
+                                  vehicle_rear_image: t('Rear', 'পেছনে'),
+                                  vehicle_left_image: t('Left', 'বাম'),
+                                  vehicle_right_image: t('Right', 'ডান')
+                                }
+                                return (
+                                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                      {labels[key]}
+                                    </label>
+                                    {(vehicleForm[key] as string) ? (
+                                      <img src={vehicleForm[key] as string} alt={labels[key]} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                                    ) : (
+                                      <img src="/assets/dummy-vehicle.png" alt="no photo" style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                                    )}
+                                    <label style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', borderRadius: 6, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s' }}>
+                                      📸 {t('Upload', 'আপলোড')}
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => onVehiclePhotoSelect(e, key)}
+                                      />
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </div>
 
-                {editingVehicle && (
-                  <div className="admin-card" style={{ marginBottom: 20 }}>
-                    <h4 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 600 }}>{t('Edit Vehicle', 'গাড়ি সম্পাদনা করুন')}</h4>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      {(['vehicle_type', 'vehicle_model', 'vehicle_plate', 'year', 'color', 'capacity', 'registration_number', 'engine_chassis_number'] as const).map((key) => {
-                        const labels: Record<string, string> = {
-                          vehicle_type: t('Type', 'ধরন'),
-                          vehicle_model: t('Model', 'মডেল'),
-                          vehicle_plate: t('Plate No.', 'প্লেট নম্বর'),
-                          year: t('Year', 'বছর'),
-                          color: t('Color', 'রং'),
-                          capacity: t('Capacity', 'ধারণক্ষমতা'),
-                          registration_number: t('Reg. No.', 'নিবন্ধন নম্বর'),
-                          engine_chassis_number: t('Engine/Chassis', 'ইঞ্জিন/চ্যাসিস')
-                        }
-                        return (
-                          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                              {labels[key]}
-                            </label>
-                            <input
-                              style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff' }}
-                              value={(vehicleForm[key as keyof typeof vehicleForm] as string) || ''}
-                              onChange={(e) => setVehicleForm({ ...vehicleForm, [key]: e.target.value })}
-                            />
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
-                      <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                        {t('Notes', 'নোট')}
-                      </label>
-                      <textarea
-                        style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff', minHeight: 72, resize: 'vertical' }}
-                        value={vehicleForm.notes}
-                        onChange={(e) => setVehicleForm({ ...vehicleForm, notes: e.target.value })}
-                      />
-                    </div>
-
-                    <h5 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      {t('Vehicle Photos', 'গাড়ির ছবি')}
-                    </h5>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
-                      {(['vehicle_front_image', 'vehicle_rear_image', 'vehicle_left_image', 'vehicle_right_image'] as const).map((key) => {
-                        const labels: Record<string, string> = {
-                          vehicle_front_image: t('Front', 'সামনে'),
-                          vehicle_rear_image: t('Rear', 'পেছনে'),
-                          vehicle_left_image: t('Left', 'বাম'),
-                          vehicle_right_image: t('Right', 'ডান')
-                        }
-                        return (
-                          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                              {labels[key]}
-                            </label>
-                            {(vehicleForm[key] as string) ? (
-                              <img src={vehicleForm[key] as string} alt={labels[key]} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
-                            ) : (
-                              <div style={{ height: 96, borderRadius: 8, border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-sub)', fontSize: 12 }}>
-                                {t('No photo', 'ছবি নেই')}
-                              </div>
-                            )}
-                            <label style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', borderRadius: 6, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s' }}>
-                              📸 {t('Upload', 'আপলোড')}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                onChange={(e) => onVehiclePhotoSelect(e, key)}
-                              />
-                            </label>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                      <button className="btn btn-primary" onClick={() => void updateVehicle()} style={{ flex: 1 }}>
-                        {t('✓ Save Changes', '✓ পরিবর্তন সংরক্ষণ করুন')}
-                      </button>
-                      <button className="btn" onClick={() => { setEditingVehicle(null); setVehicleForm({...vehicleForm, vehicle_type: '', vehicle_model: '', vehicle_plate: '', color: '', capacity: '', registration_number: '', engine_chassis_number: '', notes: '', vehicle_front_image: '', vehicle_rear_image: '', vehicle_left_image: '', vehicle_right_image: ''}); }} style={{ flex: 1 }}>
-                        {t('Cancel', 'বাতিল')}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-
-                {vehicles.length === 0 ? (
-                  <div className="admin-card" style={{ color: 'var(--text-sub)', textAlign: 'center', padding: 32 }}>
-                    {t('No vehicles added yet. Click "Add Vehicle" to get started.', 'এখনও কোনো গাড়ি যোগ করা হয়নি। শুরু করতে "গাড়ি যোগ করুন" ক্লিক করুন।')}
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
-                    {vehicles.map(v => (
-                      <div key={v.id} className="admin-card">
-                        {/* Card header — title/badge + action buttons */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 8 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                            <span style={{ fontWeight: 600, fontSize: 15 }}>{v.vehicle_model || t('Vehicle', 'গাড়ি')}</span>
-                            {v.is_primary && (
-                              <span className="admin-badge active" style={{ fontSize: 11 }}>★ {t('Active', 'সক্রিয়')}</span>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                            {!v.is_primary && (
-                              <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12, background: 'var(--primary)', color: '#fff' }}
-                                onClick={() => void setVehicleAsActive(v.id)}>
-                                ★ {t('Set Active', 'সক্রিয় করুন')}
+                            <div style={{ display: 'flex', gap: 12, marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0', justifyContent: 'flex-end', alignItems: 'center' }}>
+                              <button onClick={toggleVehicleForm} style={{
+                                padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b',
+                                cursor: 'pointer', transition: 'all 160ms ease',
+                              }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                              >
+                                {t('Cancel', 'বাতিল')}
                               </button>
-                            )}
-                            <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
-                              onClick={() => {
-                                setEditingVehicle(v)
-                                setVehicleForm({
-                                  vehicle_type: v.vehicle_type,
-                                  vehicle_model: v.vehicle_model || '',
-                                  vehicle_plate: v.vehicle_plate,
-                                  driver_license: '',
-                                  color: v.color || '',
-                                  capacity: v.capacity || '',
-                                  registration_number: v.registration_number || '',
-                                  engine_chassis_number: v.engine_number || '',
-                                  notes: v.notes || '',
-                                  vehicle_front_image: v.vehicle_front_image || '',
-                                  vehicle_rear_image: v.vehicle_rear_image || '',
-                                  vehicle_left_image: v.vehicle_left_image || '',
-                                  vehicle_right_image: v.vehicle_right_image || ''
-                                })
-                              }}>
-                              ✏️ {t('Edit', 'সম্পাদনা')}
-                            </button>
-                            <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
-                              onClick={() => openVehicleGallery(v)}>
-                              👁️ {t('View', 'দেখুন')}
-                            </button>
-                            <button className="admin-btn danger" style={{ padding: '4px 10px', fontSize: 12 }}
-                              onClick={() => setPendingDeleteVehicle(v)}>
-                              🗑️
-                            </button>
+                              <button onClick={() => void addVehicle()} style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                padding: '10px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                                border: 'none', cursor: 'pointer',
+                                boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                                transition: 'transform 160ms ease, box-shadow 160ms ease',
+                              }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                              >
+                                {t('✓ Add Vehicle', '✓ গাড়ি যোগ করুন')}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-
-                        {/* Image gallery */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
-                          {([
-                            ['Front', v.vehicle_front_image],
-                            ['Rear', v.vehicle_rear_image],
-                            ['Left', v.vehicle_left_image],
-                            ['Right', v.vehicle_right_image],
-                          ] as [string, string | undefined][]).map(([label, src]) => src ? (
-                            <div key={label} style={{ display: 'grid', gap: 4 }}>
-                              <img src={src} alt={`${label} view`} style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8 }} />
-                              <div style={{ fontSize: 11, color: 'var(--text-sub)', textAlign: 'center' }}>{t(label, label === 'Front' ? 'সামনে' : label === 'Rear' ? 'পেছনে' : label === 'Left' ? 'বাম' : 'ডান')}</div>
-                            </div>
-                          ) : null)}
-                        </div>
-
-                        {/* Vehicle details */}
-                        <div style={{ display: 'grid', gap: 6 }}>
-                          {([
-                            ['Type', v.vehicle_type],
-                            ['Model', v.vehicle_model],
-                            ['Plate', v.vehicle_plate],
-                            ['Color', v.color],
-                            ['Capacity', v.capacity],
-                            ['Reg. No.', v.registration_number],
-                            ['Year', v.year],
-                            ['Engine/Chassis', v.engine_number],
-                            ['Notes', v.notes],
-                          ] as [string, string | undefined][]).map(([label, val]) => (
-                            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0', borderBottom: '1px solid var(--border)' }}>
-                              <span style={{ color: 'var(--text-sub)' }}>{t(label, label === 'Type' ? 'ধরন' : label === 'Model' ? 'মডেল' : label === 'Plate' ? 'প্লেট' : label === 'Color' ? 'রং' : label === 'Capacity' ? 'ধারণক্ষমতা' : label === 'Reg. No.' ? 'নিবন্ধন' : label === 'Year' ? 'বছর' : label === 'Engine/Chassis' ? 'ইঞ্জিন' : 'নোট')}</span>
-                              <span style={{ fontWeight: 600 }}>{val || '—'}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {saveState && <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, fontSize: 13, background: saveState.includes('fail') || saveState.includes('error') ? '#fff0f0' : '#f0faf5', color: saveState.includes('fail') || saveState.includes('error') ? 'var(--danger)' : 'var(--primary)', fontWeight: 600 }}>{saveState}</div>}
-              </section>
-            )}
-
-            {tab === 'earnings' && (
-              <section>
-                <h3 className="admin-heading">{t('Earnings', 'আয়')}</h3>
-
-                {earningsLoading
-                  ? <div className="driver-loading">{t('Loading wallet…', 'লোড হচ্ছে…')}</div>
-                  : (
-                  <>
-                    {/* Balance overview */}
-                    <div className="driver-earnings-grid">
-                      <div className="driver-earnings-card driver-earnings-balance">
-                        <div className="driver-earnings-card-icon">💰</div>
-                        <div className="driver-earnings-card-label">{t('Current Balance', 'বর্তমান ব্যালেন্স')}</div>
-                        <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.balance ?? 0).toFixed(2)}</div>
-                      </div>
-                      <div className="driver-earnings-card">
-                        <div className="driver-earnings-card-icon">📈</div>
-                        <div className="driver-earnings-card-label">{t('Total Earned', 'মোট আয়')}</div>
-                        <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.total_earned ?? 0).toFixed(2)}</div>
-                      </div>
-                      <div className="driver-earnings-card">
-                        <div className="driver-earnings-card-icon">📤</div>
-                        <div className="driver-earnings-card-label">{t('Total Withdrawn', 'মোট উত্তোলন')}</div>
-                        <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.total_withdrawn ?? 0).toFixed(2)}</div>
-                      </div>
-                    </div>
-
-                    {/* Tax breakdown */}
-                    {earningSummary && (
-                      <div className="driver-tax-card">
-                        <div className="driver-tax-card-title">📋 {t('Tax & Fee Breakdown', 'কর ও ফি বিশ্লেষণ')}</div>
-                        <div className="driver-tax-row">
-                          <span>{t('Gross Earnings', 'মোট আয় (পরিষ্কারের আগে)')}</span>
-                          <span>৳{Number(earningSummary.tax_breakdown?.gross_earned ?? 0).toFixed(2)}</span>
-                        </div>
-                        <div className="driver-tax-row driver-tax-deduction">
-                          <span>{t('Platform Fee (5%)', 'প্ল্যাটফর্ম ফি (৫%)')}</span>
-                          <span>-৳{Number(earningSummary.tax_breakdown?.platform_fee ?? 0).toFixed(2)}</span>
-                        </div>
-                        <div className="driver-tax-row driver-tax-deduction">
-                          <span>{t('VAT (1%)', 'ভ্যাট (১%)')}</span>
-                          <span>-৳{Number(earningSummary.tax_breakdown?.tax_vat ?? 0).toFixed(2)}</span>
-                        </div>
-                        <div className="driver-tax-row driver-tax-net">
-                          <span><strong>{t('Net Earned', 'নিট আয়')}</strong></span>
-                          <span><strong>৳{Number(earningSummary.tax_breakdown?.net_earned ?? 0).toFixed(2)}</strong></span>
-                        </div>
-                        <div className="driver-tax-row" style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
-                          <span>{t('Based on', 'ভিত্তি')}</span>
-                          <span>{earningSummary.tax_breakdown?.ride_count ?? 0} {t('completed rides', 'সম্পন্ন রাইড')}</span>
                         </div>
                       </div>
                     )}
 
-                    {/* Withdraw */}
-                    <div className="driver-section-card">
-                      <div className="driver-section-card-header">
-                        <span>💸 {t('Withdraw Money', 'টাকা তুলুন')}</span>
-                        <button
-                          className="driver-btn-sm"
-                          onClick={() => {
-                            setShowWithdrawForm((prev) => !prev)
-                            setWithdrawOtpSent(false)
-                            setWithdrawOtp('')
-                            setWithdrawState('')
-                          }}
-                        >
-                          {showWithdrawForm ? t('Cancel', 'বাতিল') : t('Withdraw', 'উত্তোলন')}
-                        </button>
-                      </div>
-                      {showWithdrawForm && (
-                        <div className="driver-form-block">
-                          {!withdrawOtpSent ? (
-                            <>
-                              <div className="driver-form-row">
-                                <label>{t('Select Recipient', 'প্রাপক বেছে নিন')}</label>
-                                <select
-                                  value={withdrawRecipientId}
-                                  onChange={(e) => setWithdrawRecipientId(e.target.value)}
-                                  className="driver-input"
-                                >
-                                  <option value="">{t('-- select --', '-- বেছে নিন --')}</option>
-                                  {recipients.filter((r) => r.verified).map((r) => (
-                                    <option key={r.id} value={r.id}>
-                                      {r.gateway.toUpperCase()} – {r.number}{r.label ? ` (${r.label})` : ''}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div className="driver-form-row">
-                                <label>{t('Amount (৳)', 'পরিমাণ (৳)')}</label>
-                                <input
-                                  type="number"
-                                  min={1}
-                                  placeholder="0.00"
-                                  value={withdrawAmount}
-                                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                                  className="driver-input"
-                                />
-                              </div>
-                              {withdrawState && (
-                                <div className={`driver-form-msg ${withdrawState.startsWith('✅') ? 'success' : 'error'}`}>
-                                  {withdrawState}
-                                </div>
-                              )}
-                              <button
-                                className="driver-btn-primary"
-                                disabled={!withdrawRecipientId || !withdrawAmount || Number(withdrawAmount) <= 0 || withdrawOtpLoading}
-                                onClick={async () => {
-                                  setWithdrawState('')
-                                  setWithdrawOtpLoading(true)
-                                  try {
-                                    await api.earnings.withdrawSendOtp()
-                                    setWithdrawOtpSent(true)
-                                    setWithdrawOtp('')
-                                  } catch (err: any) {
-                                    setWithdrawState('❌ ' + (err?.message || t('Failed to send OTP', 'OTP পাঠানো ব্যর্থ')))
-                                  } finally {
-                                    setWithdrawOtpLoading(false)
-                                  }
-                                }}
+                    {editingVehicle && (
+                      <div className="admin-modal-overlay driver-modal-overlay">
+                        <div className="admin-modal admin-modal-wide driver-modal" style={{ maxWidth: 860, width: '90%', borderRadius: 24 }}>
+                          <div className="admin-modal-header" style={{ padding: '24px 32px' }}>
+                            <h3 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t('Edit Vehicle', 'গাড়ি সম্পাদনা করুন')}</h3>
+                            <button className="admin-modal-close" onClick={() => setEditingVehicle(null)} style={{ background: 'rgba(15,23,42,0.06)', border: 'none', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, color: 'var(--text-sub)' }}>✕</button>
+                          </div>
+                          <div className="admin-modal-body" style={{ padding: '0 32px 32px', maxHeight: '75vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16, marginTop: 4 }}>
+                              {(['vehicle_type', 'vehicle_model', 'vehicle_plate', 'year', 'color', 'capacity', 'registration_number', 'engine_chassis_number'] as const).map((key) => {
+                                const labels: Record<string, string> = {
+                                  vehicle_type: t('Type', 'ধরন'),
+                                  vehicle_model: t('Model', 'মডেল'),
+                                  vehicle_plate: t('Plate No.', 'প্লেট নম্বর'),
+                                  year: t('Year', 'বছর'),
+                                  color: t('Color', 'রং'),
+                                  capacity: t('Capacity', 'ধারণক্ষমতা'),
+                                  registration_number: t('Reg. No.', 'নিবন্ধন নম্বর'),
+                                  engine_chassis_number: t('Engine/Chassis', 'ইঞ্জিন/চ্যাসিস')
+                                }
+                                return (
+                                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                      {labels[key]}
+                                    </label>
+                                    <input
+                                      style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff' }}
+                                      value={(vehicleForm[key as keyof typeof vehicleForm] as string) || ''}
+                                      onChange={(e) => setVehicleForm({ ...vehicleForm, [key]: e.target.value })}
+                                    />
+                                  </div>
+                                )
+                              })}
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+                              <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                {t('Notes', 'নোট')}
+                              </label>
+                              <textarea
+                                style={{ padding: '7px 10px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, background: '#fff', minHeight: 72, resize: 'vertical' }}
+                                value={vehicleForm.notes}
+                                onChange={(e) => setVehicleForm({ ...vehicleForm, notes: e.target.value })}
+                              />
+                            </div>
+
+                            <h5 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                              {t('Vehicle Photos', 'গাড়ির ছবি')}
+                            </h5>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
+                              {(['vehicle_front_image', 'vehicle_rear_image', 'vehicle_left_image', 'vehicle_right_image'] as const).map((key) => {
+                                const labels: Record<string, string> = {
+                                  vehicle_front_image: t('Front', 'সামনে'),
+                                  vehicle_rear_image: t('Rear', 'পেছনে'),
+                                  vehicle_left_image: t('Left', 'বাম'),
+                                  vehicle_right_image: t('Right', 'ডান')
+                                }
+                                return (
+                                  <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <label style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                      {labels[key]}
+                                    </label>
+                                    {(vehicleForm[key] as string) ? (
+                                      <img src={vehicleForm[key] as string} alt={labels[key]} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                                    ) : (
+                                      <div style={{ height: 96, borderRadius: 8, border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-sub)', fontSize: 12 }}>
+                                        {t('No photo', 'ছবি নেই')}
+                                      </div>
+                                    )}
+                                    <label style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', borderRadius: 6, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontWeight: 500, transition: 'all 0.2s' }}>
+                                      📸 {t('Upload', 'আপলোড')}
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={(e) => onVehiclePhotoSelect(e, key)}
+                                      />
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: 12, marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0', justifyContent: 'flex-end', alignItems: 'center' }}>
+                              <button onClick={() => { setEditingVehicle(null); setVehicleForm({ ...vehicleForm, vehicle_type: '', vehicle_model: '', vehicle_plate: '', color: '', capacity: '', registration_number: '', engine_chassis_number: '', notes: '', vehicle_front_image: '', vehicle_rear_image: '', vehicle_left_image: '', vehicle_right_image: '' }); }} style={{
+                                padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b',
+                                cursor: 'pointer', transition: 'all 160ms ease',
+                              }}
+                                onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0' }}
                               >
-                                {withdrawOtpLoading ? t('Sending OTP…', 'OTP পাঠানো হচ্ছে…') : t('Send OTP', 'OTP পাঠান')}
+                                {t('Cancel', 'বাতিল')}
                               </button>
-                            </>
-                          ) : (
-                            <>
-                              <p style={{ fontSize: 14, marginBottom: 8, color: '#555' }}>
-                                {t('Enter the 4-digit OTP sent to your registered phone.', 'আপনার নিবন্ধিত ফোনে পাঠানো ৪-সংখ্যার OTP লিখুন।')}
-                              </p>
-                              <div className="driver-form-row">
-                                <label>{t('OTP', 'OTP')}</label>
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  maxLength={4}
-                                  placeholder="1234"
-                                  value={withdrawOtp}
-                                  onChange={(e) => setWithdrawOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                                  className="driver-input"
-                                  autoFocus
-                                />
-                              </div>
-                              {withdrawState && (
-                                <div className={`driver-form-msg ${withdrawState.startsWith('✅') ? 'success' : 'error'}`}>
-                                  {withdrawState}
-                                </div>
-                              )}
-                              <div style={{ display: 'flex', gap: 8 }}>
-                                <button
-                                  className="driver-btn-sm"
-                                  onClick={() => { setWithdrawOtpSent(false); setWithdrawOtp(''); setWithdrawState('') }}
-                                >
-                                  {t('← Back', '← পিছনে')}
-                                </button>
-                                <button
-                                  className="driver-btn-primary"
-                                  disabled={withdrawOtp.length < 4 || withdrawOtpLoading}
-                                  onClick={async () => {
-                                    setWithdrawState('')
-                                    setWithdrawOtpLoading(true)
-                                    try {
-                                      await api.earnings.withdraw({ recipient_id: withdrawRecipientId, amount: Number(withdrawAmount), otp: withdrawOtp })
-                                      setWithdrawState('✅ ' + t('Withdrawal submitted!', 'উত্তোলন সফল হয়েছে!'))
-                                      setWithdrawAmount('')
-                                      setWithdrawRecipientId('')
-                                      setWithdrawOtp('')
-                                      setWithdrawOtpSent(false)
-                                      setShowWithdrawForm(false)
-                                      // Refresh summary
-                                      const res = await api.earnings.summary()
-                                      setEarningSummary((res as any) ?? null)
-                                      const txnRes = await api.earnings.transactions()
-                                      const txArr = (txnRes as any)?.transactions ?? txnRes
-                                      setTransactions(Array.isArray(txArr) ? txArr : [])
-                                    } catch (err: any) {
-                                      setWithdrawState('❌ ' + (err?.message || t('Failed', 'ব্যর্থ')))
-                                    } finally {
-                                      setWithdrawOtpLoading(false)
-                                    }
-                                  }}
-                                >
-                                  {withdrawOtpLoading ? t('Processing…', 'প্রক্রিয়াকরণ…') : t('Confirm Withdrawal', 'উত্তোলন নিশ্চিত করুন')}
-                                </button>
-                              </div>
-                            </>
-                          )}
+                              <button onClick={() => void updateVehicle()} style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                padding: '10px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                                border: 'none', cursor: 'pointer',
+                                boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                                transition: 'transform 160ms ease, box-shadow 160ms ease',
+                              }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                              >
+                                {t('✓ Save Changes', '✓ পরিবর্তন সংরক্ষণ করুন')}
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Payment recipients */}
-                    <div className="driver-section-card">
-                      <div className="driver-section-card-header">
-                        <span>📲 {t('Payment Recipients', 'পেমেন্ট প্রাপক')}</span>
-                        {recipientStep === null && (
-                          <button className="driver-btn-sm" onClick={() => {
-                            setRecipientStep('form')
-                            setRecipientState('')
-                            setRecipientGateway('bkash')
-                            setRecipientNumber('')
-                            setRecipientLabel('')
-                            setRecipientOtp('')
-                          }}>
-                            + {t('Add', 'যোগ করুন')}
-                          </button>
-                        )}
                       </div>
+                    )}
 
-                      {recipientStep === 'form' && (
-                        <div className="driver-form-block">
-                          <div className="driver-form-row">
-                            <label>{t('Gateway', 'গেটওয়ে')}</label>
-                            <div className="driver-gateway-toggle">
-                              {(['bkash', 'nagad'] as const).map((gw) => (
-                                <button
-                                  key={gw}
-                                  className={`driver-gateway-btn ${recipientGateway === gw ? 'active' : ''} driver-gateway-${gw}`}
-                                  onClick={() => setRecipientGateway(gw)}
-                                >
-                                  {gw === 'bkash' ? '🔴 bKash' : '🟠 Nagad'}
+
+                    {vehicles.length === 0 ? (
+                      <div className="admin-card" style={{ color: 'var(--text-sub)', textAlign: 'center', padding: 32 }}>
+                        {t('No vehicles added yet. Click "Add Vehicle" to get started.', 'এখনও কোনো গাড়ি যোগ করা হয়নি। শুরু করতে "গাড়ি যোগ করুন" ক্লিক করুন।')}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+                        {vehicles.map(v => (
+                          <div key={v.id} className="admin-card">
+                            {/* Card header — title/badge + action buttons */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 8 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                                <span style={{ fontWeight: 600, fontSize: 15 }}>{v.vehicle_model || t('Vehicle', 'গাড়ি')}</span>
+                                {v.is_primary && (
+                                  <span className="admin-badge active" style={{ fontSize: 11 }}>★ {t('Active', 'সক্রিয়')}</span>
+                                )}
+                              </div>
+                              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                                {!v.is_primary && (
+                                  <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12, background: 'var(--primary)', color: '#fff' }}
+                                    onClick={() => void setVehicleAsActive(v.id)}>
+                                    ★ {t('Set Active', 'সক্রিয় করুন')}
+                                  </button>
+                                )}
+                                <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
+                                  onClick={() => {
+                                    setEditingVehicle(v)
+                                    setVehicleForm({
+                                      vehicle_type: v.vehicle_type,
+                                      vehicle_model: v.vehicle_model || '',
+                                      vehicle_plate: v.vehicle_plate,
+                                      driver_license: '',
+                                      color: v.color || '',
+                                      capacity: v.capacity || '',
+                                      registration_number: v.registration_number || '',
+                                      engine_chassis_number: v.engine_number || '',
+                                      notes: v.notes || '',
+                                      vehicle_front_image: v.vehicle_front_image || '',
+                                      vehicle_rear_image: v.vehicle_rear_image || '',
+                                      vehicle_left_image: v.vehicle_left_image || '',
+                                      vehicle_right_image: v.vehicle_right_image || ''
+                                    })
+                                  }}>
+                                  ✏️ {t('Edit', 'সম্পাদনা')}
                                 </button>
+                                <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
+                                  onClick={() => openVehicleGallery(v)}>
+                                  👁️ {t('View', 'দেখুন')}
+                                </button>
+                                <button className="admin-btn danger" style={{ padding: '4px 10px', fontSize: 12 }}
+                                  onClick={() => setPendingDeleteVehicle(v)}>
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Image gallery */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+                              {([
+                                ['Front', v.vehicle_front_image],
+                                ['Rear', v.vehicle_rear_image],
+                                ['Left', v.vehicle_left_image],
+                                ['Right', v.vehicle_right_image],
+                              ] as [string, string | undefined][]).map(([label, src]) => (
+                                <div key={label} style={{ display: 'grid', gap: 4 }}>
+                                  <img src={src || '/assets/dummy-vehicle.png'} alt={`${label} view`} style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                                  <div style={{ fontSize: 11, color: 'var(--text-sub)', textAlign: 'center' }}>{t(label, label === 'Front' ? 'সামনে' : label === 'Rear' ? 'পেছনে' : label === 'Left' ? 'বাম' : 'ডান')}</div>
+                                </div>
                               ))}
                             </div>
-                          </div>
-                          <div className="driver-form-row">
-                            <label>{t('Mobile Number', 'মোবাইল নম্বর')}</label>
-                            <input
-                              type="tel"
-                              placeholder="01XXXXXXXXX"
-                              value={recipientNumber}
-                              onChange={(e) => setRecipientNumber(e.target.value)}
-                              className="driver-input"
-                              maxLength={11}
-                            />
-                          </div>
-                          <div className="driver-form-row">
-                            <label>{t('Label (optional)', 'লেবেল (ঐচ্ছিক)')}</label>
-                            <input
-                              type="text"
-                              placeholder={t('e.g. My bKash', 'যেমন: আমার বিকাশ')}
-                              value={recipientLabel}
-                              onChange={(e) => setRecipientLabel(e.target.value)}
-                              className="driver-input"
-                            />
-                          </div>
-                          {recipientState && (
-                            <div className={`driver-form-msg ${recipientState.startsWith('✅') ? 'success' : 'error'}`}>
-                              {recipientState}
-                            </div>
-                          )}
-                          <div className="driver-form-actions">
-                            <button
-                              className="driver-btn-primary"
-                              disabled={recipientNumber.length < 11}
-                              onClick={async () => {
-                                setRecipientState('')
-                                try {
-                                  await api.earnings.addRecipient({
-                                    gateway: recipientGateway,
-                                    number: recipientNumber,
-                                    label: recipientLabel || undefined
-                                  })
-                                  setRecipientStep('otp')
-                                  setRecipientState(t('OTP sent to your number. Enter it below.', 'OTP পাঠানো হয়েছে। নিচে লিখুন।'))
-                                } catch (err: any) {
-                                  setRecipientState('❌ ' + (err?.message || t('Failed', 'ব্যর্থ')))
-                                }
-                              }}
-                            >
-                              {t('Send OTP', 'OTP পাঠান')}
-                            </button>
-                            <button className="driver-btn-ghost" onClick={() => { setRecipientStep(null); setRecipientState('') }}>
-                              {t('Cancel', 'বাতিল')}
-                            </button>
-                          </div>
-                        </div>
-                      )}
 
-                      {recipientStep === 'otp' && (
-                        <div className="driver-form-block">
-                          <p className="driver-otp-hint">
-                            {t(`OTP sent to ${recipientGateway.toUpperCase()} ${recipientNumber}`, `${recipientGateway.toUpperCase()} ${recipientNumber}-এ OTP পাঠানো হয়েছে`)}
-                          </p>
-                          <div className="driver-form-row">
-                            <label>{t('Enter OTP', 'OTP লিখুন')}</label>
-                            <input
-                              type="text"
-                              placeholder="4-digit OTP"
-                              value={recipientOtp}
-                              onChange={(e) => setRecipientOtp(e.target.value)}
-                              className="driver-input driver-otp-input"
-                              maxLength={4}
-                            />
-                          </div>
-                          {recipientState && (
-                            <div className={`driver-form-msg ${recipientState.startsWith('✅') ? 'success' : 'error'}`}>
-                              {recipientState}
-                            </div>
-                          )}
-                          <div className="driver-form-actions">
-                            <button
-                              className="driver-btn-primary"
-                              disabled={recipientOtp.length < 4}
-                              onClick={async () => {
-                                setRecipientState('')
-                                try {
-                                  await api.earnings.verifyRecipient({
-                                    gateway: recipientGateway,
-                                    number: recipientNumber,
-                                    otp: recipientOtp
-                                  })
-                                  setRecipientState('✅ ' + t('Recipient added successfully!', 'প্রাপক সফলভাবে যোগ হয়েছে!'))
-                                  setRecipientStep(null)
-                                  const recRes = await api.earnings.listRecipients()
-                                  const recArr = (recRes as any)?.recipients ?? recRes
-                                  setRecipients(Array.isArray(recArr) ? recArr : [])
-                                } catch (err: any) {
-                                  setRecipientState('❌ ' + (err?.message || t('Invalid OTP', 'ভুল OTP')))
-                                }
-                              }}
-                            >
-                              {t('Verify OTP', 'OTP যাচাই করুন')}
-                            </button>
-                            <button className="driver-btn-ghost" onClick={() => setRecipientStep('form')}>
-                              {t('Back', 'পিছে যান')}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="driver-recipient-list">
-                        {recipients.length === 0 && recipientStep === null && (
-                          <p className="driver-empty-hint">{t('No recipients added yet.', 'এখনও কোনো প্রাপক যোগ করা হয়নি।')}</p>
-                        )}
-                        {recipients.map((rec) => (
-                          <div key={rec.id} className="driver-recipient-item">
-                            <span className={`driver-gateway-badge driver-gateway-badge-${rec.gateway}`}>
-                              {rec.gateway === 'bkash' ? '🔴 bKash' : '🟠 Nagad'}
-                            </span>
-                            <div className="driver-recipient-info">
-                              <span className="driver-recipient-number">{rec.number}</span>
-                              {rec.label && <span className="driver-recipient-label">{rec.label}</span>}
-                            </div>
-                            <div className="driver-recipient-actions">
-                              {rec.verified
-                                ? <span className="driver-verified-badge">✅ {t('Verified', 'যাচাইকৃত')}</span>
-                                : inlineVerifyId === rec.id
-                                  ? (
-                                    <div className="driver-inline-verify">
-                                      <input
-                                        type="text"
-                                        placeholder="4-digit OTP"
-                                        value={inlineVerifyOtp}
-                                        onChange={(e) => setInlineVerifyOtp(e.target.value)}
-                                        className="driver-input driver-otp-input"
-                                        maxLength={4}
-                                        style={{ width: 90 }}
-                                      />
-                                      <button
-                                        className="driver-btn-primary"
-                                        style={{ padding: '5px 10px', fontSize: 12 }}
-                                        disabled={inlineVerifyOtp.length < 4}
-                                        onClick={async () => {
-                                          setInlineVerifyState('')
-                                          try {
-                                            await api.earnings.verifyRecipient({ gateway: rec.gateway, number: rec.number, otp: inlineVerifyOtp })
-                                            setInlineVerifyId('')
-                                            setInlineVerifyOtp('')
-                                            const recRes = await api.earnings.listRecipients()
-                                            const recArr = (recRes as any)?.recipients ?? recRes
-                                            setRecipients(Array.isArray(recArr) ? recArr : [])
-                                          } catch (err: any) {
-                                            setInlineVerifyState('❌ ' + (err?.message || t('Invalid OTP', 'ভুল OTP')))
-                                          }
-                                        }}
-                                      >✓</button>
-                                      <button
-                                        className="driver-btn-ghost"
-                                        style={{ padding: '4px 8px', fontSize: 12 }}
-                                        onClick={() => { setInlineVerifyId(''); setInlineVerifyOtp(''); setInlineVerifyState('') }}
-                                      >✕</button>
-                                      {inlineVerifyState && <span style={{ fontSize: 11, color: '#e05252' }}>{inlineVerifyState}</span>}
-                                    </div>
-                                  )
-                                  : (
-                                    <button
-                                      className="driver-btn-sm"
-                                      style={{ fontSize: 11 }}
-                                      disabled={resendingOtpId === rec.id}
-                                      onClick={async () => {
-                                        setResendingOtpId(rec.id)
-                                        try {
-                                          await api.earnings.addRecipient({ gateway: rec.gateway, number: rec.number })
-                                          setInlineVerifyId(rec.id)
-                                          setInlineVerifyOtp('')
-                                          setInlineVerifyState('')
-                                        } catch { /* silent */ } finally { setResendingOtpId('') }
-                                      }}
-                                    >
-                                      {resendingOtpId === rec.id ? '…' : t('Verify Now', 'যাচাই করুন')}
-                                    </button>
-                                  )
-                              }
-                              <button
-                                className="driver-btn-danger-sm"
-                                disabled={deletingRecipientId === rec.id}
-                                onClick={async () => {
-                                  if (!confirm(t('Remove this recipient?', 'এই প্রাপক সরাবেন?'))) return
-                                  setDeletingRecipientId(rec.id)
-                                  try {
-                                    await api.earnings.deleteRecipient(rec.id)
-                                    setRecipients((prev) => prev.filter((r) => r.id !== rec.id))
-                                  } catch { /* silent */ } finally {
-                                    setDeletingRecipientId('')
-                                  }
-                                }}
-                              >
-                                {deletingRecipientId === rec.id ? '…' : t('Remove', 'সরান')}
-                              </button>
+                            {/* Vehicle details */}
+                            <div style={{ display: 'grid', gap: 6 }}>
+                              {([
+                                ['Type', v.vehicle_type],
+                                ['Model', v.vehicle_model],
+                                ['Plate', v.vehicle_plate],
+                                ['Color', v.color],
+                                ['Capacity', v.capacity],
+                                ['Reg. No.', v.registration_number],
+                                ['Year', v.year],
+                                ['Engine/Chassis', v.engine_number],
+                                ['Notes', v.notes],
+                              ] as [string, string | undefined][]).map(([label, val]) => (
+                                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0', borderBottom: '1px solid var(--border)' }}>
+                                  <span style={{ color: 'var(--text-sub)' }}>{t(label, label === 'Type' ? 'ধরন' : label === 'Model' ? 'মডেল' : label === 'Plate' ? 'প্লেট' : label === 'Color' ? 'রং' : label === 'Capacity' ? 'ধারণক্ষমতা' : label === 'Reg. No.' ? 'নিবন্ধন' : label === 'Year' ? 'বছর' : label === 'Engine/Chassis' ? 'ইঞ্জিন' : 'নোট')}</span>
+                                  <span style={{ fontWeight: 600 }}>{val || '—'}</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         ))}
                       </div>
-                    </div>
+                    )}
 
-                    {/* Transaction history */}
-                    <div className="driver-section-card">
-                      <div className="driver-section-card-header">
-                        <span>📜 {t('Transaction History', 'লেনদেনের ইতিহাস')}</span>
-                      </div>
-                      <div className="list-controls" style={{ padding: '0 0 4px' }}>
-                        <input
-                          className="list-search"
-                          placeholder={t('Search by type, note, gateway…', 'ধরন, নোট, গেটওয়ে দিয়ে খুঁজুন…')}
-                          value={txnSearch}
-                          onChange={(e) => setTxnSearch(e.target.value)}
-                        />
-                        <select className="list-sort" value={txnSortBy} onChange={(e) => setTxnSortBy(e.target.value as typeof txnSortBy)}>
-                          <option value="date-desc">{t('Newest first', 'নতুন আগে')}</option>
-                          <option value="date-asc">{t('Oldest first', 'পুরনো আগে')}</option>
-                          <option value="amount-desc">{t('Amount: high → low', 'পরিমাণ: বেশি → কম')}</option>
-                          <option value="amount-asc">{t('Amount: low → high', 'পরিমাণ: কম → বেশি')}</option>
-                        </select>
-                      </div>
-                      {transactions.length === 0
-                        ? <p className="driver-empty-hint">{t('No transactions yet.', 'এখনও কোনো লেনদেন নেই।')}</p>
-                        : (() => {
-                          const tq = txnSearch.trim().toLowerCase()
-                          let txns = tq
-                            ? transactions.filter((txn) =>
-                                (txn.type || '').toLowerCase().replace(/_/g, ' ').includes(tq) ||
-                                (txn.note || '').toLowerCase().includes(tq) ||
-                                (txn.gateway || '').toLowerCase().includes(tq)
-                              )
-                            : transactions
-                          txns = txns.slice().sort((a, b) => {
-                            if (txnSortBy === 'date-asc') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-                            if (txnSortBy === 'amount-desc') return Number(b.amount) - Number(a.amount)
-                            if (txnSortBy === 'amount-asc') return Number(a.amount) - Number(b.amount)
-                            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                          })
-                          return txns.length === 0
-                            ? <p className="driver-empty-hint">{t('No transactions match your search.', 'কোনো লেনদেন পাওয়া যায়নি।')}</p>
-                            : (
-                              <div className="driver-txn-list">
-                                {txns.map((txn) => (
-                                  <div key={txn.id} className={`driver-txn-item driver-txn-${txn.direction}`}>
-                                    <div className="driver-txn-left">
-                                      <span className="driver-txn-type-badge">{txn.type.replace(/_/g, ' ')}</span>
-                                      <span className="driver-txn-note">{txn.note || txn.gateway || '—'}</span>
-                                      <span className="driver-txn-date">
-                                        {new Date(txn.created_at).toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' })}
-                                      </span>
-                                    </div>
-                                    <div className={`driver-txn-amount driver-txn-${txn.direction}`}>
-                                      {txn.direction === 'credit' ? '+' : '-'}৳{Number(txn.amount).toFixed(2)}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )
-                        })()
-                      }
-                    </div>
-                  </>
+                    {saveState && <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, fontSize: 13, background: saveState.includes('fail') || saveState.includes('error') ? '#fff0f0' : '#f0faf5', color: saveState.includes('fail') || saveState.includes('error') ? 'var(--danger)' : 'var(--primary)', fontWeight: 600 }}>{saveState}</div>}
+                  </section>
                 )}
-              </section>
-            )}
 
-            {tab === 'ratings' && (() => {
-              const completedRides = rides.filter((r) => r.status === 'completed')
-              const ratedRides = completedRides.filter((r) => typeof r.driver_rating === 'number')
-              const catAvg = (key: 'rating_driving' | 'rating_behavior' | 'rating_cleanliness') => {
-                const vals = ratedRides.filter((r) => typeof r[key] === 'number')
-                if (!vals.length) return null
-                return Number((vals.reduce((s, r) => s + Number(r[key]), 0) / vals.length).toFixed(1))
-              }
-              const avgDriving     = catAvg('rating_driving')
-              const avgBehavior    = catAvg('rating_behavior')
-              const avgCleanliness = catAvg('rating_cleanliness')
+                {tab === 'earnings' && (
+                  <section>
+                    <h3 className="admin-heading">{t('Earnings', 'আয়')}</h3>
 
-              const renderStars = (val: number | null | undefined, size: 'sm' | 'lg' = 'sm') => {
-                if (val == null) return <span className="rt-no-data">—</span>
-                const full = Math.round(val)
-                return (
-                  <span className={`rt-stars rt-stars-${size}`}>
-                    {[1,2,3,4,5].map((i) => (
-                      <span key={i} className={`rt-star${i <= full ? ' filled' : ''}`}>★</span>
-                    ))}
-                  </span>
-                )
-              }
-
-              const sorted = completedRides.slice().sort(
-                (a, b) => new Date(b.completed_at || b.created_at || 0).getTime() - new Date(a.completed_at || a.created_at || 0).getTime()
-              )
-
-              const rq = ratingsSearch.trim().toLowerCase()
-              let displayedRides = rq
-                ? sorted.filter((r) =>
-                    (r.ride_ref || '').toLowerCase().includes(rq) ||
-                    (r.pickup_name || '').toLowerCase().includes(rq) ||
-                    (r.destination_name || '').toLowerCase().includes(rq) ||
-                    (r.rider_name || '').toLowerCase().includes(rq)
-                  )
-                : sorted
-              displayedRides = displayedRides.slice().sort((a, b) => {
-                if (ratingsSortBy === 'date-asc') return new Date(a.completed_at || a.created_at || 0).getTime() - new Date(b.completed_at || b.created_at || 0).getTime()
-                if (ratingsSortBy === 'score-desc') return (b.driver_rating ?? -1) - (a.driver_rating ?? -1)
-                if (ratingsSortBy === 'score-asc') return (a.driver_rating ?? 99) - (b.driver_rating ?? 99)
-                return new Date(b.completed_at || b.created_at || 0).getTime() - new Date(a.completed_at || a.created_at || 0).getTime()
-              })
-
-              return (
-                <section>
-                  {selectedRide ? (
-                    <AdminRideDetail rideId={selectedRide.id} onBack={() => setSelectedRide(null)} />
-                  ) : (
-                    <>
-                      {/* ── Overall header ── */}
-                      <div className="rt-overview-card">
-                        <div className="rt-overall-left">
-                          <div className="rt-overall-score">{avgRating ?? '—'}</div>
-                          {renderStars(avgRating, 'lg')}
-                          <div className="rt-overall-count">
-                            {ratedRides.length} {t('ratings', 'রেটিং')}
+                    {earningsLoading
+                      ? <div className="driver-loading">{t('Loading wallet…', 'লোড হচ্ছে…')}</div>
+                      : (
+                        <>
+                          {/* Balance overview */}
+                          <div className="driver-earnings-grid">
+                            <div className="driver-earnings-card driver-earnings-balance">
+                              <div className="driver-earnings-card-icon">💰</div>
+                              <div className="driver-earnings-card-label">{t('Current Balance', 'বর্তমান ব্যালেন্স')}</div>
+                              <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.balance ?? 0).toFixed(2)}</div>
+                            </div>
+                            <div className="driver-earnings-card">
+                              <div className="driver-earnings-card-icon">📈</div>
+                              <div className="driver-earnings-card-label">{t('Total Earned', 'মোট আয়')}</div>
+                              <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.total_earned ?? 0).toFixed(2)}</div>
+                            </div>
+                            <div className="driver-earnings-card">
+                              <div className="driver-earnings-card-icon">📤</div>
+                              <div className="driver-earnings-card-label">{t('Total Withdrawn', 'মোট উত্তোলন')}</div>
+                              <div className="driver-earnings-card-value">৳{Number(earningSummary?.wallet?.total_withdrawn ?? 0).toFixed(2)}</div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
 
-                      {/* ── Category Ratings Grid ── */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
-                        <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Driving', 'ড্রাইভিং')}</div>
-                          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgDriving ?? '—'}</div>
-                          {renderStars(avgDriving, 'sm')}
-                        </div>
-                        <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Behaviour', 'আচরণ')}</div>
-                          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgBehavior ?? '—'}</div>
-                          {renderStars(avgBehavior, 'sm')}
-                        </div>
-                        <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Cleanliness', 'পরিচ্ছন্নতা')}</div>
-                          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgCleanliness ?? '—'}</div>
-                          {renderStars(avgCleanliness, 'sm')}
-                        </div>
-                      </div>
-
-                      {/* ── Rating Reminder for unrated rides ── */}
-                      {(() => {
-                        const unratedRides = completedRides.filter(r => r.rider_rating == null)
-                        if (unratedRides.length > 0) {
-                          return (
-                            <div style={{ marginBottom: 16, padding: 16, borderRadius: 8, background: '#dbeafe', border: '1px solid #93c5fd', display: 'flex', gap: 12, alignItems: 'center' }}>
-                              <span style={{ fontSize: 24 }}>⭐</span>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 600, color: '#0c2d6b', marginBottom: 4 }}>{t('Rate Your Passengers', 'আপনার যাত্রীদের রেটিং দিন')}</div>
-                                <div style={{ fontSize: 13, color: '#0369a1' }}>
-                                  {t(`You have ${unratedRides.length} completed ride${unratedRides.length !== 1 ? 's' : ''} waiting for your feedback. Rate your passengers below!`,
-                                    `আপনার ${unratedRides.length}টি সম্পন্ন রাইড রেটিং অপেক্ষায়। নিচে আপনার যাত্রীদের রেটিং দিন!`)}
-                                </div>
+                          {/* Tax breakdown */}
+                          {earningSummary && (
+                            <div className="driver-tax-card">
+                              <div className="driver-tax-card-title">📋 {t('Tax & Fee Breakdown', 'কর ও ফি বিশ্লেষণ')}</div>
+                              <div className="driver-tax-row">
+                                <span>{t('Gross Earnings', 'মোট আয় (পরিষ্কারের আগে)')}</span>
+                                <span>৳{Number(earningSummary.tax_breakdown?.gross_earned ?? 0).toFixed(2)}</span>
+                              </div>
+                              <div className="driver-tax-row driver-tax-deduction">
+                                <span>{t('Platform Fee (5%)', 'প্ল্যাটফর্ম ফি (৫%)')}</span>
+                                <span>-৳{Number(earningSummary.tax_breakdown?.platform_fee ?? 0).toFixed(2)}</span>
+                              </div>
+                              <div className="driver-tax-row driver-tax-deduction">
+                                <span>{t('VAT (1%)', 'ভ্যাট (১%)')}</span>
+                                <span>-৳{Number(earningSummary.tax_breakdown?.tax_vat ?? 0).toFixed(2)}</span>
+                              </div>
+                              <div className="driver-tax-row driver-tax-net">
+                                <span><strong>{t('Net Earned', 'নিট আয়')}</strong></span>
+                                <span><strong>৳{Number(earningSummary.tax_breakdown?.net_earned ?? 0).toFixed(2)}</strong></span>
+                              </div>
+                              <div className="driver-tax-row" style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
+                                <span>{t('Based on', 'ভিত্তি')}</span>
+                                <span>{earningSummary.tax_breakdown?.ride_count ?? 0} {t('completed rides', 'সম্পন্ন রাইড')}</span>
                               </div>
                             </div>
-                          )
-                        }
-                        return null
-                      })()}
+                          )}
 
-                      {/* ── Filters and Sort Controls ── */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Search', 'খুঁজুন')}</label>
-                          <input
-                            type="text"
-                            placeholder={t('Search by ride ID, rider name…', 'রেফ বা যাত্রী নাম দিয়ে খুঁজুন…')}
-                            value={ratingsSearch}
-                            onChange={(e) => setRatingsSearch(e.target.value)}
-                            style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit' }}
-                          />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Sort By', 'সর্ট করুন')}</label>
-                          <select
-                            value={ratingsSortBy}
-                            onChange={(e) => setRatingsSortBy(e.target.value as typeof ratingsSortBy)}
-                            style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
-                          >
-                            <option value="date-desc">{t('Newest First', 'নতুন আগে')}</option>
-                            <option value="date-asc">{t('Oldest First', 'পুরনো আগে')}</option>
-                            <option value="score-desc">{t('Rating: High → Low', 'রেটিং: বেশি → কম')}</option>
-                            <option value="score-asc">{t('Rating: Low → High', 'রেটিং: কম → বেশি')}</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* ── Ratings Table ── */}
-                      <div style={{ width: '100%', borderRadius: 10, overflow: 'hidden', boxSizing: 'border-box' }}>
-                        <div style={{ width: '100%', maxHeight: 480, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
-                          <table className="admin-table" style={{ border: '1px solid var(--border)', borderRadius: 0, tableLayout: 'fixed', width: '100%', boxSizing: 'border-box', margin: 0, padding: 0 }}>
-                            <thead>
-                              <tr><th style={{ width: '12%', boxSizing: 'border-box'}}>{t('Ref', 'রেফ')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Rider', 'যাত্রী')}</th><th style={{ width: '18%', boxSizing: 'border-box' }}>{t('Pickup', 'পিকআপ')}</th><th style={{ width: '18%', boxSizing: 'border-box' }}>{t('Destination', 'গন্তব্য')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Rating', 'রেটিং')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Date', 'তারিখ')}</th><th style={{ width: '7%', boxSizing: 'border-box' }}>{t('Action', 'কর্ম')}</th></tr>
-                            </thead>
-                            <tbody>
-                              {(() => {
-                                const getRatingAvg = (r: Ride) => {
-                                  const vals = [r.rating_driving, r.rating_behavior, r.rating_cleanliness].filter(v => typeof v === 'number')
-                                  if (!vals.length) return null
-                                  return Number((vals.reduce((s, v) => s + (v || 0), 0) / vals.length).toFixed(1))
-                                }
-                                return completedRides.length === 0 ? (
-                                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
-                                    {t('No completed rides yet.', 'এখনও কোনো সম্পন্ন রাইড নেই।')}
-                                  </td></tr>
-                                ) : displayedRides.length === 0 ? (
-                                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
-                                    {t('No rides match your search.', 'কোনো রাইড পাওয়া যায়নি।')}
-                                  </td></tr>
+                          {/* Withdraw */}
+                          <div className="driver-section-card">
+                            <div className="driver-section-card-header">
+                              <span>💸 {t('Withdraw Money', 'টাকা তুলুন')}</span>
+                              <button
+                                className="driver-btn-sm"
+                                onClick={() => {
+                                  setShowWithdrawForm((prev) => !prev)
+                                  setWithdrawOtpSent(false)
+                                  setWithdrawOtp('')
+                                  setWithdrawState('')
+                                }}
+                              >
+                                {showWithdrawForm ? t('Cancel', 'বাতিল') : t('Withdraw', 'উত্তোলন')}
+                              </button>
+                            </div>
+                            {showWithdrawForm && (
+                              <div className="driver-form-block">
+                                {!withdrawOtpSent ? (
+                                  <>
+                                    <div className="driver-form-row">
+                                      <label>{t('Select Recipient', 'প্রাপক বেছে নিন')}</label>
+                                      <select
+                                        value={withdrawRecipientId}
+                                        onChange={(e) => setWithdrawRecipientId(e.target.value)}
+                                        className="driver-input"
+                                      >
+                                        <option value="">{t('-- select --', '-- বেছে নিন --')}</option>
+                                        {recipients.filter((r) => r.verified).map((r) => (
+                                          <option key={r.id} value={r.id}>
+                                            {r.gateway.toUpperCase()} – {r.number}{r.label ? ` (${r.label})` : ''}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                    <div className="driver-form-row">
+                                      <label>{t('Amount (৳)', 'পরিমাণ (৳)')}</label>
+                                      <input
+                                        type="number"
+                                        min={1}
+                                        placeholder="0.00"
+                                        value={withdrawAmount}
+                                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                                        className="driver-input"
+                                      />
+                                    </div>
+                                    {withdrawState && (
+                                      <div className={`driver-form-msg ${withdrawState.startsWith('✅') ? 'success' : 'error'}`}>
+                                        {withdrawState}
+                                      </div>
+                                    )}
+                                    <button
+                                      className="driver-btn-primary"
+                                      disabled={!withdrawRecipientId || !withdrawAmount || Number(withdrawAmount) <= 0 || withdrawOtpLoading}
+                                      onClick={async () => {
+                                        setWithdrawState('')
+                                        setWithdrawOtpLoading(true)
+                                        try {
+                                          await api.earnings.withdrawSendOtp()
+                                          setWithdrawOtpSent(true)
+                                          setWithdrawOtp('')
+                                        } catch (err: any) {
+                                          setWithdrawState('❌ ' + (err?.message || t('Failed to send OTP', 'OTP পাঠানো ব্যর্থ')))
+                                        } finally {
+                                          setWithdrawOtpLoading(false)
+                                        }
+                                      }}
+                                    >
+                                      {withdrawOtpLoading ? t('Sending OTP…', 'OTP পাঠানো হচ্ছে…') : t('Send OTP', 'OTP পাঠান')}
+                                    </button>
+                                  </>
                                 ) : (
-                                  displayedRides.map(r => {
-                                    const ratingAvg = getRatingAvg(r)
-                                    return (
-                                    <tr key={r.id} style={{ cursor: 'default' }}>
-                                      <td style={{ boxSizing: 'border-box' }}>{r.ride_ref || r.id?.slice(0, 8)}</td>
-                                      <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.rider_name || '—'}</td>
-                                      <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.pickup_name || '—'}</td>
-                                      <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.destination_name || '—'}</td>
-                                      <td style={{ boxSizing: 'border-box' }}>{ratingAvg != null ? `⭐ ${ratingAvg}` : '—'}</td>
-                                      <td style={{ boxSizing: 'border-box' }}>{r.completed_at ? new Date(r.completed_at).toLocaleDateString() : '—'}</td>
-                                      <td style={{ boxSizing: 'border-box' }}>
-                                        {r.rider_rating == null ? (
-                                          <button
-                                            className="admin-btn"
-                                            onClick={() => setSelectedRide(r)}
-                                            style={{ padding: '4px 8px', fontSize: 12, background: '#fcd34d', color: '#92400e', border: 'none', fontWeight: 600 }}
-                                          >
-                                            ⭐ Rate
-                                          </button>
-                                        ) : (
-                                          <button
-                                            className="admin-btn"
-                                            onClick={() => setSelectedRide(r)}
-                                            style={{ padding: '4px 8px', fontSize: 12 }}
-                                          >
-                                            View
-                                          </button>
-                                        )}
-                                      </td>
-                                    </tr>
-                                    )
-                                  })
-                                )
-                              })()}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                                  <>
+                                    <p style={{ fontSize: 14, marginBottom: 8, color: '#555' }}>
+                                      {t('Enter the 4-digit OTP sent to your registered phone.', 'আপনার নিবন্ধিত ফোনে পাঠানো ৪-সংখ্যার OTP লিখুন।')}
+                                    </p>
+                                    <div className="driver-form-row">
+                                      <label>{t('OTP', 'OTP')}</label>
+                                      <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
+                                        maxLength={4}
+                                        placeholder="1234"
+                                        value={withdrawOtp}
+                                        onChange={(e) => setWithdrawOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                        className="driver-input"
+                                        autoFocus
+                                      />
+                                    </div>
+                                    {withdrawState && (
+                                      <div className={`driver-form-msg ${withdrawState.startsWith('✅') ? 'success' : 'error'}`}>
+                                        {withdrawState}
+                                      </div>
+                                    )}
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                      <button
+                                        className="driver-btn-sm"
+                                        onClick={() => { setWithdrawOtpSent(false); setWithdrawOtp(''); setWithdrawState('') }}
+                                      >
+                                        {t('← Back', '← পিছনে')}
+                                      </button>
+                                      <button
+                                        className="driver-btn-primary"
+                                        disabled={withdrawOtp.length < 4 || withdrawOtpLoading}
+                                        onClick={async () => {
+                                          setWithdrawState('')
+                                          setWithdrawOtpLoading(true)
+                                          try {
+                                            await api.earnings.withdraw({ recipient_id: withdrawRecipientId, amount: Number(withdrawAmount), otp: withdrawOtp })
+                                            setWithdrawState('✅ ' + t('Withdrawal submitted!', 'উত্তোলন সফল হয়েছে!'))
+                                            setWithdrawAmount('')
+                                            setWithdrawRecipientId('')
+                                            setWithdrawOtp('')
+                                            setWithdrawOtpSent(false)
+                                            setShowWithdrawForm(false)
+                                            // Refresh summary
+                                            const res = await api.earnings.summary()
+                                            setEarningSummary((res as any) ?? null)
+                                            const txnRes = await api.earnings.transactions()
+                                            const txArr = (txnRes as any)?.transactions ?? txnRes
+                                            setTransactions(Array.isArray(txArr) ? txArr : [])
+                                          } catch (err: any) {
+                                            setWithdrawState('❌ ' + (err?.message || t('Failed', 'ব্যর্থ')))
+                                          } finally {
+                                            setWithdrawOtpLoading(false)
+                                          }
+                                        }}
+                                      >
+                                        {withdrawOtpLoading ? t('Processing…', 'প্রক্রিয়াকরণ…') : t('Confirm Withdrawal', 'উত্তোলন নিশ্চিত করুন')}
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
 
-                      {/* ── Dispute section ── */}
-                      <div className="rt-dispute-section">
-                        <div className="driver-list-card">
-                          <h4 style={{ marginTop: 0 }}>{t('Dispute a Low Rating', 'কম রেটিংয়ের বিরুদ্ধে আপত্তি জানান')}</h4>
-                          <div className="driver-form-grid">
-                            <label>
-                              {t('Ride Reference', 'রাইড রেফারেন্স')}
-                              <input className="profile-input" placeholder="OIJ-XXXXX" value={ratingDisputeRideRef} onChange={(e) => setRatingDisputeRideRef(e.target.value)} />
-                            </label>
-                            <label>
-                              {t('Reason', 'কারণ')}
-                              <input className="profile-input" placeholder={t('Why this rating should be reviewed', 'কেন এই রেটিংটি পুনর্বিবেচনা করা উচিত')} value={ratingDisputeReason} onChange={(e) => setRatingDisputeReason(e.target.value)} />
-                            </label>
-                          </div>
-                          <div style={{ marginTop: 12, display: 'flex', gap: 10, alignItems: 'center' }}>
-                            <button className="btn btn-outline" onClick={submitRatingDispute}>{t('Submit Dispute', 'আপত্তি জমা দিন')}</button>
-                            {ratingDisputeState && <span className="admin-muted">{ratingDisputeState}</span>}
-                          </div>
-                        </div>
-                        {disputes.length > 0 && (
-                          <div className="driver-list-card" style={{ marginTop: 10 }}>
-                            <h4 style={{ marginTop: 0 }}>{t('Submitted Disputes', 'জমা দেওয়া আপত্তিসমূহ')}</h4>
-                            <div className="driver-list-grid">
-                              {disputes.map((item) => (
-                                <div key={item.id} className="driver-list-card">
-                                  <div className="driver-list-top">
-                                    <strong>{item.ride_ref || '—'}</strong>
-                                    <span className={`admin-badge ${String(item.status || '').toLowerCase()}`}>{item.status || t('open', 'খোলা')}</span>
+                          {/* Payment recipients */}
+                          <div className="driver-section-card">
+                            <div className="driver-section-card-header">
+                              <span>📲 {t('Payment Recipients', 'পেমেন্ট প্রাপক')}</span>
+                              {recipientStep === null && (
+                                <button className="driver-btn-sm" onClick={() => {
+                                  setRecipientStep('form')
+                                  setRecipientState('')
+                                  setRecipientGateway('bkash')
+                                  setRecipientNumber('')
+                                  setRecipientLabel('')
+                                  setRecipientOtp('')
+                                }}>
+                                  + {t('Add', 'যোগ করুন')}
+                                </button>
+                              )}
+                            </div>
+
+                            {recipientStep === 'form' && (
+                              <div className="driver-form-block">
+                                <div className="driver-form-row">
+                                  <label>{t('Gateway', 'গেটওয়ে')}</label>
+                                  <div className="driver-gateway-toggle">
+                                    {(['bkash', 'nagad'] as const).map((gw) => (
+                                      <button
+                                        key={gw}
+                                        className={`driver-gateway-btn ${recipientGateway === gw ? 'active' : ''} driver-gateway-${gw}`}
+                                        onClick={() => setRecipientGateway(gw)}
+                                      >
+                                        {gw === 'bkash' ? '🔴 bKash' : '🟠 Nagad'}
+                                      </button>
+                                    ))}
                                   </div>
-                                  <div className="driver-list-meta">{t('Current rating', 'বর্তমান রেটিং')}: {item.current_rating ?? '—'}</div>
-                                  <div className="driver-list-route">{t('Reason', 'কারণ')}: {item.reason || '—'}</div>
-                                  {item.admin_note && <div className="driver-list-meta">{t('Admin note', 'অ্যাডমিন নোট')}: {item.admin_note}</div>}
+                                </div>
+                                <div className="driver-form-row">
+                                  <label>{t('Mobile Number', 'মোবাইল নম্বর')}</label>
+                                  <input
+                                    type="tel"
+                                    placeholder="01XXXXXXXXX"
+                                    value={recipientNumber}
+                                    onChange={(e) => setRecipientNumber(e.target.value)}
+                                    className="driver-input"
+                                    maxLength={11}
+                                  />
+                                </div>
+                                <div className="driver-form-row">
+                                  <label>{t('Label (optional)', 'লেবেল (ঐচ্ছিক)')}</label>
+                                  <input
+                                    type="text"
+                                    placeholder={t('e.g. My bKash', 'যেমন: আমার বিকাশ')}
+                                    value={recipientLabel}
+                                    onChange={(e) => setRecipientLabel(e.target.value)}
+                                    className="driver-input"
+                                  />
+                                </div>
+                                {recipientState && (
+                                  <div className={`driver-form-msg ${recipientState.startsWith('✅') ? 'success' : 'error'}`}>
+                                    {recipientState}
+                                  </div>
+                                )}
+                                <div className="driver-form-actions">
+                                  <button
+                                    className="driver-btn-primary"
+                                    disabled={recipientNumber.length < 11}
+                                    onClick={async () => {
+                                      setRecipientState('')
+                                      try {
+                                        await api.earnings.addRecipient({
+                                          gateway: recipientGateway,
+                                          number: recipientNumber,
+                                          label: recipientLabel || undefined
+                                        })
+                                        setRecipientStep('otp')
+                                        setRecipientState(t('OTP sent to your number. Enter it below.', 'OTP পাঠানো হয়েছে। নিচে লিখুন।'))
+                                      } catch (err: any) {
+                                        setRecipientState('❌ ' + (err?.message || t('Failed', 'ব্যর্থ')))
+                                      }
+                                    }}
+                                  >
+                                    {t('Send OTP', 'OTP পাঠান')}
+                                  </button>
+                                  <button className="driver-btn-ghost" onClick={() => { setRecipientStep(null); setRecipientState('') }}>
+                                    {t('Cancel', 'বাতিল')}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {recipientStep === 'otp' && (
+                              <div className="driver-form-block">
+                                <p className="driver-otp-hint">
+                                  {t(`OTP sent to ${recipientGateway.toUpperCase()} ${recipientNumber}`, `${recipientGateway.toUpperCase()} ${recipientNumber}-এ OTP পাঠানো হয়েছে`)}
+                                </p>
+                                <div className="driver-form-row">
+                                  <label>{t('Enter OTP', 'OTP লিখুন')}</label>
+                                  <input
+                                    type="text"
+                                    placeholder="4-digit OTP"
+                                    value={recipientOtp}
+                                    onChange={(e) => setRecipientOtp(e.target.value)}
+                                    className="driver-input driver-otp-input"
+                                    maxLength={4}
+                                  />
+                                </div>
+                                {recipientState && (
+                                  <div className={`driver-form-msg ${recipientState.startsWith('✅') ? 'success' : 'error'}`}>
+                                    {recipientState}
+                                  </div>
+                                )}
+                                <div className="driver-form-actions">
+                                  <button
+                                    className="driver-btn-primary"
+                                    disabled={recipientOtp.length < 4}
+                                    onClick={async () => {
+                                      setRecipientState('')
+                                      try {
+                                        await api.earnings.verifyRecipient({
+                                          gateway: recipientGateway,
+                                          number: recipientNumber,
+                                          otp: recipientOtp
+                                        })
+                                        setRecipientState('✅ ' + t('Recipient added successfully!', 'প্রাপক সফলভাবে যোগ হয়েছে!'))
+                                        setRecipientStep(null)
+                                        const recRes = await api.earnings.listRecipients()
+                                        const recArr = (recRes as any)?.recipients ?? recRes
+                                        setRecipients(Array.isArray(recArr) ? recArr : [])
+                                      } catch (err: any) {
+                                        setRecipientState('❌ ' + (err?.message || t('Invalid OTP', 'ভুল OTP')))
+                                      }
+                                    }}
+                                  >
+                                    {t('Verify OTP', 'OTP যাচাই করুন')}
+                                  </button>
+                                  <button className="driver-btn-ghost" onClick={() => setRecipientStep('form')}>
+                                    {t('Back', 'পিছে যান')}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="driver-recipient-list">
+                              {recipients.length === 0 && recipientStep === null && (
+                                <p className="driver-empty-hint">{t('No recipients added yet.', 'এখনও কোনো প্রাপক যোগ করা হয়নি।')}</p>
+                              )}
+                              {recipients.map((rec) => (
+                                <div key={rec.id} className="driver-recipient-item">
+                                  <span className={`driver-gateway-badge driver-gateway-badge-${rec.gateway}`}>
+                                    {rec.gateway === 'bkash' ? '🔴 bKash' : '🟠 Nagad'}
+                                  </span>
+                                  <div className="driver-recipient-info">
+                                    <span className="driver-recipient-number">{rec.number}</span>
+                                    {rec.label && <span className="driver-recipient-label">{rec.label}</span>}
+                                  </div>
+                                  <div className="driver-recipient-actions">
+                                    {rec.verified
+                                      ? <span className="driver-verified-badge">✅ {t('Verified', 'যাচাইকৃত')}</span>
+                                      : inlineVerifyId === rec.id
+                                        ? (
+                                          <div className="driver-inline-verify">
+                                            <input
+                                              type="text"
+                                              placeholder="4-digit OTP"
+                                              value={inlineVerifyOtp}
+                                              onChange={(e) => setInlineVerifyOtp(e.target.value)}
+                                              className="driver-input driver-otp-input"
+                                              maxLength={4}
+                                              style={{ width: 90 }}
+                                            />
+                                            <button
+                                              className="driver-btn-primary"
+                                              style={{ padding: '5px 10px', fontSize: 12 }}
+                                              disabled={inlineVerifyOtp.length < 4}
+                                              onClick={async () => {
+                                                setInlineVerifyState('')
+                                                try {
+                                                  await api.earnings.verifyRecipient({ gateway: rec.gateway, number: rec.number, otp: inlineVerifyOtp })
+                                                  setInlineVerifyId('')
+                                                  setInlineVerifyOtp('')
+                                                  const recRes = await api.earnings.listRecipients()
+                                                  const recArr = (recRes as any)?.recipients ?? recRes
+                                                  setRecipients(Array.isArray(recArr) ? recArr : [])
+                                                } catch (err: any) {
+                                                  setInlineVerifyState('❌ ' + (err?.message || t('Invalid OTP', 'ভুল OTP')))
+                                                }
+                                              }}
+                                            >✓</button>
+                                            <button
+                                              className="driver-btn-ghost"
+                                              style={{ padding: '4px 8px', fontSize: 12 }}
+                                              onClick={() => { setInlineVerifyId(''); setInlineVerifyOtp(''); setInlineVerifyState('') }}
+                                            >✕</button>
+                                            {inlineVerifyState && <span style={{ fontSize: 11, color: '#e05252' }}>{inlineVerifyState}</span>}
+                                          </div>
+                                        )
+                                        : (
+                                          <button
+                                            className="driver-btn-sm"
+                                            style={{ fontSize: 11 }}
+                                            disabled={resendingOtpId === rec.id}
+                                            onClick={async () => {
+                                              setResendingOtpId(rec.id)
+                                              try {
+                                                await api.earnings.addRecipient({ gateway: rec.gateway, number: rec.number })
+                                                setInlineVerifyId(rec.id)
+                                                setInlineVerifyOtp('')
+                                                setInlineVerifyState('')
+                                              } catch { /* silent */ } finally { setResendingOtpId('') }
+                                            }}
+                                          >
+                                            {resendingOtpId === rec.id ? '…' : t('Verify Now', 'যাচাই করুন')}
+                                          </button>
+                                        )
+                                    }
+                                    <button
+                                      className="driver-btn-danger-sm"
+                                      disabled={deletingRecipientId === rec.id}
+                                      onClick={async () => {
+                                        if (!confirm(t('Remove this recipient?', 'এই প্রাপক সরাবেন?'))) return
+                                        setDeletingRecipientId(rec.id)
+                                        try {
+                                          await api.earnings.deleteRecipient(rec.id)
+                                          setRecipients((prev) => prev.filter((r) => r.id !== rec.id))
+                                        } catch { /* silent */ } finally {
+                                          setDeletingRecipientId('')
+                                        }
+                                      }}
+                                    >
+                                      {deletingRecipientId === rec.id ? '…' : t('Remove', 'সরান')}
+                                    </button>
+                                  </div>
                                 </div>
                               ))}
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </section>
-              )
-            })()}
+
+                          {/* Transaction history */}
+                          <div className="driver-section-card">
+                            <div className="driver-section-card-header">
+                              <span>📜 {t('Transaction History', 'লেনদেনের ইতিহাস')}</span>
+                            </div>
+                            <div className="list-controls" style={{ padding: '0 0 4px' }}>
+                              <input
+                                className="list-search"
+                                placeholder={t('Search by type, note, gateway…', 'ধরন, নোট, গেটওয়ে দিয়ে খুঁজুন…')}
+                                value={txnSearch}
+                                onChange={(e) => setTxnSearch(e.target.value)}
+                              />
+                              <select className="list-sort" value={txnSortBy} onChange={(e) => setTxnSortBy(e.target.value as typeof txnSortBy)}>
+                                <option value="date-desc">{t('Newest first', 'নতুন আগে')}</option>
+                                <option value="date-asc">{t('Oldest first', 'পুরনো আগে')}</option>
+                                <option value="amount-desc">{t('Amount: high → low', 'পরিমাণ: বেশি → কম')}</option>
+                                <option value="amount-asc">{t('Amount: low → high', 'পরিমাণ: কম → বেশি')}</option>
+                              </select>
+                            </div>
+                            {transactions.length === 0
+                              ? <p className="driver-empty-hint">{t('No transactions yet.', 'এখনও কোনো লেনদেন নেই।')}</p>
+                              : (() => {
+                                const tq = txnSearch.trim().toLowerCase()
+                                let txns = tq
+                                  ? transactions.filter((txn) =>
+                                    (txn.type || '').toLowerCase().replace(/_/g, ' ').includes(tq) ||
+                                    (txn.note || '').toLowerCase().includes(tq) ||
+                                    (txn.gateway || '').toLowerCase().includes(tq)
+                                  )
+                                  : transactions
+                                txns = txns.slice().sort((a, b) => {
+                                  if (txnSortBy === 'date-asc') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                                  if (txnSortBy === 'amount-desc') return Number(b.amount) - Number(a.amount)
+                                  if (txnSortBy === 'amount-asc') return Number(a.amount) - Number(b.amount)
+                                  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                                })
+                                return txns.length === 0
+                                  ? <p className="driver-empty-hint">{t('No transactions match your search.', 'কোনো লেনদেন পাওয়া যায়নি।')}</p>
+                                  : (
+                                    <div className="driver-txn-list">
+                                      {txns.map((txn) => (
+                                        <div key={txn.id} className={`driver-txn-item driver-txn-${txn.direction}`}>
+                                          <div className="driver-txn-left">
+                                            <span className="driver-txn-type-badge">{txn.type.replace(/_/g, ' ')}</span>
+                                            <span className="driver-txn-note">{txn.note || txn.gateway || '—'}</span>
+                                            <span className="driver-txn-date">
+                                              {new Date(txn.created_at).toLocaleString('en-BD', { dateStyle: 'medium', timeStyle: 'short' })}
+                                            </span>
+                                          </div>
+                                          <div className={`driver-txn-amount driver-txn-${txn.direction}`}>
+                                            {txn.direction === 'credit' ? '+' : '-'}৳{Number(txn.amount).toFixed(2)}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )
+                              })()
+                            }
+                          </div>
+                        </>
+                      )}
+                  </section>
+                )}
+
+                {tab === 'ratings' && (() => {
+                  const completedRides = rides.filter((r) => r.status === 'completed')
+                  const ratedRides = completedRides.filter((r) => typeof r.driver_rating === 'number')
+                  const catAvg = (key: 'rating_driving' | 'rating_behavior' | 'rating_cleanliness') => {
+                    const vals = ratedRides.filter((r) => typeof r[key] === 'number')
+                    if (!vals.length) return null
+                    return Number((vals.reduce((s, r) => s + Number(r[key]), 0) / vals.length).toFixed(1))
+                  }
+                  const avgDriving = catAvg('rating_driving')
+                  const avgBehavior = catAvg('rating_behavior')
+                  const avgCleanliness = catAvg('rating_cleanliness')
+
+                  const renderStars = (val: number | null | undefined, size: 'sm' | 'lg' = 'sm') => {
+                    if (val == null) return <span className="rt-no-data">—</span>
+                    const full = Math.round(val)
+                    return (
+                      <span className={`rt-stars rt-stars-${size}`}>
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <span key={i} className={`rt-star${i <= full ? ' filled' : ''}`}>★</span>
+                        ))}
+                      </span>
+                    )
+                  }
+
+                  const sorted = completedRides.slice().sort(
+                    (a, b) => new Date(b.completed_at || b.created_at || 0).getTime() - new Date(a.completed_at || a.created_at || 0).getTime()
+                  )
+
+                  const rq = ratingsSearch.trim().toLowerCase()
+                  let displayedRides = rq
+                    ? sorted.filter((r) =>
+                      (r.ride_ref || '').toLowerCase().includes(rq) ||
+                      (r.pickup_name || '').toLowerCase().includes(rq) ||
+                      (r.destination_name || '').toLowerCase().includes(rq) ||
+                      (r.rider_name || '').toLowerCase().includes(rq)
+                    )
+                    : sorted
+                  displayedRides = displayedRides.slice().sort((a, b) => {
+                    if (ratingsSortBy === 'date-asc') return new Date(a.completed_at || a.created_at || 0).getTime() - new Date(b.completed_at || b.created_at || 0).getTime()
+                    if (ratingsSortBy === 'score-desc') return (b.driver_rating ?? -1) - (a.driver_rating ?? -1)
+                    if (ratingsSortBy === 'score-asc') return (a.driver_rating ?? 99) - (b.driver_rating ?? 99)
+                    return new Date(b.completed_at || b.created_at || 0).getTime() - new Date(a.completed_at || a.created_at || 0).getTime()
+                  })
+
+                  return (
+                    <section>
+                      {selectedRide ? (
+                        <AdminRideDetail rideId={selectedRide.id} onBack={() => setSelectedRide(null)} />
+                      ) : (
+                        <>
+                          {/* ── Overall header ── */}
+                          <div className="rt-overview-card">
+                            <div className="rt-overall-left">
+                              <div className="rt-overall-score">{avgRating ?? '—'}</div>
+                              {renderStars(avgRating, 'lg')}
+                              <div className="rt-overall-count">
+                                {ratedRides.length} {t('ratings', 'রেটিং')}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ── Category Ratings Grid ── */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
+                            <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Driving', 'ড্রাইভিং')}</div>
+                              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgDriving ?? '—'}</div>
+                              {renderStars(avgDriving, 'sm')}
+                            </div>
+                            <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Behaviour', 'আচরণ')}</div>
+                              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgBehavior ?? '—'}</div>
+                              {renderStars(avgBehavior, 'sm')}
+                            </div>
+                            <div style={{ padding: 16, background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', textAlign: 'center' }}>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase' }}>{t('Cleanliness', 'পরিচ্ছন্নতা')}</div>
+                              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--primary)', marginBottom: 6 }}>{avgCleanliness ?? '—'}</div>
+                              {renderStars(avgCleanliness, 'sm')}
+                            </div>
+                          </div>
+
+                          {/* ── Rating Reminder for unrated rides ── */}
+                          {(() => {
+                            const unratedRides = completedRides.filter(r => r.rider_rating == null)
+                            if (unratedRides.length > 0) {
+                              return (
+                                <div style={{ marginBottom: 16, padding: 16, borderRadius: 8, background: '#dbeafe', border: '1px solid #93c5fd', display: 'flex', gap: 12, alignItems: 'center' }}>
+                                  <span style={{ fontSize: 24 }}>⭐</span>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 600, color: '#0c2d6b', marginBottom: 4 }}>{t('Rate Your Passengers', 'আপনার যাত্রীদের রেটিং দিন')}</div>
+                                    <div style={{ fontSize: 13, color: '#0369a1' }}>
+                                      {t(`You have ${unratedRides.length} completed ride${unratedRides.length !== 1 ? 's' : ''} waiting for your feedback. Rate your passengers below!`,
+                                        `আপনার ${unratedRides.length}টি সম্পন্ন রাইড রেটিং অপেক্ষায়। নিচে আপনার যাত্রীদের রেটিং দিন!`)}
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            }
+                            return null
+                          })()}
+
+                          {/* ── Filters and Sort Controls ── */}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Search', 'খুঁজুন')}</label>
+                              <input
+                                type="text"
+                                placeholder={t('Search by ride ID, rider name…', 'রেফ বা যাত্রী নাম দিয়ে খুঁজুন…')}
+                                value={ratingsSearch}
+                                onChange={(e) => setRatingsSearch(e.target.value)}
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: 'var(--text-sub)' }}>{t('Sort By', 'সর্ট করুন')}</label>
+                              <select
+                                value={ratingsSortBy}
+                                onChange={(e) => setRatingsSortBy(e.target.value as typeof ratingsSortBy)}
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'inherit', background: 'var(--surface)' }}
+                              >
+                                <option value="date-desc">{t('Newest First', 'নতুন আগে')}</option>
+                                <option value="date-asc">{t('Oldest First', 'পুরনো আগে')}</option>
+                                <option value="score-desc">{t('Rating: High → Low', 'রেটিং: বেশি → কম')}</option>
+                                <option value="score-asc">{t('Rating: Low → High', 'রেটিং: কম → বেশি')}</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* ── Ratings Table ── */}
+                          <div style={{ width: '100%', borderRadius: 10, overflow: 'hidden', boxSizing: 'border-box' }}>
+                            <div style={{ width: '100%', maxHeight: 480, overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
+                              <table className="admin-table" style={{ border: '1px solid var(--border)', borderRadius: 0, tableLayout: 'fixed', width: '100%', boxSizing: 'border-box', margin: 0, padding: 0 }}>
+                                <thead>
+                                  <tr><th style={{ width: '12%', boxSizing: 'border-box' }}>{t('Ref', 'রেফ')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Rider', 'যাত্রী')}</th><th style={{ width: '18%', boxSizing: 'border-box' }}>{t('Pickup', 'পিকআপ')}</th><th style={{ width: '18%', boxSizing: 'border-box' }}>{t('Destination', 'গন্তব্য')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Rating', 'রেটিং')}</th><th style={{ width: '15%', boxSizing: 'border-box' }}>{t('Date', 'তারিখ')}</th><th style={{ width: '7%', boxSizing: 'border-box' }}>{t('Action', 'কর্ম')}</th></tr>
+                                </thead>
+                                <tbody>
+                                  {(() => {
+                                    const getRatingAvg = (r: Ride) => {
+                                      const vals = [r.rating_driving, r.rating_behavior, r.rating_cleanliness].filter(v => typeof v === 'number')
+                                      if (!vals.length) return null
+                                      return Number((vals.reduce((s, v) => s + (v || 0), 0) / vals.length).toFixed(1))
+                                    }
+                                    return completedRides.length === 0 ? (
+                                      <tr><td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
+                                        {t('No completed rides yet.', 'এখনও কোনো সম্পন্ন রাইড নেই।')}
+                                      </td></tr>
+                                    ) : displayedRides.length === 0 ? (
+                                      <tr><td colSpan={7} style={{ textAlign: 'center', padding: 24, color: 'var(--text-sub)', boxSizing: 'border-box' }}>
+                                        {t('No rides match your search.', 'কোনো রাইড পাওয়া যায়নি।')}
+                                      </td></tr>
+                                    ) : (
+                                      displayedRides.map(r => {
+                                        const ratingAvg = getRatingAvg(r)
+                                        return (
+                                          <tr key={r.id} style={{ cursor: 'default' }}>
+                                            <td style={{ boxSizing: 'border-box' }}>{r.ride_ref || r.id?.slice(0, 8)}</td>
+                                            <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.rider_name || '—'}</td>
+                                            <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.pickup_name || '—'}</td>
+                                            <td style={{ boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.destination_name || '—'}</td>
+                                            <td style={{ boxSizing: 'border-box' }}>{ratingAvg != null ? `⭐ ${ratingAvg}` : '—'}</td>
+                                            <td style={{ boxSizing: 'border-box' }}>{r.completed_at ? new Date(r.completed_at).toLocaleDateString() : '—'}</td>
+                                            <td style={{ boxSizing: 'border-box' }}>
+                                              {r.rider_rating == null ? (
+                                                <button
+                                                  className="admin-btn"
+                                                  onClick={() => setSelectedRide(r)}
+                                                  style={{ padding: '4px 8px', fontSize: 12, background: '#fcd34d', color: '#92400e', border: 'none', fontWeight: 600 }}
+                                                >
+                                                  ⭐ Rate
+                                                </button>
+                                              ) : (
+                                                <button
+                                                  className="admin-btn"
+                                                  onClick={() => setSelectedRide(r)}
+                                                  style={{ padding: '4px 8px', fontSize: 12 }}
+                                                >
+                                                  View
+                                                </button>
+                                              )}
+                                            </td>
+                                          </tr>
+                                        )
+                                      })
+                                    )
+                                  })()}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          {/* ── Dispute section ── */}
+                          <div className="rt-dispute-section">
+                            <div className="driver-list-card">
+                              <h4 style={{ marginTop: 0 }}>{t('Dispute a Low Rating', 'কম রেটিংয়ের বিরুদ্ধে আপত্তি জানান')}</h4>
+                              <div className="driver-form-grid">
+                                <label>
+                                  {t('Ride Reference', 'রাইড রেফারেন্স')}
+                                  <input className="profile-input" placeholder="OIJ-XXXXX" value={ratingDisputeRideRef} onChange={(e) => setRatingDisputeRideRef(e.target.value)} />
+                                </label>
+                                <label>
+                                  {t('Reason', 'কারণ')}
+                                  <input className="profile-input" placeholder={t('Why this rating should be reviewed', 'কেন এই রেটিংটি পুনর্বিবেচনা করা উচিত')} value={ratingDisputeReason} onChange={(e) => setRatingDisputeReason(e.target.value)} />
+                                </label>
+                              </div>
+                              <div style={{ marginTop: 12, display: 'flex', gap: 10, alignItems: 'center' }}>
+                                <button className="btn btn-outline" onClick={submitRatingDispute}>{t('Submit Dispute', 'আপত্তি জমা দিন')}</button>
+                                {ratingDisputeState && <span className="admin-muted">{ratingDisputeState}</span>}
+                              </div>
+                            </div>
+                            {disputes.length > 0 && (
+                              <div className="driver-list-card" style={{ marginTop: 10 }}>
+                                <h4 style={{ marginTop: 0 }}>{t('Submitted Disputes', 'জমা দেওয়া আপত্তিসমূহ')}</h4>
+                                <div className="driver-list-grid">
+                                  {disputes.map((item) => (
+                                    <div key={item.id} className="driver-list-card">
+                                      <div className="driver-list-top">
+                                        <strong>{item.ride_ref || '—'}</strong>
+                                        <span className={`admin-badge ${String(item.status || '').toLowerCase()}`}>{item.status || t('open', 'খোলা')}</span>
+                                      </div>
+                                      <div className="driver-list-meta">{t('Current rating', 'বর্তমান রেটিং')}: {item.current_rating ?? '—'}</div>
+                                      <div className="driver-list-route">{t('Reason', 'কারণ')}: {item.reason || '—'}</div>
+                                      {item.admin_note && <div className="driver-list-meta">{t('Admin note', 'অ্যাডমিন নোট')}: {item.admin_note}</div>}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </section>
+                  )
+                })()}
 
                 {tab === 'profile' && (
-              <section>
-                <h3 className="admin-heading">{t('Profile', 'প্রোফাইল')}</h3>
-                
-                {!isEditingProfile ? (
-                  <div>
-                    <p className="admin-muted">{t('View your personal and address information.', 'আপনার ব্যক্তিগত এবং ঠিকানার তথ্য দেখুন।')}</p>
-                    <div className="driver-profile-grid">
-                      <div className="driver-photo-card">
-                        <div className="driver-photo-preview">
-                          {user?.profile_image ? <img src={user.profile_image} alt={t('Driver profile', 'চালকের প্রোফাইল')} /> : <span style={{ fontSize: 40 }}>👤</span>}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-sub)', textAlign: 'center', marginTop: 4 }}>{t('Profile Photo', 'প্রোফাইল ছবি')}</div>
-                        {user?.driver_license_image && (
-                          <div style={{ marginTop: 14 }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Driving License', 'ড্রাইভিং লাইসেন্স')}</div>
-                            <div style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)' }}>
-                              <img src={user.driver_license_image} alt={t('License', 'লাইসেন্স')} style={{ width: '100%', objectFit: 'contain', display: 'block' }} />
+                  <section>
+                    <h3 className="admin-heading">{t('Profile', 'প্রোফাইল')}</h3>
+
+                    <div style={{ position: 'relative' }}>
+                      <p className="admin-muted">{t('Most details are editable. Name, mobile number, and NID are locked.', 'বেশিরভাগ তথ্য সম্পাদনাযোগ্য। নাম, মোবাইল নম্বর এবং এনআইডি লক করা আছে।')}</p>
+
+                      <div className="admin-card" style={{ display: 'flex', gap: 24, padding: 24, flexWrap: 'wrap' }}>
+                        <div style={{ flex: '0 0 240px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Profile Photo', 'প্রোফাইল ছবি')}</div>
+                            <div style={{ width: 140, height: 140, margin: '0 auto', borderRadius: 12, background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', border: '4px solid #fff', boxShadow: '0 8px 24px rgba(15,23,42,0.08)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {form.profile_image ? (
+                                <img src={form.profile_image} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <img src="/assets/dummy-avatar.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              )}
                             </div>
                           </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="driver-form-grid">
-                          <div>
-                            <div className="admin-muted">{t('Name', 'নাম')}</div>
-                            <div><strong>{user?.name || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Mobile', 'মোবাইল')}</div>
-                            <div><strong>{user?.phone || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">NID</div>
-                            <div><strong>{user?.nid_number || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Name (Bangla)', 'নাম (বাংলা)')}</div>
-                            <div><strong>{form.name_bn || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Area', 'এলাকা')}</div>
-                            <div><strong>{form.area || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('District', 'জেলা')}</div>
-                            <div><strong>{localizedDistrict || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Upazilla', 'উপজেলা')}</div>
-                            <div><strong>{localizedUpazilla || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('House No', 'বাড়ি নং')}</div>
-                            <div><strong>{form.house_no || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Road No', 'রাস্তা নং')}</div>
-                            <div><strong>{form.road_no || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Landmark', 'ল্যান্ডমার্ক')}</div>
-                            <div><strong>{form.landmark || '—'}</strong></div>
-                          </div>
-                          <div>
-                            <div className="admin-muted">{t('Post Office', 'পোস্ট অফিস')}</div>
-                            <div><strong>{localizedPostOffice || '—'}</strong></div>
+
+                          <div style={{ textAlign: 'center', marginTop: 8 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Driving License', 'ড্রাইভিং লাইসেন্স')}</div>
+                            <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 12, background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', border: '4px solid #fff', boxShadow: '0 8px 24px rgba(15,23,42,0.08)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {form.driver_license_image ? (
+                                <img src={form.driver_license_image} alt="License" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <img src="/assets/dummy-license.png" alt="License" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              )}
+                            </div>
                           </div>
                         </div>
-                        <div style={{ marginTop: 14 }}>
-                          <button className="btn btn-primary" onClick={() => { setIsEditingProfile(true); setSaveState(''); }}>{t('Edit Profile', 'প্রোফাইল সম্পাদনা করুন')}</button>
+
+                        <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>{t('Personal Details', 'ব্যক্তিগত তথ্য')}</div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px 24px', fontSize: 15 }}>
+                              <div>
+                                <div className="admin-muted">{t('Name', 'নাম')}</div>
+                                <div><strong>{user?.name || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Mobile', 'মোবাইল')}</div>
+                                <div><strong>{user?.phone || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">NID</div>
+                                <div><strong>{user?.nid_number || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Name (Bangla)', 'নাম (বাংলা)')}</div>
+                                <div><strong>{form.name_bn || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Area', 'এলাকা')}</div>
+                                <div><strong>{form.area || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('District', 'জেলা')}</div>
+                                <div><strong>{localizedDistrict || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Upazilla', 'উপজেলা')}</div>
+                                <div><strong>{localizedUpazilla || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('House No', 'বাড়ি নং')}</div>
+                                <div><strong>{form.house_no || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Road No', 'রাস্তা নং')}</div>
+                                <div><strong>{form.road_no || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Landmark', 'ল্যান্ডমার্ক')}</div>
+                                <div><strong>{form.landmark || '—'}</strong></div>
+                              </div>
+                              <div>
+                                <div className="admin-muted">{t('Post Office', 'পোস্ট অফিস')}</div>
+                                <div><strong>{localizedPostOffice || '—'}</strong></div>
+                              </div>
+                            </div>
+                            <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                              <button onClick={() => { setIsEditingProfile(true); setSaveState(''); }} style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 8,
+                                padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                                border: 'none', cursor: 'pointer',
+                                boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                                transition: 'transform 160ms ease, box-shadow 160ms ease',
+                              }}
+                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                              >
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                {t('Edit Profile', 'প্রোফাইল সম্পাদনা করুন')}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
+
+                      {isEditingProfile && (
+                        <div className="admin-modal-overlay driver-modal-overlay">
+                          <div className="admin-modal admin-modal-wide driver-modal" style={{ maxWidth: 860, width: '90%', borderRadius: 24 }}>
+                            <div className="admin-modal-header" style={{ padding: '24px 32px' }}>
+                              <h3 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t('Edit Profile', 'প্রোফাইল সম্পাদনা করুন')}</h3>
+                              <button className="admin-modal-close" onClick={() => { setIsEditingProfile(false); setSaveState(''); }} style={{ background: 'rgba(15,23,42,0.06)', border: 'none', width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, color: 'var(--text-sub)' }}>✕</button>
+                            </div>
+                            <div className="admin-modal-body" style={{ padding: '0 32px 32px', maxHeight: '75vh', overflowY: 'auto' }}>
+                              {/* Photo upload row — two separate cards side by side */}
+                              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 2fr)', gap: 16, marginBottom: 24, marginTop: 4 }}>
+                                {/* Profile Photo */}
+                                <div className="driver-photo-card" style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Profile Photo', 'প্রোফাইল ছবি')}</div>
+                                  <div className="driver-photo-preview" style={{ width: 120, height: 120, borderRadius: 12, background: '#fff', border: '3px solid #fff', boxShadow: '0 4px 12px rgba(15,23,42,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                    {form.profile_image ? <img src={form.profile_image} alt={t('Driver profile', 'চালকের প্রোফাইল')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <img src="/assets/dummy-avatar.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                                  </div>
+                                  <label
+                                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', boxSizing: 'border-box', marginTop: 16, padding: '10px 16px', background: 'linear-gradient(135deg, var(--primary), #00A878)', color: '#fff', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'transform 140ms ease, box-shadow 140ms ease', boxShadow: '0 4px 12px rgba(0, 106, 78, 0.2)' }}
+                                    onMouseEnter={e => {
+                                      e.currentTarget.style.transform = 'translateY(-2px)'
+                                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 106, 78, 0.25)'
+                                    }}
+                                    onMouseLeave={e => {
+                                      e.currentTarget.style.transform = 'translateY(0)'
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 106, 78, 0.2)'
+                                    }}
+                                  >
+                                    <span aria-hidden="true" style={{ fontSize: 16 }}>📷</span>
+                                    {form.profile_image ? t('Change', 'পরিবর্তন') : t('Upload', 'আপলোড')}
+                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={onProfilePhotoSelect} />
+                                  </label>
+                                  {photoUploading && <div className="admin-muted" style={{ marginTop: 8, fontSize: 12, fontWeight: 600 }}>{t('Processing…', 'প্রক্রিয়া হচ্ছে…')}</div>}
+                                </div>
+
+                                {/* Driver License Photo */}
+                                <div className="driver-photo-card" style={{ background: '#f8fafc', padding: 20, borderRadius: 16, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Driving License', 'ড্রাইভিং লাইসেন্স')}</div>
+                                  <div style={{ width: '100%', aspectRatio: '16/9', background: '#fff', borderRadius: 12, border: form.driver_license_image ? '3px solid #fff' : '2px dashed #cbd5e1', boxShadow: form.driver_license_image ? '0 4px 12px rgba(15,23,42,0.08)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', maxHeight: 180 }}>
+                                    {form.driver_license_image
+                                      ? <img src={form.driver_license_image} alt={t('License', 'লাইসেন্স')} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                      : <img src="/assets/dummy-license.png" alt="License" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                                  </div>
+                                  <label
+                                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, maxWidth: 220, width: '100%', boxSizing: 'border-box', marginTop: 16, padding: '10px 16px', background: form.driver_license_image ? 'linear-gradient(135deg, var(--primary), #00A878)' : '#fff', color: form.driver_license_image ? '#fff' : '#475569', border: form.driver_license_image ? 'none' : '1px solid #cbd5e1', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 140ms ease', boxShadow: form.driver_license_image ? '0 4px 12px rgba(0, 106, 78, 0.2)' : '0 2px 4px rgba(15,23,42,0.04)' }}
+                                    onMouseEnter={e => {
+                                      e.currentTarget.style.transform = 'translateY(-2px)'
+                                      e.currentTarget.style.boxShadow = form.driver_license_image ? '0 6px 16px rgba(0, 106, 78, 0.25)' : '0 4px 8px rgba(15,23,42,0.06)'
+                                    }}
+                                    onMouseLeave={e => {
+                                      e.currentTarget.style.transform = 'translateY(0)'
+                                      e.currentTarget.style.boxShadow = form.driver_license_image ? '0 4px 12px rgba(0, 106, 78, 0.2)' : '0 2px 4px rgba(15,23,42,0.04)'
+                                    }}
+                                  >
+                                    <span aria-hidden="true" style={{ fontSize: 16 }}>📷</span>
+                                    {form.driver_license_image ? t('Change', 'পরিবর্তন') : t('Upload', 'আপলোড')}
+                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={onLicensePhotoSelect} />
+                                  </label>
+                                  {licenseUploading && <div className="admin-muted" style={{ marginTop: 8, fontSize: 12, fontWeight: 600 }}>{t('Processing…', 'প্রক্রিয়া হচ্ছে…')}</div>}
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="driver-form-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Name (locked)', 'নাম (লক করা)')}</span>
+                                    <input className="profile-input" value={user?.name || ''} readOnly disabled style={{ background: '#f1f5f9', cursor: 'not-allowed', opacity: 0.8 }} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Mobile (locked)', 'মোবাইল (লক করা)')}</span>
+                                    <input className="profile-input" value={user?.phone || ''} readOnly disabled style={{ background: '#f1f5f9', cursor: 'not-allowed', opacity: 0.8 }} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('NID (locked)', 'এনআইডি (লক করা)')}</span>
+                                    <input className="profile-input" value={user?.nid_number || ''} readOnly disabled style={{ background: '#f1f5f9', cursor: 'not-allowed', opacity: 0.8 }} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Name (Bangla)', 'নাম (বাংলা)')}</span>
+                                    <input className="profile-input" value={form.name_bn} onChange={(e) => updateForm('name_bn', e.target.value)} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Area', 'এলাকা')}</span>
+                                    <input className="profile-input" value={form.area} onChange={(e) => updateForm('area', e.target.value)} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('District', 'জেলা')}</span>
+                                    <select className="profile-input" value={form.district} onChange={(e) => { updateForm('district', e.target.value); updateForm('upazilla', ''); updateForm('post_office', ''); }}>
+                                      <option value="">{isBangla ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
+                                      {districtOptions.map((dist) => (
+                                        <option key={dist.value} value={dist.value}>{dist.label}</option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Upazilla', 'উপজেলা')}</span>
+                                    <select className="profile-input" value={form.upazilla} onChange={(e) => { updateForm('upazilla', e.target.value); updateForm('post_office', ''); }} disabled={!form.district}>
+                                      <option value="">{isBangla ? 'উপজেলা/থানা নির্বাচন করুন' : 'Select Upazilla'}</option>
+                                      {upazillaOptions.map((upa) => (
+                                        <option key={upa.value} value={upa.value}>{upa.label}</option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('House No', 'বাড়ি নং')}</span>
+                                    <input className="profile-input" value={form.house_no} onChange={(e) => updateForm('house_no', e.target.value)} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Road No', 'রাস্তা নং')}</span>
+                                    <input className="profile-input" value={form.road_no} onChange={(e) => updateForm('road_no', e.target.value)} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Landmark', 'ল্যান্ডমার্ক')}</span>
+                                    <input className="profile-input" value={form.landmark} onChange={(e) => updateForm('landmark', e.target.value)} />
+                                  </label>
+                                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-sub)' }}>{t('Post Office', 'পোস্ট অফিস')}</span>
+                                    <select className="profile-input" value={form.post_office} onChange={(e) => updateForm('post_office', e.target.value)} disabled={!form.upazilla}>
+                                      <option value="">{isBangla ? 'পোস্ট অফিস নির্বাচন করুন' : 'Select Post Office'}</option>
+                                      {postOfficeOptions.map((po) => (
+                                        <option key={po.value} value={po.value}>
+                                          {po.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                </div>
+
+                                <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e2e8f0', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'flex-end' }}>
+                                  {saveState && <span className="admin-muted" style={{ marginRight: 'auto', fontWeight: 600, color: '#059669' }}>{saveState}</span>}
+                                  <button onClick={() => { setIsEditingProfile(false); setSaveState(''); }} style={{
+                                    padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                    border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b',
+                                    cursor: 'pointer', transition: 'all 160ms ease',
+                                  }}
+                                    onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                                  >{t('Cancel', 'বাতিল')}</button>
+                                  <button onClick={() => void saveProfile()} style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    padding: '10px 28px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                                    border: 'none', cursor: 'pointer',
+                                    boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                                    transition: 'transform 160ms ease, box-shadow 160ms ease',
+                                  }}
+                                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                                  >{t('Save Profile', 'প্রোফাইল সংরক্ষণ করুন')}</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="admin-muted">{t('Most details are editable. Name, mobile number, and NID are locked.', 'বেশিরভাগ তথ্য সম্পাদনাযোগ্য। নাম, মোবাইল নম্বর এবং এনআইডি লক করা আছে।')}</p>
-
-                    {/* Photo upload row — two separate cards side by side */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 14, marginBottom: 16, marginTop: 12 }}>
-                      {/* Profile Photo */}
-                      <div className="driver-photo-card">
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Profile Photo', 'প্রোফাইল ছবি')}</div>
-                        <div className="driver-photo-preview">
-                          {form.profile_image ? <img src={form.profile_image} alt={t('Driver profile', 'চালকের প্রোফাইল')} /> : <span style={{ fontSize: 40 }}>👤</span>}
-                        </div>
-                        <label
-                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', boxSizing: 'border-box', marginTop: 10, padding: '10px 16px', background: 'var(--primary)', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, transition: 'transform 140ms ease, filter 140ms ease, box-shadow 140ms ease', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)' }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-1px)'
-                            e.currentTarget.style.filter = 'brightness(1.03)'
-                            e.currentTarget.style.boxShadow = '0 7px 16px rgba(15, 23, 42, 0.18)'
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.filter = 'none'
-                            e.currentTarget.style.boxShadow = '0 2px 6px rgba(15, 23, 42, 0.12)'
-                          }}
-                        >
-                          <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', flexShrink: 0 }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 16V5" />
-                              <path d="m7 10 5-5 5 5" />
-                              <path d="M20 16.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-2" />
-                            </svg>
-                          </span>
-                          {form.profile_image ? t('Change Profile Photo', 'প্রোফাইল ছবি পরিবর্তন করুন') : t('Upload Profile Photo', 'প্রোফাইল ছবি আপলোড করুন')}
-                          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={onProfilePhotoSelect} />
-                        </label>
-                        {photoUploading && <div className="admin-muted" style={{ marginTop: 6, fontSize: 12 }}>{t('Reading image…', 'ছবি পড়া হচ্ছে…')}</div>}
-                      </div>
-
-                      {/* Driver License Photo */}
-                      <div className="driver-photo-card">
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('Driving License Photo', 'ড্রাইভিং লাইসেন্স ছবি')}</div>
-                        <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--surface)', borderRadius: 10, border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', maxHeight: 180 }}>
-                          {form.driver_license_image
-                            ? <img src={form.driver_license_image} alt={t('License', 'লাইসেন্স')} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            : <div style={{ textAlign: 'center', color: 'var(--text-sub)' }}><div style={{ fontSize: 36 }}>🪪</div><div style={{ fontSize: 12, marginTop: 4 }}>{t('No license photo', 'লাইসেন্স ছবি নেই')}</div></div>}
-                        </div>
-                        <label
-                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', boxSizing: 'border-box', marginTop: 10, padding: '10px 16px', background: form.driver_license_image ? 'var(--primary)' : 'var(--surface)', color: form.driver_license_image ? '#fff' : 'var(--text)', border: form.driver_license_image ? 'none' : '1.5px solid var(--border)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.4, transition: 'transform 140ms ease, filter 140ms ease, box-shadow 140ms ease', boxShadow: form.driver_license_image ? '0 2px 6px rgba(15, 23, 42, 0.12)' : '0 2px 6px rgba(15, 23, 42, 0.08)' }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-1px)'
-                            e.currentTarget.style.filter = 'brightness(1.03)'
-                            e.currentTarget.style.boxShadow = '0 7px 16px rgba(15, 23, 42, 0.16)'
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.filter = 'none'
-                            e.currentTarget.style.boxShadow = form.driver_license_image ? '0 2px 6px rgba(15, 23, 42, 0.12)' : '0 2px 6px rgba(15, 23, 42, 0.08)'
-                          }}
-                        >
-                          <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 999, background: form.driver_license_image ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.06)', border: form.driver_license_image ? '1px solid rgba(255,255,255,0.28)' : '1px solid rgba(15,23,42,0.08)', flexShrink: 0 }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 16V5" />
-                              <path d="m7 10 5-5 5 5" />
-                              <path d="M20 16.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-2" />
-                            </svg>
-                          </span>
-                          {form.driver_license_image ? t('Change License Photo', 'লাইসেন্স ছবি পরিবর্তন করুন') : t('Upload License Photo', 'লাইসেন্স ছবি আপলোড করুন')}
-                          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={onLicensePhotoSelect} />
-                        </label>
-                        {licenseUploading && <div className="admin-muted" style={{ marginTop: 6, fontSize: 12 }}>{t('Reading image…', 'ছবি পড়া হচ্ছে…')}</div>}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="driver-form-grid">
-                          <label>
-                            {t('Name (locked)', 'নাম (লক করা)')}
-                            <input className="profile-input" value={user?.name || ''} readOnly disabled />
-                          </label>
-                          <label>
-                            {t('Mobile (locked)', 'মোবাইল (লক করা)')}
-                            <input className="profile-input" value={user?.phone || ''} readOnly disabled />
-                          </label>
-                          <label>
-                            {t('NID (locked)', 'এনআইডি (লক করা)')}
-                            <input className="profile-input" value={user?.nid_number || ''} readOnly disabled />
-                          </label>
-                          <label>
-                            {t('Name (Bangla)', 'নাম (বাংলা)')}
-                            <input className="profile-input" value={form.name_bn} onChange={(e) => updateForm('name_bn', e.target.value)} />
-                          </label>
-                          <label>
-                            {t('Area', 'এলাকা')}
-                            <input className="profile-input" value={form.area} onChange={(e) => updateForm('area', e.target.value)} />
-                          </label>
-                          <label>
-                            {t('District', 'জেলা')}
-                            <select className="profile-input" value={form.district} onChange={(e) => { updateForm('district', e.target.value); updateForm('upazilla', ''); updateForm('post_office', ''); }}>
-                              <option value="">{isBangla ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
-                              {districtOptions.map((dist) => (
-                                <option key={dist.value} value={dist.value}>{dist.label}</option>
-                              ))}
-                            </select>
-                          </label>
-                          <label>
-                            {t('Upazilla', 'উপজেলা')}
-                            <select className="profile-input" value={form.upazilla} onChange={(e) => { updateForm('upazilla', e.target.value); updateForm('post_office', ''); }} disabled={!form.district}>
-                              <option value="">{isBangla ? 'উপজেলা/থানা নির্বাচন করুন' : 'Select Upazilla'}</option>
-                              {upazillaOptions.map((upa) => (
-                                <option key={upa.value} value={upa.value}>{upa.label}</option>
-                              ))}
-                            </select>
-                          </label>
-                          <label>
-                            {t('House No', 'বাড়ি নং')}
-                            <input className="profile-input" value={form.house_no} onChange={(e) => updateForm('house_no', e.target.value)} />
-                          </label>
-                          <label>
-                            {t('Road No', 'রাস্তা নং')}
-                            <input className="profile-input" value={form.road_no} onChange={(e) => updateForm('road_no', e.target.value)} />
-                          </label>
-                          <label>
-                            {t('Landmark', 'ল্যান্ডমার্ক')}
-                            <input className="profile-input" value={form.landmark} onChange={(e) => updateForm('landmark', e.target.value)} />
-                          </label>
-                          <label>
-                            {t('Post Office', 'পোস্ট অফিস')}
-                            <select className="profile-input" value={form.post_office} onChange={(e) => updateForm('post_office', e.target.value)} disabled={!form.upazilla}>
-                              <option value="">{isBangla ? 'পোস্ট অফিস নির্বাচন করুন' : 'Select Post Office'}</option>
-                              {postOfficeOptions.map((po) => (
-                                <option key={po.value} value={po.value}>
-                                  {po.label}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                        </div>
-
-                        <div style={{ marginTop: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
-                          <button className="btn btn-primary" onClick={() => void saveProfile()}>{t('Save Profile', 'প্রোফাইল সংরক্ষণ করুন')}</button>
-                          <button className="btn btn-outline" onClick={() => { setIsEditingProfile(false); setSaveState(''); }}>{t('Cancel', 'বাতিল')}</button>
-                          {saveState && <span className="admin-muted">{saveState}</span>}
-                        </div>
-                    </div>
-                  </div>
-                )}
-              </section>
+                  </section>
                 )}
               </div>
             </div>
@@ -2885,7 +2964,7 @@ export default function DriverDashboard(): JSX.Element {
                   className="driver-gallery-preview"
                 />
               ) : (
-                <div className="driver-gallery-preview-empty">{t('No photo available', 'কোনো ছবি নেই')}</div>
+                <img src="/assets/dummy-vehicle.png" alt="no photo" className="driver-gallery-preview" />
               )}
             </div>
 
@@ -2897,7 +2976,11 @@ export default function DriverDashboard(): JSX.Element {
                   onClick={() => setGalleryPhotoKey(photo.key)}
                   disabled={!photo.image}
                 >
-                  {photo.image ? <img src={photo.image} alt={photo.label} /> : <span>{t('No image', 'ছবি নেই')}</span>}
+                  {photo.image ? (
+                    <img src={photo.image} alt={photo.label} />
+                  ) : (
+                    <img src="/assets/dummy-vehicle.png" alt="no photo" style={{ opacity: 0.5 }} />
+                  )}
                   <strong>{photo.label}</strong>
                 </button>
               ))}

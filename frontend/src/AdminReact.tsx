@@ -5,8 +5,9 @@ import Riders from './admin/Riders'
 import Rides from './admin/Rides'
 import AdminMap from './admin/AdminMap'
 import DriverRatingDisputes from './admin/DriverRatingDisputes'
+import Vehicles from './admin/Vehicles'
 
-type AdminTab = 'dashboard' | 'drivers' | 'riders' | 'rides' | 'rating-disputes' | 'map'
+type AdminTab = 'dashboard' | 'drivers' | 'riders' | 'rides' | 'vehicles' | 'rating-disputes' | 'map'
 type DriversPresetStatus = 'all' | 'online' | 'pending'
 type RidesPresetStatus = 'all' | 'ongoing' | 'pending' | 'completed' | 'cancelled'
 
@@ -25,6 +26,7 @@ const NAV_SECTIONS: Array<{ title: string; items: Array<{ key: AdminTab; icon: s
     title: 'Operations',
     items: [
       { key: 'rides', icon: '🛺', label: 'Rides' },
+      { key: 'vehicles', icon: '🚙', label: 'Vehicles & Fares' },
       { key: 'map', icon: '🗺️', label: 'Live Map' },
     ],
   },
@@ -55,6 +57,7 @@ export default function AdminReact({ onLogout }: Props): JSX.Element {
     drivers: false,
     riders: false,
     rides: false,
+    vehicles: false,
     'rating-disputes': false,
     map: false,
   })
@@ -172,6 +175,11 @@ export default function AdminReact({ onLogout }: Props): JSX.Element {
                 presetSignal={presetSignal}
                 openRideId={selectedRideId || undefined}
               />
+            </div>
+          )}
+          {mountedTabs.vehicles && (
+            <div style={{ display: tab === 'vehicles' ? 'block' : 'none' }}>
+              <Vehicles />
             </div>
           )}
           {mountedTabs['rating-disputes'] && (

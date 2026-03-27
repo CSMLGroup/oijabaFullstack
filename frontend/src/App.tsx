@@ -254,7 +254,15 @@ export default function App(): JSX.Element {
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
               <button style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: 'rgba(0, 0, 0, 0.05)', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 100, fontSize: 13, fontWeight: 600, color: isScrolled ? 'rgba(255,255,255,0.9)' : 'rgb(61, 90, 71)', cursor: 'pointer', transition: '0.15s', whiteSpace: 'nowrap' }} onClick={() => setLanguage((current) => (current === 'en' ? 'bn' : 'en'))}>🌐 {language === 'en' ? 'English' : 'Bangla'}</button>
               <div style={{ position: 'relative' }}>
-                <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: isScrolled ? 'rgba(255,255,255,0.15)' : 'rgba(0, 200, 83, 0.1)', border: isScrolled ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0, 200, 83, 0.2)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 500, color: 'rgb(0, 106, 78)', transition: '0.15s' }} onClick={() => setUserProfileOpen((open) => !open)}><span style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, rgb(0, 106, 78), rgb(0, 76, 56))', color: 'rgb(255, 255, 255)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>{userName[0]?.toUpperCase() || 'U'}</span>{userName}<span style={{ fontSize: 10 }}>▼</span></button>
+                <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: isScrolled ? 'rgba(255,255,255,0.15)' : 'rgba(0, 200, 83, 0.1)', border: isScrolled ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0, 200, 83, 0.2)', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 500, color: 'rgb(0, 106, 78)', transition: '0.15s' }} onClick={() => setUserProfileOpen((open) => !open)}>
+                  <img 
+                    src="/assets/dummy-avatar.png" 
+                    alt="U" 
+                    style={{ width: 26, height: 26, borderRadius: 6, objectFit: 'cover' }} 
+                  />
+                  {userName}
+                  <span style={{ fontSize: 10 }}>▼</span>
+                </button>
                 {userProfileOpen && (
                   <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, minWidth: 200, background: '#fff', border: '1px solid rgba(0, 0, 0, 0.12)', borderRadius: 12, boxShadow: '0 20px 60px rgba(0,0,0,0.22)', zIndex: 1000, padding: 8 }}>
                     <div style={{ padding: '8px 12px 10px', borderBottom: '1px solid rgba(0,0,0,0.12)', marginBottom: 4 }}>

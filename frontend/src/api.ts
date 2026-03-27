@@ -88,6 +88,7 @@ const api = {
     }) =>
       call('/drivers/vehicles', { method: 'POST', body: data }),
     setActiveVehicle: (id: string) => call(`/drivers/vehicles/${id}/active`, { method: 'PATCH' }),
+    updateVehicle: (id: string, data: any) => call(`/drivers/vehicles/${id}`, { method: 'PATCH', body: data }),
     deleteVehicle: (id: string) => call(`/drivers/vehicles/${id}`, { method: 'DELETE' }),
     submitRatingDispute: (ride_ref: string, reason: string) => call('/drivers/ratings/disputes', { method: 'POST', body: { ride_ref, reason } }),
     listRatingDisputes: () => call('/drivers/ratings/disputes', { method: 'GET' }),

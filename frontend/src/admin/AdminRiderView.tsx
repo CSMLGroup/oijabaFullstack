@@ -291,9 +291,9 @@ export default function AdminRiderView({ riderId, onBack }: Props): JSX.Element 
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {rider.profile_image ? (
-              <img src={rider.profile_image} alt="profile" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+              <img src={rider.profile_image} alt="profile" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
             ) : (
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20 }}>🧑</div>
+              <img src="/assets/dummy-avatar.png" alt="profile" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
             )}
             <div>
               <div style={{ fontWeight: 700, fontSize: 18 }}>{rider.name || 'No name'}</div>
@@ -383,7 +383,9 @@ export default function AdminRiderView({ riderId, onBack }: Props): JSX.Element 
           </div>
 
           <div className="admin-card" style={{ marginBottom: 16 }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Rider Info</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Rider Info</h4>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px 24px' }}>
               {[
                 ['Phone', rider.phone],
@@ -535,243 +537,267 @@ export default function AdminRiderView({ riderId, onBack }: Props): JSX.Element 
 
       {/* Tab: Profile */}
       {tab === 'profile' && (
-        <div>
-          {/* Profile Photo */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
-            <div className="admin-card">
-              <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Profile Photo</h4>
-              {rider.profile_image ? (
-                <img src={rider.profile_image} alt="profile" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 10 }} />
-              ) : (
-                <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', borderRadius: 10, color: 'var(--text-sub)' }}>No photo</div>
-              )}
-              <label style={{ display: 'block', marginTop: 10, cursor: 'pointer' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={async e => {
-                    const file = e.target.files?.[0]
-                    if (!file) return
-                    const reader = new FileReader()
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
+          {/* Left sidebar — photo card */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Profile Photo Card */}
+            <div className="admin-card" style={{ padding: 0, overflow: 'hidden', borderRadius: 16 }}>
+              <div style={{ position: 'relative' }}>
+                {rider.profile_image ? (
+                  <img src={rider.profile_image} alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                ) : (
+                  <img src="/assets/dummy-avatar.png" alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                )}
+                {/* Overlay gradient */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))' }} />
+                <div style={{ position: 'absolute', bottom: 12, left: 16, color: '#fff', fontWeight: 700, fontSize: 14, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Profile Photo</div>
+              </div>
+              <div style={{ padding: '12px 16px 16px' }}>
+                <label style={{ display: 'block', cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                    const file = e.target.files?.[0]; if (!file) return;
+                    const reader = new FileReader();
                     reader.onload = async () => {
-                      const dataUrl = String(reader.result)
+                      const dataUrl = String(reader.result);
                       try {
-                        const res: any = await api.riders.updateById(riderId, { profile_image: dataUrl })
-                        setRider(d => d ? { ...d, profile_image: res.user?.profile_image || res.rider?.profile_image || dataUrl } : d)
-                        setProfileMsg('Photo updated')
+                        const res: any = await api.riders.updateById(riderId, { profile_image: dataUrl });
+                        setRider(d => d ? { ...d, profile_image: res.user?.profile_image || res.rider?.profile_image || dataUrl } : d);
+                        setProfileMsg('Photo updated');
                       } catch (err: any) {
-                        setProfileMsg(err.message || 'Photo upload failed')
+                        setProfileMsg(err.message || 'Photo upload failed');
                       }
-                    }
-                    reader.readAsDataURL(file)
-                    e.target.value = ''
+                    }; reader.readAsDataURL(file); e.target.value = '';
+                  }} />
+                  <span style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '11px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                    cursor: 'pointer', border: 'none', width: '100%', boxSizing: 'border-box',
+                    boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                    transition: 'transform 160ms ease, box-shadow 160ms ease',
                   }}
-                />
-                <span
-                  className="admin-btn"
-                  style={{
-                    padding: '9px 14px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.4,
-                    transition: 'transform 140ms ease, filter 140ms ease, box-shadow 140ms ease',
-                    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                    e.currentTarget.style.filter = 'brightness(1.03)'
-                    e.currentTarget.style.boxShadow = '0 7px 16px rgba(15, 23, 42, 0.18)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.filter = 'none'
-                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(15, 23, 42, 0.12)'
-                  }}
-                >
-                  <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 16V5" />
-                      <path d="m7 10 5-5 5 5" />
-                      <path d="M20 16.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-2" />
-                    </svg>
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    {rider.profile_image ? 'Change Photo' : 'Upload Photo'}
                   </span>
-                  {rider.profile_image ? 'Change Profile Photo' : 'Upload Profile Photo'}
-                </span>
-              </label>
+                </label>
+              </div>
             </div>
           </div>
 
-          {/* Edit form */}
+          {/* Profile Details */}
           <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h4 style={{ margin: 0, fontSize: 15 }}>Profile Details</h4>
-              {!editingProfile ? (
-                <button className="admin-btn" style={{ padding: '6px 16px' }} onClick={startEditProfile}>✏️ Edit</button>
-              ) : (
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button className="admin-btn" style={{ padding: '6px 16px' }} onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }}>Cancel</button>
-                  <button className="admin-btn success" style={{ padding: '6px 16px' }} disabled={profileSaving || otpSending} onClick={saveProfile}>
-                    {otpSending ? 'Sending OTP…' : profileSaving ? 'Saving…' : 'Save Changes'}
-                  </button>
-                </div>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h4 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Profile Details</h4>
+              <button
+                onClick={startEditProfile}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                  transition: 'transform 160ms ease, box-shadow 160ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                Edit Profile
+              </button>
             </div>
 
             {profileMsg && (
-              <div style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: profileMsg.includes('ailed') || profileMsg.includes('nvalid') ? '#fff0f0' : '#f0faf5', color: profileMsg.includes('ailed') || profileMsg.includes('nvalid') ? 'var(--danger)' : 'var(--primary)', fontWeight: 600, fontSize: 13 }}>
+              <div style={{ marginBottom: 16, padding: '10px 14px', borderRadius: 10, background: profileMsg.includes('ailed') ? '#fef2f2' : '#f0fdf4', color: profileMsg.includes('ailed') ? '#dc2626' : '#16a34a', fontWeight: 600, fontSize: 13, border: profileMsg.includes('ailed') ? '1px solid #fecaca' : '1px solid #bbf7d0' }}>
                 {profileMsg}
               </div>
             )}
 
-            {!editingProfile ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px 24px' }}>
-                {[
-                  ['Phone', rider.phone],
-                  ['Name (EN)', rider.name],
-                  ['Name (BN)', rider.name_bn],
-                  ['NID No.', rider.nid_number],
-                  ['Area', rider.area],
-                  ['District', rider.district],
-                  ['Upazilla', rider.upazilla],
-                  ['House No.', rider.house_no],
-                  ['Road No.', rider.road_no],
-                  ['Landmark', rider.landmark],
-                  ['Post Office', rider.post_office],
-                  ['Membership', rider.membership],
-                  ['Status', rider.status],
-                  ['Member Since', rider.created_at ? new Date(rider.created_at).toLocaleDateString() : '—'],
-                ].map(([label, value]) => (
-                  <div key={label as string} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 11, color: 'var(--text-sub)', marginBottom: 2 }}>{label}</div>
-                    <div style={{ fontWeight: 600 }}>{value || '—'}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px 28px' }}>
+              {[
+                ['Phone', rider.phone],
+                ['Name (EN)', rider.name],
+                ['Name (BN)', rider.name_bn],
+                ['NID No.', rider.nid_number],
+                ['Area', rider.area],
+                ['District', rider.district],
+                ['Upazilla', rider.upazilla],
+                ['House No.', rider.house_no],
+                ['Road No.', rider.road_no],
+                ['Landmark', rider.landmark],
+                ['Post Office', rider.post_office],
+                ['Membership', rider.membership],
+                ['Status', rider.status],
+                ['Member Since', rider.created_at ? new Date(rider.created_at).toLocaleDateString() : '—'],
+              ].map(([label, value]) => (
+                <div key={label as string} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#1e293b' }}>{value || '—'}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Edit Modal */}
+      {editingProfile && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+          onClick={e => { if (e.target === e.currentTarget) { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) } }}
+        >
+          <div style={{
+            background: '#fff',
+            borderRadius: 18,
+            boxShadow: '0 8px 32px 0 rgba(60,60,60,0.18), 0 1.5px 8px 0 rgba(0,0,0,0.08)',
+            padding: '32px 32px 24px 32px',
+            minWidth: 800,
+            maxWidth: '96vw',
+            maxHeight: '90vh',
+            overflowY: 'auto' as const,
+            margin: 16,
+            position: 'relative',
+            color: '#222',
+          }}>
+            <h2 style={{ margin: 0, marginBottom: 24, fontWeight: 700, fontSize: 22 }}>Edit Profile Details</h2>
+            <form onSubmit={e => { e.preventDefault(); saveProfile() }}>
+              {hasSensitiveChange && (
+                <div style={{ marginBottom: 14, padding: '10px 14px', borderRadius: 10, background: '#fffbeb', border: '1px solid #fbbf24', color: '#92400e', fontSize: 13 }}>
+                  🔒 You are changing a sensitive field (name, phone, or NID). An OTP will be sent to the rider's current phone number to confirm.
+                </div>
+              )}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
+                {([
+                  ['name', 'Name (EN)', false],
+                  ['name_bn', 'Name (BN)', false],
+                  ['phone', 'Phone', true],
+                  ['nid_number', 'NID No.', true],
+                  ['area', 'Area', false],
+                  ['house_no', 'House No.', false],
+                  ['road_no', 'Road No.', false],
+                  ['landmark', 'Landmark', false],
+                ] as [keyof RiderUser, string, boolean][]).map(([key, label, sensitive]) => (
+                  <div key={key} style={fieldStyle}>
+                    <label style={labelStyle}>
+                      {label}
+                      {sensitive && <span style={{ marginLeft: 4, color: '#f59e0b' }}>🔒</span>}
+                    </label>
+                    <input
+                      style={{ ...inputStyle, borderRadius: 12 }}
+                      value={(profileForm[key] as string) || ''}
+                      onChange={e => {
+                        setProfileForm(f => ({ ...f, [key]: e.target.value }))
+                        if (sensitive || key === 'name') setHasSensitiveChange(true)
+                      }}
+                    />
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div>
-                {hasSensitiveChange && (
-                  <div style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: '#fffbeb', border: '1px solid #fbbf24', color: '#92400e', fontSize: 13 }}>
-                    🔒 You are changing a sensitive field (name, phone, or NID). An OTP will be sent to the rider's current phone number to confirm.
-                  </div>
-                )}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-                  {([
-                    ['name', 'Name (EN)', false],
-                    ['name_bn', 'Name (BN)', false],
-                    ['phone', 'Phone', true],
-                    ['nid_number', 'NID No.', true],
-                    ['area', 'Area', false],
-                    ['house_no', 'House No.', false],
-                    ['road_no', 'Road No.', false],
-                    ['landmark', 'Landmark', false],
-                  ] as [keyof RiderUser, string, boolean][]).map(([key, label, sensitive]) => (
-                    <div key={key} style={fieldStyle}>
-                      <label style={labelStyle}>
-                        {label}
-                        {sensitive && <span style={{ marginLeft: 4, color: '#f59e0b' }}>🔒</span>}
-                        {key === 'name' && <span style={{ marginLeft: 4, color: '#f59e0b' }}>🔒</span>}
-                      </label>
-                      <input
-                        style={inputStyle}
-                        value={(profileForm[key] as string) || ''}
-                        onChange={e => {
-                          setProfileForm(f => ({ ...f, [key]: e.target.value }))
-                          if (sensitive || key === 'name') setHasSensitiveChange(true)
-                        }}
-                      />
-                    </div>
-                  ))}
 
-                  {/* District */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>{isBangla ? 'জেলা (District)' : 'District'}</label>
-                    <select
-                      style={inputStyle}
-                      value={profileForm.district || ''}
-                      onChange={e => setProfileForm(f => ({ ...f, district: e.target.value, upazilla: '', post_office: '' }))}
-                    >
-                      <option value=''>{isBangla ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
-                      {isBangla
-                        ? BD_DISTRICTS_BN.map(d => <option key={d.value} value={d.value}>{d.label} ({d.value})</option>)
-                        : Object.keys(BD_LOCATIONS).sort().map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  </div>
+                {/* District */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>{isBangla ? 'জেলা (District)' : 'District'}</label>
+                  <select
+                    style={inputStyle}
+                    value={profileForm.district || ''}
+                    onChange={e => setProfileForm(f => ({ ...f, district: e.target.value, upazilla: '', post_office: '' }))}
+                  >
+                    <option value=''>{isBangla ? 'জেলা নির্বাচন করুন' : 'Select District'}</option>
+                    {isBangla
+                      ? BD_DISTRICTS_BN.map(d => <option key={d.value} value={d.value}>{d.label} ({d.value})</option>)
+                      : Object.keys(BD_LOCATIONS).sort().map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
 
-                  {/* Upazilla */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>{isBangla ? 'উপজেলা (Upazilla)' : 'Upazilla'}</label>
-                    <select
-                      style={inputStyle}
-                      value={profileForm.upazilla || ''}
-                      onChange={e => setProfileForm(f => ({ ...f, upazilla: e.target.value, post_office: '' }))}
-                      disabled={!profileForm.district}
-                    >
-                      <option value=''>{isBangla ? 'উপজেলা নির্বাচন করুন' : 'Select Upazilla'}</option>
-                      {isBangla
-                        ? (profileForm.district ? (BD_LOCATIONS_BN[profileForm.district] || []) : []).map(u => <option key={u.value} value={u.value}>{u.label} ({u.value})</option>)
-                        : (profileForm.district ? (BD_LOCATIONS[profileForm.district] || []) : []).map(u => <option key={u} value={u}>{u}</option>)}
-                    </select>
-                  </div>
+                {/* Upazilla */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>{isBangla ? 'উপজেলা (Upazilla)' : 'Upazilla'}</label>
+                  <select
+                    style={inputStyle}
+                    value={profileForm.upazilla || ''}
+                    onChange={e => setProfileForm(f => ({ ...f, upazilla: e.target.value, post_office: '' }))}
+                    disabled={!profileForm.district}
+                  >
+                    <option value=''>{isBangla ? 'উপজেলা নির্বাচন করুন' : 'Select Upazilla'}</option>
+                    {isBangla
+                      ? (profileForm.district ? (BD_LOCATIONS_BN[profileForm.district] || []) : []).map(u => <option key={u.value} value={u.value}>{u.label} ({u.value})</option>)
+                      : (profileForm.district ? (BD_LOCATIONS[profileForm.district] || []) : []).map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                </div>
 
-                  {/* Post Office */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>{isBangla ? 'পোস্ট অফিস (Post Office)' : 'Post Office'}</label>
-                    <select
-                      style={inputStyle}
-                      value={profileForm.post_office || ''}
-                      onChange={e => setProfileForm(f => ({ ...f, post_office: e.target.value }))}
-                      disabled={!profileForm.upazilla}
-                    >
-                      <option value=''>{isBangla ? 'পোস্ট অফিস নির্বাচন করুন' : 'Select Post Office'}</option>
-                      {isBangla
-                        ? (profileForm.upazilla ? (POST_OFFICES_BN[profileForm.upazilla] || []) : []).map(po => <option key={po.value} value={po.value}>{po.label}</option>)
-                        : (profileForm.upazilla ? (POST_OFFICES[profileForm.upazilla] || []) : []).map(po => <option key={`${po.name} (${po.code})`} value={`${po.name} (${po.code})`}>{po.name} ({po.code})</option>)}
-                    </select>
-                  </div>
+                {/* Post Office */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>{isBangla ? 'পোস্ট অফিস (Post Office)' : 'Post Office'}</label>
+                  <select
+                    style={inputStyle}
+                    value={profileForm.post_office || ''}
+                    onChange={e => setProfileForm(f => ({ ...f, post_office: e.target.value }))}
+                    disabled={!profileForm.upazilla}
+                  >
+                    <option value=''>{isBangla ? 'পোস্ট অফিস নির্বাচন করুন' : 'Select Post Office'}</option>
+                    {isBangla
+                      ? (profileForm.upazilla ? (POST_OFFICES_BN[profileForm.upazilla] || []) : []).map(po => <option key={po.value} value={po.value}>{po.label}</option>)
+                      : (profileForm.upazilla ? (POST_OFFICES[profileForm.upazilla] || []) : []).map(po => <option key={`${po.name} (${po.code})`} value={`${po.name} (${po.code})`}>{po.name} ({po.code})</option>)}
+                  </select>
+                </div>
 
-                  {/* Membership */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Membership</label>
-                    <select
-                      style={inputStyle}
-                      value={profileForm.membership || 'new'}
-                      onChange={e => setProfileForm(f => ({ ...f, membership: e.target.value }))}
-                    >
-                      <option value="new">New</option>
-                      <option value="regular">Regular</option>
-                      <option value="frequent">Frequent</option>
-                      <option value="premium">Premium</option>
-                      <option value="vip">VIP</option>
-                    </select>
-                  </div>
+                {/* Membership */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Membership</label>
+                  <select
+                    style={inputStyle}
+                    value={profileForm.membership || 'new'}
+                    onChange={e => setProfileForm(f => ({ ...f, membership: e.target.value }))}
+                  >
+                    <option value="new">New</option>
+                    <option value="regular">Regular</option>
+                    <option value="frequent">Frequent</option>
+                    <option value="premium">Premium</option>
+                    <option value="vip">VIP</option>
+                  </select>
+                </div>
 
-                  {/* Status */}
-                  <div style={fieldStyle}>
-                    <label style={labelStyle}>Status</label>
-                    <select
-                      style={inputStyle}
-                      value={profileForm.status || 'active'}
-                      onChange={e => setProfileForm(f => ({ ...f, status: e.target.value }))}
-                    >
-                      <option value="active">Active</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="banned">Banned</option>
-                    </select>
-                  </div>
+                {/* Status */}
+                <div style={fieldStyle}>
+                  <label style={labelStyle}>Status</label>
+                  <select
+                    style={inputStyle}
+                    value={profileForm.status || 'active'}
+                    onChange={e => setProfileForm(f => ({ ...f, status: e.target.value }))}
+                  >
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="banned">Banned</option>
+                  </select>
                 </div>
               </div>
-            )}
+
+              <div style={{ display: 'flex', gap: 16, marginTop: 18, justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }} disabled={profileSaving} style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 14, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', cursor: 'pointer', transition: 'all 160ms ease' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                >Cancel</button>
+                <button type="submit" disabled={profileSaving || otpSending} style={{
+                  padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 14,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                  transition: 'transform 160ms ease, box-shadow 160ms ease',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                >
+                  {otpSending ? 'Sending OTP…' : profileSaving ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+            <button type="button" onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }} style={{ position: 'absolute', top: 18, right: 22, background: 'none', border: 'none', fontSize: 26, color: '#888', cursor: 'pointer', fontWeight: 700, lineHeight: 1 }} aria-label="Close">&times;</button>
           </div>
         </div>
       )}

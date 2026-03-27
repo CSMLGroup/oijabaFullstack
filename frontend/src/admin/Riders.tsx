@@ -10,6 +10,7 @@ type Rider = {
   rides_completed?: number
   membership?: string
   status?: string
+  profile_image?: string
 }
 
 export default function Riders(): JSX.Element {
@@ -183,6 +184,7 @@ export default function Riders(): JSX.Element {
         <table className="admin-table" style={{ border: 'none', borderRadius: 0 }}>
           <thead>
             <tr>
+              <th style={{ width: 60 }}>Photo</th>
               <th>Rider</th>
               <th>Phone</th>
               <th>Area</th>
@@ -198,6 +200,15 @@ export default function Riders(): JSX.Element {
               </tr>
             ) : filteredAndSorted.map(r => (
               <tr key={r.id}>
+                <td>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img 
+                      src={r.profile_image || '/assets/dummy-avatar.png'} 
+                      alt="avatar" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                </td>
                 <td>
                   <button
                     type="button"

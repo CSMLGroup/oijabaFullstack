@@ -87,7 +87,11 @@ export default function DriverDetail({ id, onClose }:
         <div style={{ width: 200 }}>
           <div style={{ fontSize: 12, color: '#666' }}>Profile Photo</div>
           <div style={{ width: 200, height: 200, border: '1px solid #ddd', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {driver.profile_image ? <img src={driver.profile_image} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ color: '#888' }}>No image</div>}
+            {driver.profile_image ? (
+              <img src={driver.profile_image} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <img src="/assets/dummy-avatar.png" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            )}
           </div>
         </div>
 
@@ -105,7 +109,11 @@ export default function DriverDetail({ id, onClose }:
           <div style={{ marginTop: 12 }}>
             <div style={{ fontSize: 12, color: '#666' }}>Driver License</div>
             <div style={{ width: '100%', height: 220, border: '1px solid #ddd', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-              {driver.driver_license_image ? <img src={driver.driver_license_image} alt="license" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <div style={{ color: '#888' }}>No document</div>}
+              {driver.driver_license_image ? (
+                <img src={driver.driver_license_image} alt="license" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              ) : (
+                <img src="/assets/dummy-license.png" alt="license" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              )}
             </div>
           </div>
         </div>

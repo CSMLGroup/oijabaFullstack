@@ -106,6 +106,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
   // Vehicle editing
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null)
   const [addingVehicle, setAddingVehicle] = useState(false)
+  const [showVehicleModal, setShowVehicleModal] = useState(false)
   const [vehicleForm, setVehicleForm] = useState<Partial<Vehicle>>({})
   const [vehicleSaving, setVehicleSaving] = useState(false)
   const [vehicleMsg, setVehicleMsg] = useState('')
@@ -265,7 +266,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
 
   useEffect(() => {
     const syncLang = () => {
-      try { setIsBangla(localStorage.getItem('oijaba_lang') === 'bn') } catch {}
+      try { setIsBangla(localStorage.getItem('oijaba_lang') === 'bn') } catch { }
     }
     window.addEventListener('oijaba-language-changed', syncLang)
     window.addEventListener('storage', syncLang)
@@ -291,6 +292,8 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
       nid_number: driver.nid_number || '',
       driver_license: driver.driver_license || '',
       status: driver.status || 'active',
+      profile_image: driver.profile_image || '',
+      driver_license_image: driver.driver_license_image || '',
     })
     setProfileMsg('')
     setHasSensitiveChange(false)
@@ -408,6 +411,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
     setAddingVehicle(false)
     setVehicleMsg('')
     setEditingVehicleId(v.id)
+    setShowVehicleModal(true)
   }
 
   const startAddVehicle = () => {
@@ -429,6 +433,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
     })
     setVehicleMsg('')
     setAddingVehicle(true)
+    setShowVehicleModal(true)
   }
 
   const toUpdatePayload = () => ({
@@ -460,6 +465,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
       const res: any = await api.drivers.updateVehicleById(driverId, editingVehicleId, payload)
       setVehicles(vs => vs.map(v => v.id === editingVehicleId ? { ...v, ...res.vehicle } : v))
       setEditingVehicleId(null)
+      setShowVehicleModal(false)
       setVehicleMsg('Vehicle updated')
     } catch (err: any) {
       setVehicleMsg(err.message || 'Save failed')
@@ -498,6 +504,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
         setVehicles(vs => [res.vehicle, ...vs])
       }
       setAddingVehicle(false)
+      setShowVehicleModal(false)
       setVehicleForm({})
       setVehicleMsg('Vehicle added')
     } catch (err: any) {
@@ -553,7 +560,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
       if (ridesStatusFilter !== 'all' && r.status !== ridesStatusFilter) {
         return false
       }
-      
+
       // Apply search filter (search by ride ID or rider name)
       if (ridesSearchQuery.trim()) {
         const query = ridesSearchQuery.toLowerCase()
@@ -561,7 +568,7 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
         const riderNameMatch = r.rider_name?.toLowerCase().includes(query)
         return rideIdMatch || riderNameMatch
       }
-      
+
       return true
     })
     .sort((a, b) => {
@@ -624,9 +631,9 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {driver.profile_image ? (
-              <img src={driver.profile_image} alt="profile" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+              <img src={driver.profile_image} alt="profile" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
             ) : (
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20 }}>🧑</div>
+              <img src="/assets/dummy-avatar.png" alt="profile" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '2px solid var(--primary)' }} />
             )}
             <div>
               <div style={{ fontWeight: 700, fontSize: 18 }}>{driver.name || 'No name'}</div>
@@ -737,7 +744,9 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
           </div>
 
           <div className="admin-card" style={{ marginBottom: 16 }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Driver Info</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Driver Info</h4>
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px 24px' }}>
               {[
                 ['Phone', driver.phone],
@@ -755,6 +764,35 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
                   <div style={{ fontWeight: 600 }}>{value || '—'}</div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="admin-card" style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Active Vehicle Photos</h4>
+              <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setTab('vehicles')}>
+                Manage Vehicles
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {(() => {
+                const primary = vehicles.find(v => v.is_primary) || vehicles[0];
+                return ([
+                  ['Front', primary?.vehicle_front_image],
+                  ['Rear', primary?.vehicle_rear_image],
+                  ['Left', primary?.vehicle_left_image],
+                  ['Right', primary?.vehicle_right_image],
+                ] as [string, string | undefined][]).map(([label, src]) => (
+                  <div key={label} style={{ display: 'grid', gap: 6 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-sub)', fontWeight: 600, textTransform: 'uppercase' }}>{label}</div>
+                    <img 
+                      src={src || '/assets/dummy-vehicle.png'} 
+                      alt={`${label} view`} 
+                      style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} 
+                    />
+                  </div>
+                ));
+              })()}
             </div>
           </div>
 
@@ -902,244 +940,191 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
             <>
               {vehicleMsg && <div style={{ marginBottom: 12, padding: 12, borderRadius: 6, background: vehicleMsg.includes('failed') || vehicleMsg.includes('fail') ? '#fee2e2' : '#dbeafe', color: vehicleMsg.includes('failed') || vehicleMsg.includes('fail') ? 'var(--danger)' : 'var(--primary)', fontWeight: 600 }}>{vehicleMsg}</div>}
               {error && <div style={{ marginBottom: 12, padding: 12, borderRadius: 6, background: '#fee2e2', color: 'var(--danger)', fontWeight: 600 }}>Error: {error}</div>}
-              
+
               <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Vehicles ({vehicles.length})</h3>
-                {!addingVehicle ? (
-                  <button className="admin-btn success" onClick={startAddVehicle}>+ Add Vehicle</button>
-                ) : (
-                  <button className="admin-btn" onClick={() => { setAddingVehicle(false); setVehicleForm({}) }}>Cancel Add</button>
-                )}
+                <button className="admin-btn success" onClick={startAddVehicle}>+ Add Vehicle</button>
               </div>
 
-          {addingVehicle && (
-            <div className="admin-card" style={{ marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Add Vehicle</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-                {([
-                  ['vehicle_type', 'Type'],
-                  ['vehicle_model', 'Model'],
-                  ['vehicle_plate', 'Plate No.'],
-                  ['year', 'Year'],
-                  ['color', 'Color'],
-                  ['capacity', 'Capacity'],
-                  ['registration_number', 'Reg. No.'],
-                  ['engine_number', 'Engine/Chassis'],
-                ] as [keyof Vehicle, string][]).map(([key, label]) => (
-                  <div key={key} style={fieldStyle}>
-                    <label style={labelStyle}>{label}</label>
-                    <input
-                      style={inputStyle}
-                      value={(vehicleForm[key] as string) || ''}
-                      onChange={e => setVehicleForm(f => ({ ...f, [key]: e.target.value }))}
-                    />
-                  </div>
-                ))}
-              </div>
 
-              <div style={{ ...fieldStyle, marginBottom: 16 }}>
-                <label style={labelStyle}>Notes</label>
-                <textarea
-                  style={{ ...inputStyle, minHeight: 72, resize: 'vertical' }}
-                  value={(vehicleForm.notes as string) || ''}
-                  onChange={e => setVehicleForm(f => ({ ...f, notes: e.target.value }))}
-                />
-              </div>
-
-              <h5 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Vehicle Photos</h5>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
-                {([
-                  ['vehicle_front_image', 'Front Photo'],
-                  ['vehicle_rear_image', 'Rear Photo'],
-                  ['vehicle_left_image', 'Left Photo'],
-                  ['vehicle_right_image', 'Right Photo'],
-                ] as [keyof Vehicle, string][]).map(([key, label]) => (
-                  <div key={key} style={fieldStyle}>
-                    <label style={labelStyle}>{label}</label>
-                    {(vehicleForm[key] as string) ? (
-                      <img src={vehicleForm[key] as string} alt={label} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
-                    ) : (
-                      <div style={{ height: 96, borderRadius: 8, border: '1px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-sub)', fontSize: 12 }}>No photo</div>
-                    )}
-                    <label className="admin-btn" style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', margin: '4px 0 0 0' }}>
-                      📸 Upload
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={e => {
-                          handleVehicleImageUpload(key, e.target.files?.[0])
-                          e.currentTarget.value = ''
-                        }}
-                      />
-                    </label>
-                  </div>
-                ))}
-              </div>
-
-              <button className="admin-btn success" disabled={vehicleSaving} onClick={addVehicle} style={{ width: '100%' }}>
-                {vehicleSaving ? 'Adding…' : '✓ Add Vehicle'}
-              </button>
-            </div>
-          )}
-
-          {vehicles.length === 0 ? (
-            <div className="admin-card" style={{ color: 'var(--text-sub)', textAlign: 'center', padding: 40, background: '#f9fafb' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🚗</div>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No vehicles registered</div>
-              <div style={{ fontSize: 13, opacity: 0.7 }}>Click "Add Vehicle" to register a vehicle for this driver</div>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
-              {vehicles && vehicles.length > 0 && vehicles.map(v => (
-                <div key={v.id} className="admin-card">
-                  {/* Card header — title/badge + action buttons */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      <span style={{ fontWeight: 600, fontSize: 14 }}>{v.vehicle_model || 'Vehicle'}</span>
-                      {v.is_primary && (
-                        <span className="admin-badge active" style={{ fontSize: 11 }}>Primary</span>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      {!v.is_primary && (
-                        <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12, background: 'var(--primary)', color: '#fff' }}
-                          onClick={() => setPrimaryVehicle(v.id)}>
-                          ★ Set Active
-                        </button>
-                      )}
-                      <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
-                        onClick={() => editingVehicleId === v.id ? setEditingVehicleId(null) : startEditVehicle(v)}>
-                        {editingVehicleId === v.id ? 'Cancel' : '✏️ Edit'}
-                      </button>
-                      <button className="admin-btn danger" style={{ padding: '4px 10px', fontSize: 12 }}
-                        onClick={() => deleteVehicle(v.id)}>
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-
-                  {editingVehicleId !== v.id && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
-                      {([
-                        ['Front', v.vehicle_front_image],
-                        ['Rear', v.vehicle_rear_image],
-                        ['Left', v.vehicle_left_image],
-                        ['Right', v.vehicle_right_image],
-                      ] as [string, string | undefined][]).map(([label, src]) => src ? (
-                        <div key={label} style={{ display: 'grid', gap: 4 }}>
-                          <img src={src} alt={`${label} view`} style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8 }} />
-                          <div style={{ fontSize: 11, color: 'var(--text-sub)', textAlign: 'center' }}>{label}</div>
+              {/* Modal for Add/Edit Vehicle */}
+              {showVehicleModal && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0, left: 0, width: '100vw', height: '100vh',
+                  background: 'rgba(0,0,0,0.18)',
+                  zIndex: 1000,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+                  onClick={e => { if (e.target === e.currentTarget) setShowVehicleModal(false) }}
+                >
+                  <div style={{
+                    background: '#fff',
+                    borderRadius: 18,
+                    boxShadow: '0 8px 32px 0 rgba(60,60,60,0.18), 0 1.5px 8px 0 rgba(0,0,0,0.08)',
+                    padding: '32px 32px 24px 32px',
+                    minWidth: 800,
+                    maxWidth: '900px',
+                    margin: 16,
+                    position: 'relative',
+                    color: '#222',
+                  }}>
+                    <h2 style={{ margin: 0, marginBottom: 24, fontWeight: 700, fontSize: 22 }}>{addingVehicle ? 'Add Vehicle' : 'Edit Vehicle'}</h2>
+                    <form onSubmit={e => { e.preventDefault(); addingVehicle ? addVehicle() : saveVehicle() }}>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr 1fr',
+                        gap: 20,
+                        marginBottom: 16,
+                      }}>
+                        {([
+                          ['vehicle_type', 'Type'],
+                          ['vehicle_model', 'Model'],
+                          ['vehicle_plate', 'Plate No.'],
+                          ['year', 'Year'],
+                          ['color', 'Color'],
+                          ['capacity', 'Capacity'],
+                          ['registration_number', 'Reg. No.'],
+                          ['engine_number', 'Engine/Chassis'],
+                        ] as [keyof Vehicle, string][]).map(([key, label]) => (
+                          <label key={key} style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, fontSize: 14 }}>
+                            {label}
+                            <input
+                              style={{ padding: 10, borderRadius: 8, border: '1.5px solid #e0e0e0', marginTop: 6, fontSize: 15, background: '#fafbfc' }}
+                              value={(vehicleForm[key] as string) || ''}
+                              onChange={e => setVehicleForm(f => ({ ...f, [key]: e.target.value }))}
+                            />
+                          </label>
+                        ))}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 16, alignItems: 'start' }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', fontWeight: 500, fontSize: 14 }}>
+                          Notes
+                          <textarea
+                            style={{ padding: 10, borderRadius: 8, border: '1.5px solid #e0e0e0', marginTop: 6, fontSize: 15, background: '#fafbfc', minHeight: 80, resize: 'vertical' }}
+                            value={(vehicleForm.notes as string) || ''}
+                            onChange={e => setVehicleForm(f => ({ ...f, notes: e.target.value }))}
+                          />
+                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <h5 style={{ margin: '0 0 4px 0', fontSize: 13, fontWeight: 600, color: '#000', textTransform: 'uppercase' }}>Vehicle Photos</h5>
+                          <p style={{ margin: 0, fontSize: 12, color: 'var(--text-sub)' }}>Upload at least the front view.</p>
                         </div>
-                      ) : null)}
-                    </div>
-                  )}
-
-                  {editingVehicleId === v.id ? (
-                    <div style={{ backgroundColor: '#fafbfc', padding: 16, borderRadius: 8, border: '2px solid var(--primary)', marginTop: 12 }}>
-                      <h4 style={{ margin: '0 0 16px 0', fontSize: 15, fontWeight: 700, color: '#000' }}>✏️ Edit Vehicle</h4>
-                      
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
-                        {(['vehicle_type', 'vehicle_model', 'vehicle_plate', 'year', 'color', 'capacity', 'registration_number', 'engine_number'] as const).map((key) => {
-                          const labels: Record<string, string> = {
-                            vehicle_type: 'Type',
-                            vehicle_model: 'Model',
-                            vehicle_plate: 'Plate No.',
-                            year: 'Year',
-                            color: 'Color',
-                            capacity: 'Capacity',
-                            registration_number: 'Reg. No.',
-                            engine_number: 'Engine/Chassis',
-                          }
-                          return (
-                            <div key={key}>
-                              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', marginBottom: 4 }}>{labels[key]}</label>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                        {([
+                          ['vehicle_front_image', 'Front'],
+                          ['vehicle_rear_image', 'Rear'],
+                          ['vehicle_left_image', 'Left'],
+                          ['vehicle_right_image', 'Right'],
+                        ] as [keyof Vehicle, string][]).map(([key, label]) => (
+                          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-sub)' }}>{label} View</label>
+                            {vehicleForm[key] ? (
+                              <img src={vehicleForm[key] as string} alt={label} style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                            ) : (
+                              <img src="/assets/dummy-vehicle.png" alt="no photo" style={{ width: '100%', height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                            )}
+                            <label className="admin-btn" style={{ padding: '6px 10px', fontSize: 12, textAlign: 'center', margin: '4px 0 0 0' }}>
+                              📸 Upload
                               <input
-                                style={inputStyle}
-                                value={(vehicleForm[key as keyof typeof vehicleForm] as string) || ''}
-                                onChange={e => setVehicleForm(f => ({ ...f, [key]: e.target.value }))}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={e => {
+                                  handleVehicleImageUpload(key, e.target.files?.[0])
+                                  e.currentTarget.value = ''
+                                }}
                               />
-                            </div>
-                          )
-                        })}
+                            </label>
+                          </div>
+                        ))}
                       </div>
-
-                      <div style={{ marginBottom: 20 }}>
-                        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', marginBottom: 4 }}>Notes</label>
-                        <textarea
-                          style={{ ...inputStyle, minHeight: 80, resize: 'vertical', width: '100%' }}
-                          value={(vehicleForm.notes as string) || ''}
-                          onChange={e => setVehicleForm(f => ({ ...f, notes: e.target.value }))}
-                        />
+                      <div style={{ display: 'flex', gap: 16, marginTop: 18, justifyContent: 'flex-end' }}>
+                        <button type="button" className="btn btn-outline" onClick={() => { setShowVehicleModal(false); setAddingVehicle(false); setEditingVehicleId(null); setVehicleForm({}) }} disabled={vehicleSaving} style={{ padding: '10px 22px', borderRadius: 8, fontWeight: 600, fontSize: 15, border: '1.5px solid #e0e0e0', background: '#fff', color: '#444', transition: 'background 0.2s' }}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={vehicleSaving} style={{ padding: '10px 22px', borderRadius: 8, fontWeight: 600, fontSize: 15, background: '#4f46e5', color: '#fff', border: 'none', boxShadow: '0 2px 8px 0 rgba(79,70,229,0.08)', transition: 'background 0.2s' }}>{addingVehicle ? 'Add' : 'Save'}</button>
                       </div>
-
-                      <h5 style={{ margin: '0 0 12px 0', fontSize: 12, fontWeight: 600, color: '#000', textTransform: 'uppercase' }}>Vehicle Photos</h5>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 12, marginBottom: 20 }}>
-                        {(['vehicle_front_image', 'vehicle_rear_image', 'vehicle_left_image', 'vehicle_right_image'] as const).map((key) => {
-                          const labels: Record<string, string> = {
-                            vehicle_front_image: 'Front',
-                            vehicle_rear_image: 'Rear',
-                            vehicle_left_image: 'Left',
-                            vehicle_right_image: 'Right',
-                          }
-                          return (
-                            <div key={key}>
-                              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-sub)', textTransform: 'uppercase', marginBottom: 4 }}>{labels[key]}</label>
-                              {(vehicleForm[key as keyof typeof vehicleForm] as string) ? (
-                                <img src={vehicleForm[key as keyof typeof vehicleForm] as string} alt={`${labels[key]} view`} style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 6, border: '1px solid var(--border)' }} />
-                              ) : (
-                                <div style={{ height: 80, borderRadius: 6, border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-sub)', fontSize: 11 }}>No photo</div>
-                              )}
-                              <label style={{ display: 'block', padding: '6px 8px', fontSize: 11, textAlign: 'center', borderRadius: 4, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontWeight: 500, marginTop: 4 }}>
-                                📸 Upload
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  style={{ display: 'none' }}
-                                  onChange={e => {
-                                    handleVehicleImageUpload(key as keyof Vehicle, e.target.files?.[0])
-                                    e.currentTarget.value = ''
-                                  }}
-                                />
-                              </label>
-                            </div>
-                          )
-                        })}
-                      </div>
-
-                      <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-                        <button style={{ flex: 1, padding: '10px 16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }} disabled={vehicleSaving} onClick={saveVehicle}>
-                          {vehicleSaving ? '⏳ Saving…' : '✓ Save Changes'}
-                        </button>
-                        <button style={{ flex: 1, padding: '10px 16px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }} onClick={() => setEditingVehicleId(null)}>
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'grid', gap: 6 }}>
-                      {([
-                        ['Type', v.vehicle_type],
-                        ['Model', v.vehicle_model],
-                        ['Plate', v.vehicle_plate],
-                        ['Color', v.color],
-                        ['Capacity', v.capacity],
-                        ['Reg. No.', v.registration_number],
-                        ['Year', v.year],
-                        ['Engine/Chassis', v.engine_number],
-                        ['Notes', v.notes],
-                      ] as [string, string | undefined][]).map(([label, val]) => (
-                        <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0', borderBottom: '1px solid var(--border)' }}>
-                          <span style={{ color: 'var(--text-sub)' }}>{label}</span>
-                          <span style={{ fontWeight: 600 }}>{val || '—'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                      <button type="button" onClick={() => { setShowVehicleModal(false); setAddingVehicle(false); setEditingVehicleId(null); setVehicleForm({}) }} style={{ position: 'absolute', top: 18, right: 22, background: 'none', border: 'none', fontSize: 26, color: '#888', cursor: 'pointer', fontWeight: 700, lineHeight: 1 }} aria-label="Close">&times;</button>
+                    </form>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              )}
+
+              {vehicles.length === 0 ? (
+                <div className="admin-card" style={{ color: 'var(--text-sub)', textAlign: 'center', padding: 40, background: '#f9fafb' }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>🚗</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>No vehicles registered</div>
+                  <div style={{ fontSize: 13, opacity: 0.7 }}>Click "Add Vehicle" to register a vehicle for this driver</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 16 }}>
+                  {vehicles && vehicles.length > 0 && vehicles.map(v => (
+                    <div key={v.id} className="admin-card">
+                      {/* Card header — title/badge + action buttons */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                          <span style={{ fontWeight: 600, fontSize: 14 }}>{v.vehicle_model || 'Vehicle'}</span>
+                          {v.is_primary && (
+                            <span className="admin-badge active" style={{ fontSize: 11 }}>Primary</span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                          {!v.is_primary && (
+                            <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12, background: 'var(--primary)', color: '#fff' }}
+                              onClick={() => setPrimaryVehicle(v.id)}>
+                              ★ Set Active
+                            </button>
+                          )}
+                          <button className="admin-btn" style={{ padding: '4px 10px', fontSize: 12 }}
+                            onClick={() => startEditVehicle(v)}>
+                            ✏️ Edit
+                          </button>
+                          <button className="admin-btn danger" style={{ padding: '4px 10px', fontSize: 12 }}
+                            onClick={() => deleteVehicle(v.id)}>
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+
+                      {editingVehicleId !== v.id && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+                          {([
+                            ['Front', v.vehicle_front_image],
+                            ['Rear', v.vehicle_rear_image],
+                            ['Left', v.vehicle_left_image],
+                            ['Right', v.vehicle_right_image],
+                          ] as [string, string | undefined][]).map(([label, src]) => (
+                            <div key={label} style={{ display: 'grid', gap: 4 }}>
+                              <img src={src || '/assets/dummy-vehicle.png'} alt={`${label} view`} style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                              <div style={{ fontSize: 11, color: 'var(--text-sub)', textAlign: 'center' }}>{label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Edit form moved to modal */}
+                      <div style={{ display: 'grid', gap: 6 }}>
+                        {([
+                          ['Type', v.vehicle_type],
+                          ['Model', v.vehicle_model],
+                          ['Plate', v.vehicle_plate],
+                          ['Color', v.color],
+                          ['Capacity', v.capacity],
+                          ['Reg. No.', v.registration_number],
+                          ['Year', v.year],
+                          ['Engine/Chassis', v.engine_number],
+                          ['Notes', v.notes],
+                        ] as [string, string | undefined][]).map(([label, val]) => (
+                          <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0', borderBottom: '1px solid var(--border)' }}>
+                            <span style={{ color: 'var(--text-sub)' }}>{label}</span>
+                            <span style={{ fontWeight: 600 }}>{val || '—'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1147,204 +1132,172 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
 
       {/* Tab: Profile */}
       {tab === 'profile' && (
-        <div>
-          {/* Profile images */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
-            <div className="admin-card">
-              <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Profile Photo</h4>
-              {driver.profile_image ? (
-                <img src={driver.profile_image} alt="profile" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 10 }} />
-              ) : (
-                <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', borderRadius: 10, color: 'var(--text-sub)' }}>No photo</div>
-              )}
-              <label style={{ display: 'block', marginTop: 10, cursor: 'pointer' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={async e => {
-                    const file = e.target.files?.[0]
-                    if (!file) return
-                    const reader = new FileReader()
+        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, alignItems: 'start' }}>
+          {/* Left sidebar — stacked image cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Profile Photo Card */}
+            <div className="admin-card" style={{ padding: 0, overflow: 'hidden', borderRadius: 16 }}>
+              <div style={{ position: 'relative' }}>
+                {driver.profile_image ? (
+                  <img src={driver.profile_image} alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                ) : (
+                  <img src="/assets/dummy-avatar.png" alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                )}
+                {/* Overlay gradient */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))' }} />
+                <div style={{ position: 'absolute', bottom: 12, left: 16, color: '#fff', fontWeight: 700, fontSize: 14, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Profile Photo</div>
+              </div>
+              <div style={{ padding: '12px 16px 16px' }}>
+                <label style={{ display: 'block', cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                    const file = e.target.files?.[0]; if (!file) return;
+                    const reader = new FileReader();
                     reader.onload = async () => {
-                      const dataUrl = String(reader.result)
-                      try {
-                        const res: any = await api.drivers.updateById(driverId, { profile_image: dataUrl })
-                        setDriver(d => d ? { ...d, profile_image: res.user?.profile_image || dataUrl } : d)
-                        setProfileMsg('Photo updated')
-                      } catch (err: any) {
-                        setProfileMsg(err.message || 'Photo upload failed')
-                      }
-                    }
-                    reader.readAsDataURL(file)
-                    e.target.value = ''
+                      const dataUrl = String(reader.result);
+                      try { const res: any = await api.drivers.updateById(driverId, { profile_image: dataUrl }); setDriver(d => d ? { ...d, profile_image: res.user?.profile_image || dataUrl } : d); setProfileMsg('Photo updated') } catch (err: any) { setProfileMsg(err.message || 'Photo upload failed') }
+                    }; reader.readAsDataURL(file); e.target.value = '';
+                  }} />
+                  <span style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '11px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                    cursor: 'pointer', border: 'none', width: '100%', boxSizing: 'border-box',
+                    boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                    transition: 'transform 160ms ease, box-shadow 160ms ease',
                   }}
-                />
-                <span
-                  className="admin-btn"
-                  style={{
-                    padding: '9px 14px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.4,
-                    transition: 'transform 140ms ease, filter 140ms ease, box-shadow 140ms ease',
-                    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                    e.currentTarget.style.filter = 'brightness(1.03)'
-                    e.currentTarget.style.boxShadow = '0 7px 16px rgba(15, 23, 42, 0.18)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.filter = 'none'
-                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(15, 23, 42, 0.12)'
-                  }}
-                >
-                  <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 16V5" />
-                      <path d="m7 10 5-5 5 5" />
-                      <path d="M20 16.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-2" />
-                    </svg>
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    {driver.profile_image ? 'Change Photo' : 'Upload Photo'}
                   </span>
-                  {driver.profile_image ? 'Change Profile Photo' : 'Upload Profile Photo'}
-                </span>
-              </label>
+                </label>
+              </div>
             </div>
-            <div className="admin-card">
-              <h4 style={{ margin: '0 0 12px', fontSize: 15 }}>Driver License Image</h4>
-              {driver.driver_license_image ? (
-                <img src={driver.driver_license_image} alt="license" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 10 }} />
-              ) : (
-                <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface)', borderRadius: 10, color: 'var(--text-sub)' }}>No license image</div>
-              )}
-              <label style={{ display: 'block', marginTop: 10, cursor: 'pointer' }}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={async e => {
-                    const file = e.target.files?.[0]
-                    if (!file) return
-                    const reader = new FileReader()
+
+            {/* License Image Card */}
+            <div className="admin-card" style={{ padding: 0, overflow: 'hidden', borderRadius: 16 }}>
+              <div style={{ position: 'relative' }}>
+                {driver.driver_license_image ? (
+                  <img src={driver.driver_license_image} alt="license" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
+                ) : (
+                  <img src="/assets/dummy-license.png" alt="license" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                )}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, rgba(0,0,0,0.5))' }} />
+                <div style={{ position: 'absolute', bottom: 12, left: 16, color: '#fff', fontWeight: 700, fontSize: 14, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Driver License</div>
+              </div>
+              <div style={{ padding: '12px 16px 16px' }}>
+                <label style={{ display: 'block', cursor: 'pointer' }}>
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                    const file = e.target.files?.[0]; if (!file) return;
+                    const reader = new FileReader();
                     reader.onload = async () => {
-                      const dataUrl = String(reader.result)
-                      try {
-                        const res: any = await api.drivers.updateById(driverId, { driver_license_image: dataUrl })
-                        setDriver(d => d ? { ...d, driver_license_image: res.user?.driver_license_image || dataUrl } : d)
-                        setProfileMsg('License image updated')
-                      } catch (err: any) {
-                        setProfileMsg(err.message || 'Image upload failed')
-                      }
-                    }
-                    reader.readAsDataURL(file)
-                    e.target.value = ''
+                      const dataUrl = String(reader.result);
+                      try { const res: any = await api.drivers.updateById(driverId, { driver_license_image: dataUrl }); setDriver(d => d ? { ...d, driver_license_image: res.user?.driver_license_image || dataUrl } : d); setProfileMsg('License image updated') } catch (err: any) { setProfileMsg(err.message || 'Image upload failed') }
+                    }; reader.readAsDataURL(file); e.target.value = '';
+                  }} />
+                  <span style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '11px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                    cursor: 'pointer', border: 'none', width: '100%', boxSizing: 'border-box',
+                    boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                    transition: 'transform 160ms ease, box-shadow 160ms ease',
                   }}
-                />
-                <span
-                  className="admin-btn"
-                  style={{
-                    padding: '9px 14px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: 'var(--primary)',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.4,
-                    transition: 'transform 140ms ease, filter 140ms ease, box-shadow 140ms ease',
-                    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.12)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                    e.currentTarget.style.filter = 'brightness(1.03)'
-                    e.currentTarget.style.boxShadow = '0 7px 16px rgba(15, 23, 42, 0.18)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.filter = 'none'
-                    e.currentTarget.style.boxShadow = '0 2px 6px rgba(15, 23, 42, 0.12)'
-                  }}
-                >
-                  <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', flexShrink: 0 }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 16V5" />
-                      <path d="m7 10 5-5 5 5" />
-                      <path d="M20 16.5v2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-2" />
-                    </svg>
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    {driver.driver_license_image ? 'Change License' : 'Upload License'}
                   </span>
-                  {driver.driver_license_image ? 'Change License Image' : 'Upload License Image'}
-                </span>
-              </label>
+                </label>
+              </div>
             </div>
           </div>
 
-          {/* Edit form */}
-          <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h4 style={{ margin: 0, fontSize: 15 }}>Profile Details</h4>
-              {!editingProfile ? (
-                <button className="admin-btn" style={{ padding: '6px 16px' }} onClick={startEditProfile}>✏️ Edit</button>
-              ) : (
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button className="admin-btn" style={{ padding: '6px 16px' }} onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }}>Cancel</button>
-                  <button className="admin-btn success" style={{ padding: '6px 16px' }} disabled={profileSaving || otpSending} onClick={saveProfile}>
-                    {otpSending ? 'Sending OTP…' : profileSaving ? 'Saving…' : 'Save Changes'}
-                  </button>
-                </div>
-              )}
+          {/* Right side — Profile Details */}
+          <div className="admin-card" style={{ borderRadius: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h4 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Profile Details</h4>
+              <button
+                onClick={startEditProfile}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '10px 22px', borderRadius: 10, fontSize: 14, fontWeight: 700,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                  transition: 'transform 160ms ease, box-shadow 160ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                Edit Profile
+              </button>
             </div>
 
             {profileMsg && (
-              <div style={{ marginBottom: 14, padding: '8px 12px', borderRadius: 8, background: profileMsg.includes('ailed') ? '#fff0f0' : '#f0faf5', color: profileMsg.includes('ailed') ? 'var(--danger)' : 'var(--primary)', fontWeight: 600, fontSize: 13 }}>
+              <div style={{ marginBottom: 16, padding: '10px 14px', borderRadius: 10, background: profileMsg.includes('ailed') ? '#fef2f2' : '#f0fdf4', color: profileMsg.includes('ailed') ? '#dc2626' : '#16a34a', fontWeight: 600, fontSize: 13, border: profileMsg.includes('ailed') ? '1px solid #fecaca' : '1px solid #bbf7d0' }}>
                 {profileMsg}
               </div>
             )}
 
-            {!editingProfile ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px 24px' }}>
-                {[
-                  ['Phone', driver.phone],
-                  ['Name (EN)', driver.name],
-                  ['Name (BN)', driver.name_bn],
-                  ['NID No.', driver.nid_number],
-                  ['License No.', driver.driver_license],
-                  ['Area', driver.area],
-                  ['District', driver.district],
-                  ['Upazilla', driver.upazilla],
-                  ['House No.', driver.house_no],
-                  ['Road No.', driver.road_no],
-                  ['Landmark', driver.landmark],
-                  ['Post Office', driver.post_office],
-                  ['Status', driver.status],
-                  ['Online', driver.is_online ? 'Yes' : 'No'],
-                  ['Member Since', driver.created_at ? new Date(driver.created_at).toLocaleDateString() : '—'],
-                ].map(([label, value]) => (
-                  <div key={label as string} style={{ padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 11, color: 'var(--text-sub)', marginBottom: 2 }}>{label}</div>
-                    <div style={{ fontWeight: 600 }}>{value || '—'}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px 28px' }}>
+              {[
+                ['Phone', driver.phone],
+                ['Name (EN)', driver.name],
+                ['Name (BN)', driver.name_bn],
+                ['NID No.', driver.nid_number],
+                ['License No.', driver.driver_license],
+                ['Area', driver.area],
+                ['District', driver.district],
+                ['Upazilla', driver.upazilla],
+                ['House No.', driver.house_no],
+                ['Road No.', driver.road_no],
+                ['Landmark', driver.landmark],
+                ['Post Office', driver.post_office],
+                ['Status', driver.status],
+                ['Online', driver.is_online ? 'Yes' : 'No'],
+                ['Member Since', driver.created_at ? new Date(driver.created_at).toLocaleDateString() : '—'],
+              ].map(([label, value]) => (
+                <div key={label as string} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: '#1e293b' }}>{value || '—'}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Edit Modal */}
+      {editingProfile && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+          onClick={e => { if (e.target === e.currentTarget) { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) } }}
+        >
+          <div style={{
+            background: '#fff',
+            borderRadius: 18,
+            boxShadow: '0 8px 32px 0 rgba(60,60,60,0.18), 0 1.5px 8px 0 rgba(0,0,0,0.08)',
+            padding: '32px 32px 24px 32px',
+            minWidth: 800,
+            maxWidth: '96vw',
+            maxHeight: '90vh',
+            overflowY: 'auto' as const,
+            margin: 16,
+            position: 'relative',
+            color: '#222',
+          }}>
+            <h2 style={{ margin: 0, marginBottom: 24, fontWeight: 700, fontSize: 22 }}>Edit Profile Details</h2>
+            <form onSubmit={e => { e.preventDefault(); saveProfile() }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 20 }}>
                 {([
                   ['name', 'Name (EN)', 'text'],
                   ['name_bn', 'Name (BN)', 'text'],
@@ -1423,7 +1376,90 @@ export default function AdminDriverView({ driverId, onBack }: Props): JSX.Elemen
                   </select>
                 </div>
               </div>
-            )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <label style={labelStyle}>Profile Photo</label>
+                  <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1.5px solid #e2e8f0' }}>
+                    {profileForm.profile_image ? (
+                      <img src={profileForm.profile_image} alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                    ) : (
+                      <img src="/assets/dummy-avatar.png" alt="profile" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                    )}
+                  </div>
+                  <label style={{ display: 'block', cursor: 'pointer' }}>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                      const file = e.target.files?.[0]; if (!file) return;
+                      const reader = new FileReader(); reader.onload = () => setProfileForm(f => ({ ...f, profile_image: String(reader.result) })); reader.readAsDataURL(file);
+                    }} />
+                    <span style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: '10px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                      background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                      cursor: 'pointer', width: '100%', boxSizing: 'border-box',
+                      boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                      transition: 'transform 160ms ease, box-shadow 160ms ease',
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                      {profileForm.profile_image ? 'Change Photo' : 'Upload Photo'}
+                    </span>
+                  </label>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <label style={labelStyle}>Driver License</label>
+                  <div style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', border: '1.5px solid #e2e8f0' }}>
+                    {profileForm.driver_license_image ? (
+                      <img src={profileForm.driver_license_image} alt="license" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
+                    ) : (
+                      <img src="/assets/dummy-license.png" alt="license" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block', borderRadius: 12 }} />
+                    )}
+                  </div>
+                  <label style={{ display: 'block', cursor: 'pointer' }}>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                      const file = e.target.files?.[0]; if (!file) return;
+                      const reader = new FileReader(); reader.onload = () => setProfileForm(f => ({ ...f, driver_license_image: String(reader.result) })); reader.readAsDataURL(file);
+                    }} />
+                    <span style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: '10px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700,
+                      background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                      cursor: 'pointer', width: '100%', boxSizing: 'border-box',
+                      boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                      transition: 'transform 160ms ease, box-shadow 160ms ease',
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                      {profileForm.driver_license_image ? 'Change License' : 'Upload License'}
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 16, marginTop: 18, justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }} disabled={profileSaving} style={{ padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 14, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', cursor: 'pointer', transition: 'all 160ms ease' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                >Cancel</button>
+                <button type="submit" disabled={profileSaving || otpSending} style={{
+                  padding: '10px 24px', borderRadius: 10, fontWeight: 700, fontSize: 14,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: '#fff',
+                  border: 'none', cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(79,70,229,0.25)',
+                  transition: 'transform 160ms ease, box-shadow 160ms ease',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 22px rgba(79,70,229,0.35)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(79,70,229,0.25)' }}
+                >
+                  {otpSending ? 'Sending OTP…' : profileSaving ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+
+            </form>
+            <button type="button" onClick={() => { setEditingProfile(false); setOtpStep('idle'); setOtpCode(''); setHasSensitiveChange(false) }} style={{ position: 'absolute', top: 18, right: 22, background: 'none', border: 'none', fontSize: 26, color: '#888', cursor: 'pointer', fontWeight: 700, lineHeight: 1 }} aria-label="Close">&times;</button>
           </div>
         </div>
       )}

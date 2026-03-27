@@ -40,7 +40,11 @@ export default function RiderDetail({ id, onClose }:
         <div style={{ width: 180 }}>
           <div style={{ fontSize: 12, color: '#666' }}>Profile Photo</div>
           <div style={{ width: 180, height: 180, border: '1px solid #ddd', marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            {rider.profile_image ? <img src={rider.profile_image} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ color: '#888' }}>No image</div>}
+            {rider.profile_image ? (
+              <img src={rider.profile_image} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <img src="/assets/dummy-avatar.png" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            )}
           </div>
         </div>
 

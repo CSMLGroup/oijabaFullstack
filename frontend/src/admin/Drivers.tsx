@@ -20,6 +20,7 @@ type Driver = {
   total_rides?: number
   earnings?: number
   total_earned?: number
+  profile_image?: string
 }
 
 type SortKey = 'name' | 'status' | 'vehicle' | 'rides_count' | 'earnings'
@@ -229,6 +230,7 @@ export default function Drivers({ isActive = true, presetStatus = 'all', presetS
         <table className="admin-table" style={{ border: 'none', borderRadius: 0 }}>
           <thead>
             <tr>
+              <th style={{ width: 60 }}>Photo</th>
               <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', userSelect: 'none' }}>Driver<SortIcon col="name" /></th>
               <th>Phone</th>
               <th onClick={() => handleSort('vehicle')} style={{ cursor: 'pointer', userSelect: 'none' }}>Vehicle<SortIcon col="vehicle" /></th>
@@ -241,6 +243,15 @@ export default function Drivers({ isActive = true, presetStatus = 'all', presetS
           <tbody>
             {filtered.map(d => (
               <tr key={d.id}>
+                <td>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img 
+                      src={d.profile_image || '/assets/dummy-avatar.png'} 
+                      alt="avatar" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                </td>
                 <td>
                   <button
                     type="button"

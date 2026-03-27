@@ -13,21 +13,32 @@ const app = express();
 const server = http.createServer(app);
 
 // --- CORS Setup (single, clean config) ---
-const corsOrigin = process.env.CORS_ORIGIN || 'https://oijaba-front.vercel.app';
+
+// Allow both local frontend and production frontend in dev, or use CORS_ORIGIN if set
+const defaultOrigins = [
+    'https://oijaba-front.vercel.app',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+];
+const corsOrigin = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : defaultOrigins;
 console.log('CORS_ORIGIN in use:', corsOrigin);
 
 const corsOptions = {
-    origin: corsOrigin,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    optionsSuccessStatus: 200
+        origin: function(origin, callback) {
+                // allow requests with no origin (like mobile apps, curl, etc.)
+                if (!origin) return callback(null, true);
+                if (corsOrigin.includes(origin)) return callback(null, true);
+                return callback(new Error('Not allowed by CORS'), false);
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware ONCE, before everything else
 app.use(cors(corsOptions));
-
-// Explicitly handle all OPTIONS preflight requests
 app.options('*', cors(corsOptions));
 
 // Body parsers (must come after CORS, before routes)

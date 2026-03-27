@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { readJwtPayload } from '../authToken'
 import AuthModal from '../components/AuthModal'
 import AdminLoginModal from '../components/AdminLoginModal'
+import api from '../api'
 
 function isUserLoggedIn(): boolean {
   const token = localStorage.getItem('oijaba_token')
@@ -104,16 +105,24 @@ export default function HomePage(): JSX.Element {
     cursor: 'pointer',
   }
 
-  const vehicles = [
-    { img: '/assets/vehicles/easybike.jpg', name: t('Auto Rickshaw', 'অটো-রিকশা'), desc: t('Fits 3 passengers. Best for town trips.', '৩ জন যাত্রী বসতে পারে। শহরে যাতায়াতের জন্য সেরা।'), fare: t('From ৳ 40', 'শুরু ৳ ৪০ থেকে'), tag: t('Popular', 'জনপ্রিয়') },
-    { img: '/assets/vehicles/motorbike.jpg', name: t('Motorbike', 'মোটরবাইক'), desc: t('Fastest. Single passenger. Narrow roads.', 'সবচেয়ে দ্রুত। একজন যাত্রী। সরু রাস্তার জন্য।'), fare: t('From ৳ 20', 'শুরু ৳ ২০ থেকে') },
-    { img: '/assets/vehicles/rickshaw.jpg', name: t('Battery Rickshaw', 'ব্যাটারি রিকশা'), desc: t('Eco-friendly, quiet, short distances.', 'পরিবেশবান্ধব, শান্ত, অল্প দূরত্বের জন্য।'), fare: t('From ৳ 25', 'শুরু ৳ ২৫ থেকে') },
-    { img: '/assets/vehicles/van.jpg', name: t('Van Rickshaw', 'ভ্যান রিকশা'), desc: t('Up to 5 people or cargo. Shared rides.', '৫ জন পর্যন্ত মানুষ বা মালামাল। শেয়ার্ড রাইড।'), fare: t('From ৳ 15/person', 'জনপ্রতি শুরু ৳ ১৫ থেকে') },
-    { emoji: '🚜', name: t('Tractor', 'ট্রাক্টর'), desc: t('Crops, fertilizers, heavy loads.', 'ফসল, সার, ভারী মালামাল।'), fare: t('From ৳ 80', 'শুরু ৳ ৮০ থেকে'), tag: t('Farm', 'খামার') },
-    { emoji: '⛵', name: t('Boat / Nouka', 'নৌকা'), desc: t('Flood & river areas. Group transport.', 'বন্যা ও নদী এলাকা। দলগত যাতায়াত।'), fare: t('From ৳ 30', 'শুরু ৳ ৩০ থেকে'), tag: t('River', 'নদী') },
-    { img: '/assets/vehicles/easybike.jpg', name: t('Shared Rickshaw', 'শেয়ার্ড অটো-রিকশা'), desc: t('Split fare with co-passengers. Save money.', 'সহযাত্রীদের সাথে ভাড়া ভাগ করুন। টাকা বাঁচান।'), fare: t('From ৳ 15/seat', 'প্রতি আসন শুরু ৳ ১৫ থেকে') },
-    { emoji: '🚗', name: t('Private Car', 'প্রাইভেট কার'), desc: t('Comfort ride for hospital, weddings.', 'হাসপাতাল, বিয়ের জন্য আরামদায়ক রাইড।'), fare: t('From ৳ 120', 'শুরু ৳ ১২০ থেকে') },
-  ]
+  // Vehicles fetched from backend
+  const [vehicles, setVehicles] = useState<any[]>([])
+  const [vehiclesLoading, setVehiclesLoading] = useState(true)
+  const [vehiclesError, setVehiclesError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setVehiclesLoading(true)
+    api.get('/vehicles')
+      .then((res: any) => {
+        setVehicles(res.vehicles || [])
+        setVehiclesError(null)
+      })
+      .catch(err => {
+        setVehiclesError('Failed to load vehicles')
+        setVehicles([])
+      })
+      .finally(() => setVehiclesLoading(false))
+  }, [])
 
   const features = [
     { icon: '📶', color: '#006a4e', title: t('Works on 2G / 3G', '২জি / ৩জি তে কাজ করে'), desc: t('Designed to load fast even on weak rural networks. "Lite Mode" removes all images.', 'দুর্বল গ্রামীণ নেটওয়ার্কেও দ্রুত চালানোর জন্য তৈরি। "লাইট মোড" সমস্ত ছবি রিমুভ করে দেয়।'), tags: [t('Lite Mode', 'লাইট মোড'), t('SMS Fallback', 'এসএমএস ফলব্যাক')] },
@@ -129,8 +138,7 @@ export default function HomePage(): JSX.Element {
   const steps = [
     { num: t('01', '০১'), icon: '📱', title: t('Enter Phone Number', 'ফোন নম্বর দিন'), desc: t('Login with your mobile number via OTP. No email or password required.', 'ওটিপির মাধ্যমে আপনার মোবাইল নম্বর দিয়ে লগইন করুন। কোনো ইমেইল বা পাসওয়ার্ডের প্রয়োজন নেই।') },
     { num: t('02', '০২'), icon: '📍', title: t('Pick Your Location', 'আপনার অবস্থান নির্বাচন করুন'), desc: t('Choose village, bazaar, mosque, school or Union Parishad as landmark pickup.', 'পিকআপ পয়েন্ট হিসেবে গ্রাম, বাজার, মসজিদ, স্কুল বা ইউনিয়ন পরিষদ বেছে নিন।') },
-    { num: t('03', '০৩'), icon: '🛺', title: t('Choose Vehicle', 'যানবাহন নির্বাচন করুন'), desc: t('Pick from motorbike, Auto Rickshaw, van, battery rickshaw, tractor or boat.', 'আপনার প্রয়োজন অনুযায়ী মোটরবাইক, অটো-রিকশা, ভ্যান, ব্যাটারি রিকশা বা নৌকা বেছে নিন।') },
-    { num: t('04', '০৪'), icon: '✅', title: t('Confirm & Ride', 'নিশ্চিত করুন এবং রাইড করুন'), desc: t('Pay cash or bKash/Nagad. Rate your driver after arrival. Safe and tracked.', 'ক্যাশ বা বিকাশ/নগদে পেমেন্ট করুন। গন্তব্যে পৌঁছানোর পর চালককে রেটিং দিন।') },
+    { num: t('03', '০৩'), icon: '🛺', title: t('Choose Vehicle & Confirm', 'যানবাহন নির্বাচন ও কনফার্ম করুন'), desc: t('Pick your vehicle and confirm your ride. Pay cash or bKash/Nagad.', 'যানবাহন নির্বাচন করুন এবং রাইড কনফার্ম করুন। ক্যাশ বা বিকাশ/নগদে পেমেন্ট করুন।') },
   ]
 
   const phoneVehicles = [
@@ -356,18 +364,34 @@ export default function HomePage(): JSX.Element {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
             <div style={{ marginBottom: 16 }}><span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 100, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' as const, background: 'rgba(0,200,83,0.15)', color: primaryGreen, border: '1px solid rgba(0,200,83,0.3)' }}>{t('Simple Process', 'সহজ পদ্ধতি')}</span></div>
-            <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 700, color: textPrimary, marginBottom: 16 }}>
-              {t('Book a Ride in', 'রাইড বুক করুন')} <span style={{ background: 'linear-gradient(135deg,#006a4e,#004c38)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{t('3 Steps', '৩ ধাপে')}</span>
+            <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 700, color: textPrimary, marginBottom: 16, letterSpacing: '-1px' }}>
+              {t('Book a Ride in', 'রাইড বুক করুন')} <span style={{ background: 'linear-gradient(135deg,#006a4e,#004c38)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', padding: '0 4px', borderRadius: 6 }}>{t('3 Steps', '৩ ধাপে')}</span>
             </h2>
             <p style={{ fontSize: 16, color: textSecondary }}>{t('No smartphone needed for confirmation. Works by SMS fallback too.', 'কনফার্মেশনের জন্য স্মার্টফোন প্রয়োজন নেই। এসএমএসেও কাজ করে।')}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 24 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 32 }}>
             {steps.map((step, i) => (
-              <div key={i} className="hp-step-card" style={{ padding: 24, background: '#fff', borderRadius: 16, border: `1px solid ${border}`, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', position: 'relative', transition: 'all 0.3s' }}>
-                <div style={{ position: 'absolute', top: -12, left: 24, fontSize: 24, fontWeight: 700, color: 'rgba(0,106,78,0.25)' }}>{step.num}</div>
-                <div style={{ fontSize: 32, marginBottom: 16, marginTop: 8 }}>{step.icon}</div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: textPrimary }}>{step.title}</h3>
-                <p style={{ fontSize: 13, color: textSecondary, lineHeight: 1.6, margin: 0 }}>{step.desc}</p>
+              <div key={i} className="hp-step-card" style={{
+                flex: '1 1 320px',
+                minWidth: 260,
+                maxWidth: 420,
+                padding: 44,
+                background: '#fff',
+                borderRadius: 22,
+                border: `2px solid ${border}`,
+                boxShadow: '0 8px 32px rgba(0,106,78,0.10)',
+                position: 'relative',
+                transition: 'all 0.3s',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                marginBottom: 18,
+              }}>
+                <div style={{ position: 'absolute', top: 28, left: 36, fontSize: 28, fontWeight: 800, color: 'rgba(0,106,78,0.18)' }}>{step.num}</div>
+                <div style={{ fontSize: 64, marginBottom: 28, marginTop: 16, color: primaryGreen }}>{step.icon}</div>
+                <h3 style={{ fontSize: 26, fontWeight: 800, marginBottom: 18, color: textPrimary, letterSpacing: '-1px' }}>{step.title}</h3>
+                <p style={{ fontSize: 18, color: textSecondary, lineHeight: 1.8, margin: 0 }}>{step.desc}</p>
               </div>
             ))}
           </div>
@@ -378,25 +402,33 @@ export default function HomePage(): JSX.Element {
       <section id="vehicles" style={{ padding: '80px 0', background: `radial-gradient(ellipse at center,rgba(0,200,83,0.04) 0%,transparent 70%)` }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ textAlign: 'center', marginBottom: 60 }}>
-            <div style={{ marginBottom: 16 }}><span style={{ display: 'inline-flex', gap: 6, padding: '4px 12px', borderRadius: 100, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' as const, background: 'rgba(255,109,0,0.15)', color: '#f97316', border: '1px solid rgba(255,109,0,0.3)' }}>{t('8 Vehicle Types', '৮টি গাড়ির ধরন')}</span></div>
+            <div style={{ marginBottom: 16 }}><span style={{ display: 'inline-flex', gap: 6, padding: '4px 12px', borderRadius: 100, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' as const, background: 'rgba(255,109,0,0.15)', color: '#f97316', border: '1px solid rgba(255,109,0,0.3)' }}>{vehicles.length} {t('Vehicle Types', 'গাড়ির ধরন')}</span></div>
             <h2 style={{ fontSize: 'clamp(28px,4vw,42px)', fontWeight: 700, color: textPrimary, marginBottom: 16 }}>
               {t('Every Rural', 'প্রতিটি গ্রামীণ')} <span style={{ background: 'linear-gradient(135deg,#006a4e,#004c38)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{t('Transport Mode', 'পরিবহন মোড')}</span>
             </h2>
             <p style={{ fontSize: 16, color: textSecondary }}>{t('From flood-area boat rides to farm tractor transport — we cover it all across Bangladesh.', 'বন্যা এলাকার নৌকা ভ্রমণ থেকে শুরু করে কৃষিকাজের ট্রাক্টর পরিবহন - আমরা বাংলাদেশের সর্বত্র সেবা দিই।')}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 20 }}>
-            {vehicles.map((v, i) => (
-              <div key={i} className="hp-vehicle-card" style={{ background: '#fff', borderRadius: 16, border: `1px solid ${border}`, padding: 20, textAlign: 'center', cursor: 'pointer', transition: 'all 0.3s', position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-                {v.tag && <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 100, background: 'rgba(0,200,83,0.15)', color: primaryGreen }}>{v.tag}</div>}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, marginBottom: 12 }}>
-                  {v.img ? <img src={v.img} style={{ width: 'auto', height: 40, objectFit: 'contain' }} alt={v.name} /> : <span style={{ fontSize: 40 }}>{v.emoji}</span>}
+          {vehiclesLoading ? (
+            <div style={{ textAlign: 'center', color: textSecondary, padding: 40 }}>Loading vehicles...</div>
+          ) : vehiclesError ? (
+            <div style={{ textAlign: 'center', color: 'var(--danger)', padding: 40 }}>{vehiclesError}</div>
+          ) : vehicles.length === 0 ? (
+            <div style={{ textAlign: 'center', color: textSecondary, padding: 40 }}>{t('No vehicles available', 'কোনো যানবাহন নেই')}</div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 20 }}>
+              {vehicles.filter(v => v.enabled).map((v, i) => (
+                <div key={v.id || i} className="hp-vehicle-card" style={{ background: '#fff', borderRadius: 16, border: `1px solid ${border}`, padding: 20, textAlign: 'center', cursor: 'pointer', transition: 'all 0.3s', position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                  {v.tag && <div style={{ position: 'absolute', top: 12, right: 12, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 100, background: 'rgba(0,200,83,0.15)', color: primaryGreen }}>{v.tag}</div>}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, marginBottom: 12 }}>
+                    {v.img ? <img src={v.img} style={{ width: 'auto', height: 40, objectFit: 'contain' }} alt={v.name} /> : v.emoji ? <span style={{ fontSize: 40 }}>{v.emoji}</span> : null}
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: textPrimary, marginBottom: 6 }}>{v.name}</div>
+                  <div style={{ fontSize: 12, color: textSecondary, marginBottom: 8, lineHeight: 1.5 }}>{v.desc || v.fare_rule_en}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: primaryGreen }}>{v.fare ? `From ৳${v.fare}` : ''}</div>
                 </div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: textPrimary, marginBottom: 6 }}>{v.name}</div>
-                <div style={{ fontSize: 12, color: textSecondary, marginBottom: 8, lineHeight: 1.5 }}>{v.desc}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: primaryGreen }}>{v.fare}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -422,24 +454,23 @@ export default function HomePage(): JSX.Element {
             {/* Vehicle selector */}
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 10 }}>{t('Select Vehicle Type', 'যানবাহনের ধরন নির্বাচন করুন')}</label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(88px,1fr))', gap: 10 }}>
-                {[
-                  { img: '/assets/vehicles/easybike.jpg', name: t('Auto Rickshaw', 'অটো-রিকশা'), price: t('৳40+', '৳৪০+') },
-                  { img: '/assets/vehicles/motorbike.jpg', name: t('Motorbike', 'মোটরবাইক'), price: t('৳20+', '৳২০+') },
-                  { img: '/assets/vehicles/rickshaw.jpg', name: t('Battery', 'ব্যাটারি'), price: t('৳25+', '৳২৫+') },
-                  { img: '/assets/vehicles/van.jpg', name: t('Van', 'ভ্যান'), price: t('৳35+', '৳৩৫+') },
-                  { emoji: '⛵', name: t('Boat', 'নৌকা'), price: t('৳30+', '৳৩০+') },
-                  { emoji: '🚜', name: t('Tractor', 'ট্রাক্টর'), price: t('৳80+', '৳৮০+') },
-                  { img: '/assets/vehicles/easybike.jpg', name: t('Shared Auto', 'শেয়ার্ড অটো-রিকশা'), price: t('৳15+', '৳১৫+') },
-                  { emoji: '🚗', name: t('Car', 'প্রাইভেট কার'), price: t('৳120+', '৳১২০+') },
-                ].map((v, i) => (
-                  <div key={i} onClick={() => setBookingVehicle(i)} style={{ border: `1.5px solid ${bookingVehicle === i ? primaryGreen : border}`, borderRadius: 12, padding: '10px 6px', textAlign: 'center', cursor: 'pointer', background: bookingVehicle === i ? 'rgba(0,106,78,0.08)' : '#fff', transition: 'all 0.15s' }}>
-                    {v.img ? <img src={v.img} style={{ width: 36, height: 28, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} alt={v.name} /> : <div style={{ fontSize: 28, marginBottom: 4 }}>{v.emoji}</div>}
-                    <div style={{ fontSize: 11, fontWeight: 600, color: textSecondary, lineHeight: 1.3, marginBottom: 2 }}>{v.name}</div>
-                    <div style={{ fontSize: 11, color: primaryGreen, fontWeight: 700 }}>{v.price}</div>
-                  </div>
-                ))}
-              </div>
+              {vehiclesLoading ? (
+                <div style={{ color: textSecondary, padding: 20 }}>Loading vehicles...</div>
+              ) : vehiclesError ? (
+                <div style={{ color: 'var(--danger)', padding: 20 }}>{vehiclesError}</div>
+              ) : vehicles.length === 0 ? (
+                <div style={{ color: textSecondary, padding: 20 }}>{t('No vehicles available', 'কোনো যানবাহন নেই')}</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(88px,1fr))', gap: 10 }}>
+                  {vehicles.filter(v => v.enabled).map((v, i) => (
+                    <div key={v.id || i} onClick={() => setBookingVehicle(i)} style={{ border: `1.5px solid ${bookingVehicle === i ? primaryGreen : border}`, borderRadius: 12, padding: '10px 6px', textAlign: 'center', cursor: 'pointer', background: bookingVehicle === i ? 'rgba(0,106,78,0.08)' : '#fff', transition: 'all 0.15s' }}>
+                      {v.img ? <img src={v.img} style={{ width: 36, height: 28, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} alt={v.name} /> : v.emoji ? <div style={{ fontSize: 28, marginBottom: 4 }}>{v.emoji}</div> : null}
+                      <div style={{ fontSize: 11, fontWeight: 600, color: textSecondary, lineHeight: 1.3, marginBottom: 2 }}>{v.name}</div>
+                      <div style={{ fontSize: 11, color: primaryGreen, fontWeight: 700 }}>{v.fare ? `৳${v.fare}+` : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Pickup */}
